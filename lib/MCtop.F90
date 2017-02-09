@@ -15,7 +15,7 @@ module MCtopClass
     integer                    , private              :: Nbins, Nevent, Niter
     class (MatrixElements)     , private, allocatable :: MatEl
     real (dp), dimension(:,:  ), private, allocatable :: ES
-    real (dp), dimension(8    ), private              :: ESmax, delta
+    real (dp), dimension(8    ), private              :: ESmax, ESmin, delta
     character (len = 8)        , private              :: spin, current
     integer                    , private              :: dimX, dimP
 
@@ -47,16 +47,16 @@ module MCtopClass
 
 !ccccccccccccccc
 
-   type (MCtop) function InMCtop(MatEl, Spin, current, ESmax, Nbins, Nevent, Niter)
+   type (MCtop) function InMCtop(MatEl, Spin, current, ESmin, ESmax, Nbins, Nevent, Niter)
      class (MatrixElements) , intent(in) :: MatEl
      character (len = *)    , intent(in) :: Spin, current
      integer                , intent(in) :: Nbins, Nevent, Niter
-     real (dp), dimension(8), intent(in) :: ESmax
+     real (dp), dimension(8), intent(in) :: ESmin, ESmax
      real (dp), dimension(8)             :: delta
      integer                             :: i
 
      InMCtop%Nbins = Nbins ; InMCtop%Nevent = Nevent; InMCtop%Niter = Niter
-     InMCtop%Spin  = Spin  ; InMCtop%current  = current
+     InMCtop%Spin  = Spin  ; InMCtop%current  = current;  InMCtop%ESmin = ESmin
 
      allocate( InMCtop%ES(Nbins, 8) )
 
@@ -73,11 +73,11 @@ module MCtopClass
        end select
      end select
 
-     delta = ESmax/Nbins; InMCtop%delta = delta;  InMCtop%ESmax = ESmax
+     delta = (ESmax - ESmin)/Nbins; InMCtop%delta = delta;  InMCtop%ESmax = ESmax
      InMCtop%dimX = MatEl%dimX(); InMCtop%dimP = MatEl%dimP()
 
      do i = 1, Nbins
-       InMCtop%ES(i,:) = Delta * (2 * i - 1)/2
+       InMCtop%ES(i,:) = ESmin + Delta * (2 * i - 1)/2
      end do
 
    end function InMCtop
@@ -142,7 +142,7 @@ module MCtopClass
       if ( self%spin(:3) == 'top'     ) FunMatEl = self%MatEl%SpinWeight(p)
       if ( self%spin(:8) == 'complete') FunMatEl = self%MatEl%TotalSpinWeight(p, self%current)
 
-      k = Ceiling( self%Nbins * ES/self%ESmax )
+      k = Ceiling( self%Nbins * (ES - self%ESmin )/(self%ESmax - self%ESmin ) )
 
       do i = 1, 8
 
