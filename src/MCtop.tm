@@ -255,7 +255,7 @@ static void esdistributions(double mt, double mb, double mW, double Q, char cons
    MLPutFunction(stdlink, "Partition", 2);
    MLPutRealList(stdlink, res, 24*Nbins);
    MLPutInteger(stdlink, 8*Nbins);
-   MLPutInteger(stdlink, Nbins);
+   MLPutInteger(stdlink,   Nbins);
    MLEndPacket(stdlink);
 
 }
