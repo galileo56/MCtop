@@ -136,7 +136,7 @@ module MCtopClass
 
       p = self%MatEl%GenerateVectors(x); ES = EScomputer(p)
 
-      if ( self%spin(:6) == 'uncorr'  ) FunMatEl = 1
+      FunMatEl = 1
       if ( self%spin(:3) == 'top'     ) FunMatEl = self%MatEl%SpinWeight(p)
       if ( self%spin(:8) == 'complete') FunMatEl = self%MatEl%TotalSpinWeight(p, self%current)
 
@@ -214,7 +214,7 @@ module MCtopClass
 
       p = self%MatEl%GenerateVectors(x); ES = Cparam(p)
 
-      if ( self%spin(:6) == 'uncorr'  ) FunMatEl = 1
+      FunMatEl = 1
       if ( self%spin(:3) == 'top'     ) FunMatEl = self%MatEl%SpinWeight(p)
       if ( self%spin(:8) == 'complete') FunMatEl = self%MatEl%TotalSpinWeight(p, self%current)
 
