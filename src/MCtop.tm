@@ -5,10 +5,10 @@
 :Evaluate:   Print["     Last modification: 08 - 01 - 2017        "]
 :Evaluate:   Print["     Version:           test 2                "]
 
-:Evaluate:  CparamDistribution::usage = "CparamDistribution[mt, mb, mW, Q, Spin, decay, current, Cmax, Nbins, Nevent, Niter] computes the distribution of the C-parameter event shape"
+:Evaluate:  CparamDistribution::usage = "CparamDistribution[mt, mb, mW, Q, Spin, decay, current, Cmin, Cmax, Nbins, Nevent, Niter] computes the distribution of the C-parameter event shape"
 :Evaluate:  CparamComputer::usage = "CparamComputer[p] computes the value of the C-parameter event shape"
-:Evaluate:  CparamList::usage = "CparamList[mt, mb, mW, Q, Cmax, Nbins] computes the values of the C-parameter event shape"
-:Evaluate:  ESList::usage = "ESList[mt, mb, mW, Q, ESmax, Nbins] computes the values of the event-shape variables"
+:Evaluate:  CparamList::usage = "CparamList[mt, mb, mW, Q, Cmin, Cmax, Nbins] computes the values of the C-parameter event shape"
+:Evaluate:  ESList::usage = "ESList[mt, mb, mW, Q, ESmin, ESmax, Nbins] computes the values of the event-shape variables"
 :Evaluate:  EScomputer::usage = "EScomputer[p] computes the value of the various event shapes"
 :Evaluate:  Vectors4::usage = "Vectors4[x, mt, mb, mW, Q] computes the value 4 four-vectors for top decay"
 :Evaluate:  Vectors6::usage = "Vectors6[x, mt, mb, mW, Q] computes the value 6 four-vectors for top decay"
@@ -31,26 +31,27 @@
 
 :Begin:
 :Function:      cparamlist
-:Pattern:       CparamList[mt_, mb_, mW_, Q_, Cmax_, Nbins_]
-:Arguments:     {mt, mb, mW, Q, Cmax, Nbins}
-:ArgumentTypes: {Real, Real, Real, Real, Real, Integer}
+:Pattern:       CparamList[mt_, mb_, mW_, Q_, Cmin_, Cmax_, Nbins_]
+:Arguments:     {mt, mb, mW, Q, Cmin, Cmax, Nbins}
+:ArgumentTypes: {Real, Real, Real, Real, Real, Real, Integer}
 :ReturnType:    Manual
 :End:
 
 :Begin:
 :Function:      cparamdistribution
 :Pattern:       CparamDistribution[mt_, mb_, mW_, Q_, Spin_, decay_, current_,
-                 Cmax_, Nbins_, Nevent_, Niter_]
-:Arguments:     {mt, mb, mW, Q, Spin, decay, current, Cmax, Nbins, Nevent, Niter}
-:ArgumentTypes: {Real, Real, Real, Real, String, String, String, Real, Integer, Integer, Integer}
+                 Cmin_, Cmax_, Nbins_, Nevent_, Niter_]
+:Arguments:     {mt, mb, mW, Q, Spin, decay, current, Cmin, Cmax, Nbins, Nevent, Niter}
+:ArgumentTypes: {Real, Real, Real, Real, String, String, String, Real, Real, Integer,
+                 Integer, Integer}
 :ReturnType:    Manual
 :End:
 
 :Begin:
 :Function:      eslist
-:Pattern:       ESList[mt_, mb_, mW_, Q_, ESmax_, Nbins_]
-:Arguments:     {mt, mb, mW, Q, ESmax, Nbins}
-:ArgumentTypes: {Real, Real, Real, Real, RealList, Integer}
+:Pattern:       ESList[mt_, mb_, mW_, Q_, ESmin_, ESmax_, Nbins_]
+:Arguments:     {mt, mb, mW, Q, ESmin, ESmax, Nbins}
+:ArgumentTypes: {Real, Real, Real, Real, RealList, RealList, Integer}
 :ReturnType:    Manual
 :End:
 
@@ -192,13 +193,14 @@ static void cparamminmax6(int n, double mt, double mb, double mW, double Q){
    MLEndPacket(stdlink);
 }
 
-extern double f90cparamlist_(double* mt, double* mb, double* mW, double* Q, double* Cmax,
-                             int* Nbins, double* res);
+extern double f90cparamlist_(double* mt, double* mb, double* mW, double* Q, double* Cmin,
+                             double* Cmax, int* Nbins, double* res);
 
-static void cparamlist(double mt, double mb, double mW, double Q, double Cmax, int Nbins){
+static void cparamlist(double mt, double mb, double mW, double Q, double Cmin,
+                       double Cmax, int Nbins){
   double res[Nbins];
 
-   f90cparamlist_(&mt, &mb, &mW, &Q, &Cmax, &Nbins, res);
+   f90cparamlist_(&mt, &mb, &mW, &Q, &Cmin, &Cmax, &Nbins, res);
 
    MLPutRealList(stdlink, res, Nbins);
    MLEndPacket(stdlink);
@@ -206,14 +208,15 @@ static void cparamlist(double mt, double mb, double mW, double Q, double Cmax, i
 }
 
 extern double f90cparamdistribution_(double* mt, double* mb, double* mW, double* Q,
-char const* spin, char const* decay, char const* current, double* Cmax, int* Nbins,
-int* Nevent, int* Niter, double* res);
+char const* spin, char const* decay, char const* current, double* Cmin, double* Cmax,
+int* Nbins, int* Nevent, int* Niter, double* res);
 
 static void cparamdistribution(double mt, double mb, double mW, double Q, char const* spin,
-char const* decay, char const* current, double Cmax, int Nbins, int Nevent, int Niter){
+char const* decay, char const* current, double Cmin, double Cmax, int Nbins, int Nevent, int Niter){
   double res[3*Nbins];
 
-   f90cparamdistribution_(&mt, &mb, &mW, &Q, spin, decay, current, &Cmax, &Nbins, &Nevent, &Niter, res);
+   f90cparamdistribution_(&mt, &mb, &mW, &Q, spin, decay, current, &Cmin, &Cmax, &Nbins,
+   &Nevent, &Niter, res);
 
    MLPutFunction(stdlink, "Transpose", 1);
    MLPutFunction(stdlink, "Partition", 2);
@@ -223,13 +226,14 @@ char const* decay, char const* current, double Cmax, int Nbins, int Nevent, int 
 
 }
 
-extern double f90eslist_(double* mt, double* mb, double* mW, double* Q, double* ESmax,
-                             int* Nbins, double* res);
+extern double f90eslist_(double* mt, double* mb, double* mW, double* Q, double* ESmin,
+                         double* ESmax, int* Nbins, double* res);
 
-static void eslist(double mt, double mb, double mW, double Q, double ESmax[], long clen, int Nbins){
+static void eslist(double mt, double mb, double mW, double Q, double ESmin[], long clen1,
+double ESmax[], long clen, int Nbins){
   double res[8*Nbins];
 
-   f90eslist_(&mt, &mb, &mW, &Q, ESmax, &Nbins, res);
+   f90eslist_(&mt, &mb, &mW, &Q, ESmin, ESmax, &Nbins, res);
 
    MLPutFunction(stdlink, "Partition", 2);
    MLPutRealList(stdlink, res, 8*Nbins);

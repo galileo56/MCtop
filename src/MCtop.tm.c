@@ -289,7 +289,7 @@ MLYDEFN( devyield_result, MLDefaultYielder, ( MLINK mlp, MLYieldParameters yp))
 /********************************* end header *********************************/
 
 
-# line 119 "/Users/vicent/GitHubProjects/MCtop/src/MCtop.tm"
+# line 120 "/Users/vicent/GitHubProjects/MCtop/src/MCtop.tm"
 #include "mathlink.h"
 #include "ftypes.h"
 #include <stdio.h>
@@ -366,13 +366,14 @@ static void cparamminmax6(int n, double mt, double mb, double mW, double Q){
    MLEndPacket(stdlink);
 }
 
-extern double f90cparamlist_(double* mt, double* mb, double* mW, double* Q, double* Cmax,
-                             int* Nbins, double* res);
+extern double f90cparamlist_(double* mt, double* mb, double* mW, double* Q, double* Cmin,
+                             double* Cmax, int* Nbins, double* res);
 
-static void cparamlist(double mt, double mb, double mW, double Q, double Cmax, int Nbins){
+static void cparamlist(double mt, double mb, double mW, double Q, double Cmin,
+                       double Cmax, int Nbins){
   double res[Nbins];
 
-   f90cparamlist_(&mt, &mb, &mW, &Q, &Cmax, &Nbins, res);
+   f90cparamlist_(&mt, &mb, &mW, &Q, &Cmin, &Cmax, &Nbins, res);
 
    MLPutRealList(stdlink, res, Nbins);
    MLEndPacket(stdlink);
@@ -380,14 +381,15 @@ static void cparamlist(double mt, double mb, double mW, double Q, double Cmax, i
 }
 
 extern double f90cparamdistribution_(double* mt, double* mb, double* mW, double* Q,
-char const* spin, char const* decay, char const* current, double* Cmax, int* Nbins,
-int* Nevent, int* Niter, double* res);
+char const* spin, char const* decay, char const* current, double* Cmin, double* Cmax,
+int* Nbins, int* Nevent, int* Niter, double* res);
 
 static void cparamdistribution(double mt, double mb, double mW, double Q, char const* spin,
-char const* decay, char const* current, double Cmax, int Nbins, int Nevent, int Niter){
+char const* decay, char const* current, double Cmin, double Cmax, int Nbins, int Nevent, int Niter){
   double res[3*Nbins];
 
-   f90cparamdistribution_(&mt, &mb, &mW, &Q, spin, decay, current, &Cmax, &Nbins, &Nevent, &Niter, res);
+   f90cparamdistribution_(&mt, &mb, &mW, &Q, spin, decay, current, &Cmin, &Cmax, &Nbins,
+   &Nevent, &Niter, res);
 
    MLPutFunction(stdlink, "Transpose", 1);
    MLPutFunction(stdlink, "Partition", 2);
@@ -397,13 +399,14 @@ char const* decay, char const* current, double Cmax, int Nbins, int Nevent, int 
 
 }
 
-extern double f90eslist_(double* mt, double* mb, double* mW, double* Q, double* ESmax,
-                             int* Nbins, double* res);
+extern double f90eslist_(double* mt, double* mb, double* mW, double* Q, double* ESmin,
+                         double* ESmax, int* Nbins, double* res);
 
-static void eslist(double mt, double mb, double mW, double Q, double ESmax[], long clen, int Nbins){
+static void eslist(double mt, double mb, double mW, double Q, double ESmin[], long clen1,
+double ESmax[], long clen, int Nbins){
   double res[8*Nbins];
 
-   f90eslist_(&mt, &mb, &mW, &Q, ESmax, &Nbins, res);
+   f90eslist_(&mt, &mb, &mW, &Q, ESmin, ESmax, &Nbins, res);
 
    MLPutFunction(stdlink, "Partition", 2);
    MLPutRealList(stdlink, res, 8*Nbins);
@@ -442,7 +445,7 @@ static void vectors6(double x[], long clen, double mt, double mb, double mW, dou
 int main(int argc, char *argv[]){
     return MLMain(argc, argv);
 }
-# line 446 "/Users/vicent/GitHubProjects/MCtop/src/MCtop.tm.c"
+# line 449 "/Users/vicent/GitHubProjects/MCtop/src/MCtop.tm.c"
 
 
 double cparamcomputer P(( double * _tp1, long _tpl1));
@@ -470,7 +473,7 @@ L0:	return res;
 } /* _tr0 */
 
 
-void cparamlist P(( double _tp1, double _tp2, double _tp3, double _tp4, double _tp5, int _tp6));
+void cparamlist P(( double _tp1, double _tp2, double _tp3, double _tp4, double _tp5, double _tp6, int _tp7));
 
 #if MLPROTOTYPES
 static int _tr1( MLINK mlp)
@@ -484,24 +487,26 @@ static int _tr1(mlp) MLINK mlp;
 	double _tp3;
 	double _tp4;
 	double _tp5;
-	int _tp6;
+	double _tp6;
+	int _tp7;
 	if ( ! MLGetReal( mlp, &_tp1) ) goto L0;
 	if ( ! MLGetReal( mlp, &_tp2) ) goto L1;
 	if ( ! MLGetReal( mlp, &_tp3) ) goto L2;
 	if ( ! MLGetReal( mlp, &_tp4) ) goto L3;
 	if ( ! MLGetReal( mlp, &_tp5) ) goto L4;
-	if ( ! MLGetInteger( mlp, &_tp6) ) goto L5;
-	if ( ! MLNewPacket(mlp) ) goto L6;
+	if ( ! MLGetReal( mlp, &_tp6) ) goto L5;
+	if ( ! MLGetInteger( mlp, &_tp7) ) goto L6;
+	if ( ! MLNewPacket(mlp) ) goto L7;
 
-	cparamlist(_tp1, _tp2, _tp3, _tp4, _tp5, _tp6);
+	cparamlist(_tp1, _tp2, _tp3, _tp4, _tp5, _tp6, _tp7);
 
 	res = 1;
-L6: L5: L4: L3: L2: L1: 
+L7: L6: L5: L4: L3: L2: L1: 
 L0:	return res;
 } /* _tr1 */
 
 
-void cparamdistribution P(( double _tp1, double _tp2, double _tp3, double _tp4, const char * _tp5, const char * _tp6, const char * _tp7, double _tp8, int _tp9, int _tp10, int _tp11));
+void cparamdistribution P(( double _tp1, double _tp2, double _tp3, double _tp4, const char * _tp5, const char * _tp6, const char * _tp7, double _tp8, double _tp9, int _tp10, int _tp11, int _tp12));
 
 #if MLPROTOTYPES
 static int _tr2( MLINK mlp)
@@ -518,9 +523,10 @@ static int _tr2(mlp) MLINK mlp;
 	const char * _tp6;
 	const char * _tp7;
 	double _tp8;
-	int _tp9;
+	double _tp9;
 	int _tp10;
 	int _tp11;
+	int _tp12;
 	if ( ! MLGetReal( mlp, &_tp1) ) goto L0;
 	if ( ! MLGetReal( mlp, &_tp2) ) goto L1;
 	if ( ! MLGetReal( mlp, &_tp3) ) goto L2;
@@ -529,15 +535,16 @@ static int _tr2(mlp) MLINK mlp;
 	if ( ! MLGetString( mlp, &_tp6) ) goto L5;
 	if ( ! MLGetString( mlp, &_tp7) ) goto L6;
 	if ( ! MLGetReal( mlp, &_tp8) ) goto L7;
-	if ( ! MLGetInteger( mlp, &_tp9) ) goto L8;
+	if ( ! MLGetReal( mlp, &_tp9) ) goto L8;
 	if ( ! MLGetInteger( mlp, &_tp10) ) goto L9;
 	if ( ! MLGetInteger( mlp, &_tp11) ) goto L10;
-	if ( ! MLNewPacket(mlp) ) goto L11;
+	if ( ! MLGetInteger( mlp, &_tp12) ) goto L11;
+	if ( ! MLNewPacket(mlp) ) goto L12;
 
-	cparamdistribution(_tp1, _tp2, _tp3, _tp4, _tp5, _tp6, _tp7, _tp8, _tp9, _tp10, _tp11);
+	cparamdistribution(_tp1, _tp2, _tp3, _tp4, _tp5, _tp6, _tp7, _tp8, _tp9, _tp10, _tp11, _tp12);
 
 	res = 1;
-L11: L10: L9: L8: L7:	MLReleaseString(mlp, _tp7);
+L12: L11: L10: L9: L8: L7:	MLReleaseString(mlp, _tp7);
 L6:	MLReleaseString(mlp, _tp6);
 L5:	MLReleaseString(mlp, _tp5);
 L4: L3: L2: L1: 
@@ -545,7 +552,7 @@ L0:	return res;
 } /* _tr2 */
 
 
-void eslist P(( double _tp1, double _tp2, double _tp3, double _tp4, double * _tp5, long _tpl5, int _tp6));
+void eslist P(( double _tp1, double _tp2, double _tp3, double _tp4, double * _tp5, long _tpl5, double * _tp6, long _tpl6, int _tp7));
 
 #if MLPROTOTYPES
 static int _tr3( MLINK mlp)
@@ -560,19 +567,23 @@ static int _tr3(mlp) MLINK mlp;
 	double _tp4;
 	double * _tp5;
 	long _tpl5;
-	int _tp6;
+	double * _tp6;
+	long _tpl6;
+	int _tp7;
 	if ( ! MLGetReal( mlp, &_tp1) ) goto L0;
 	if ( ! MLGetReal( mlp, &_tp2) ) goto L1;
 	if ( ! MLGetReal( mlp, &_tp3) ) goto L2;
 	if ( ! MLGetReal( mlp, &_tp4) ) goto L3;
 	if ( ! MLGetRealList( mlp, &_tp5, &_tpl5) ) goto L4;
-	if ( ! MLGetInteger( mlp, &_tp6) ) goto L5;
-	if ( ! MLNewPacket(mlp) ) goto L6;
+	if ( ! MLGetRealList( mlp, &_tp6, &_tpl6) ) goto L5;
+	if ( ! MLGetInteger( mlp, &_tp7) ) goto L6;
+	if ( ! MLNewPacket(mlp) ) goto L7;
 
-	eslist(_tp1, _tp2, _tp3, _tp4, _tp5, _tpl5, _tp6);
+	eslist(_tp1, _tp2, _tp3, _tp4, _tp5, _tpl5, _tp6, _tpl6, _tp7);
 
 	res = 1;
-L6: L5:	MLReleaseReal64List(mlp, _tp5, _tpl5);
+L7: L6:	MLReleaseReal64List(mlp, _tp6, _tpl6);
+L5:	MLReleaseReal64List(mlp, _tp5, _tpl5);
 L4: L3: L2: L1: 
 L0:	return res;
 } /* _tr3 */
@@ -786,9 +797,9 @@ static struct func {
 	const char  *f_name;
 	} _tramps[11] = {
 		{ 1, 0, _tr0, "cparamcomputer" },
-		{ 6, 0, _tr1, "cparamlist" },
-		{11, 0, _tr2, "cparamdistribution" },
-		{ 6, 0, _tr3, "eslist" },
+		{ 7, 0, _tr1, "cparamlist" },
+		{12, 0, _tr2, "cparamdistribution" },
+		{ 7, 0, _tr3, "eslist" },
 		{ 1, 0, _tr4, "escomputer" },
 		{ 5, 0, _tr5, "esminmax4" },
 		{ 5, 0, _tr6, "cparamminmax4" },
@@ -811,17 +822,17 @@ static const char* evalstrs[] = {
 	"Print[\"     Version:           test 2                \"]",
 	(const char*)0,
 	"CparamDistribution::usage = \"CparamDistribution[mt, mb, mW, Q, S",
-	"pin, decay, current, Cmax, Nbins, Nevent, Niter] computes the di",
-	"stribution of the C-parameter event shape\"",
+	"pin, decay, current, Cmin, Cmax, Nbins, Nevent, Niter] computes ",
+	"the distribution of the C-parameter event shape\"",
 	(const char*)0,
 	"CparamComputer::usage = \"CparamComputer[p] computes the value of",
 	" the C-parameter event shape\"",
 	(const char*)0,
-	"CparamList::usage = \"CparamList[mt, mb, mW, Q, Cmax, Nbins] comp",
-	"utes the values of the C-parameter event shape\"",
+	"CparamList::usage = \"CparamList[mt, mb, mW, Q, Cmin, Cmax, Nbins",
+	"] computes the values of the C-parameter event shape\"",
 	(const char*)0,
-	"ESList::usage = \"ESList[mt, mb, mW, Q, ESmax, Nbins] computes th",
-	"e values of the event-shape variables\"",
+	"ESList::usage = \"ESList[mt, mb, mW, Q, ESmin, ESmax, Nbins] comp",
+	"utes the values of the event-shape variables\"",
 	(const char*)0,
 	"EScomputer::usage = \"EScomputer[p] computes the value of the var",
 	"ious event shapes\"",
@@ -897,9 +908,9 @@ int MLInstall(mlp) MLINK mlp;
 	if (_res) _res = _doevalstr( mlp, 16);
 	if (_res) _res = _doevalstr( mlp, 17);
 	if (_res) _res = _definepattern(mlp, (char *)"CparamComputer[p_]", (char *)"{Flatten[Transpose[p]]}", 0);
-	if (_res) _res = _definepattern(mlp, (char *)"CparamList[mt_, mb_, mW_, Q_, Cmax_, Nbins_]", (char *)"{mt, mb, mW, Q, Cmax, Nbins}", 1);
-	if (_res) _res = _definepattern(mlp, (char *)"CparamDistribution[mt_, mb_, mW_, Q_, Spin_, decay_, current_,                  Cmax_, Nbins_, Nevent_, Niter_]", (char *)"{mt, mb, mW, Q, Spin, decay, current, Cmax, Nbins, Nevent, Niter}", 2);
-	if (_res) _res = _definepattern(mlp, (char *)"ESList[mt_, mb_, mW_, Q_, ESmax_, Nbins_]", (char *)"{mt, mb, mW, Q, ESmax, Nbins}", 3);
+	if (_res) _res = _definepattern(mlp, (char *)"CparamList[mt_, mb_, mW_, Q_, Cmin_, Cmax_, Nbins_]", (char *)"{mt, mb, mW, Q, Cmin, Cmax, Nbins}", 1);
+	if (_res) _res = _definepattern(mlp, (char *)"CparamDistribution[mt_, mb_, mW_, Q_, Spin_, decay_, current_,                  Cmin_, Cmax_, Nbins_, Nevent_, Niter_]", (char *)"{mt, mb, mW, Q, Spin, decay, current, Cmin, Cmax, Nbins, Nevent, Niter}", 2);
+	if (_res) _res = _definepattern(mlp, (char *)"ESList[mt_, mb_, mW_, Q_, ESmin_, ESmax_, Nbins_]", (char *)"{mt, mb, mW, Q, ESmin, ESmax, Nbins}", 3);
 	if (_res) _res = _definepattern(mlp, (char *)"EScomputer[p_]", (char *)"{Flatten[Transpose[p]]}", 4);
 	if (_res) _res = _definepattern(mlp, (char *)"ESMinMax4[n_, mt_, mb_, mW_, Q_]", (char *)"{n, mt, mb, mW, Q}", 5);
 	if (_res) _res = _definepattern(mlp, (char *)"CparamMinMax4[n_, mt_, mb_, mW_, Q_]", (char *)"{n, mt, mb, mW, Q}", 6);
