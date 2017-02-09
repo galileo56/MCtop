@@ -120,7 +120,7 @@ module MCtopClass
       enddo
     end do
 
-    dist(2,:) = dist(2,:)/Abs(AVGI); dist2(2,:) = dist2(2,:)/Abs(AVGI)
+    dist(2,:) = dist(2,:)/AVGI; dist2(2,:) = dist2(2,:)/AVGI
 
     contains
 
@@ -191,7 +191,7 @@ module MCtopClass
       if ( dist2(j) <= tiny(1._dp) ) dist(j) = 0
     enddo
 
-    dist = dist/Abs(AVGI); dist2 = dist2/Abs(AVGI)
+    dist = dist/AVGI; dist2 = dist2/AVGI
 
   contains
 
