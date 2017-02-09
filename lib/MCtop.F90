@@ -135,11 +135,7 @@ module MCtopClass
       integer                                     :: l
 
       p = self%MatEl%GenerateVectors(x); ES = EScomputer(p)
-
-      if ( self%spin(:6) == 'uncorr'   ) FunMatEl = 1
-      if ( self%spin(:3) == 'top'      ) FunMatEl = self%MatEl%SpinWeight(p)
-      if ( self%spin(:8) == 'complete' ) FunMatEl = self%MatEl%TotalSpinWeight(p, self%current)
-
+      FunMatEl = self%MatEl%SpinWeight(self%spin, self%current, p)
       k = Ceiling( self%Nbins * (ES - self%ESmin )/(self%ESmax - self%ESmin ) )
 
       do l = 1, 8
@@ -209,11 +205,7 @@ module MCtopClass
       real (dp), dimension(self%dimP,4)           :: p
 
       p = self%MatEl%GenerateVectors(x); ES = Cparam(p)
-
-      if ( self%spin(:6) == 'uncorr'  ) FunMatEl = 1
-      if ( self%spin(:3) == 'top'     ) FunMatEl = self%MatEl%SpinWeight(p)
-      if ( self%spin(:8) == 'complete') FunMatEl = self%MatEl%TotalSpinWeight(p, self%current)
-
+      FunMatEl = self%MatEl%SpinWeight(self%spin, self%current, p)
       k = Ceiling( self%Nbins * ES/self%ESmax(5) )
 
       if ( k <= 0          ) k = 1
