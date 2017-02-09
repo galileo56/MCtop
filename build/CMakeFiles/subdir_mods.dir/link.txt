@@ -1,0 +1,2 @@
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ar qc libsubdir_mods.a  CMakeFiles/subdir_mods.dir/lib/MCtop.F90.o CMakeFiles/subdir_mods.dir/lib/Mathlink.F90.o CMakeFiles/subdir_mods.dir/lib/MatrixElements.F90.o CMakeFiles/subdir_mods.dir/lib/SpecFun.F90.o CMakeFiles/subdir_mods.dir/lib/Vegas.F90.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ranlib libsubdir_mods.a
