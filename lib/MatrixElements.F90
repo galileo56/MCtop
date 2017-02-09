@@ -175,15 +175,15 @@ module MatrixElementsClass
 !ccccccccccccccc
 
   function GenerateRestVectors(self, x) result(p)
-    class (MatrixElements), intent(in) :: self
+    class (MatrixElements)          , intent(in) :: self
     real (dp), dimension(self%sizeX), intent(in) :: x
     real (dp), dimension(self%sizeP,0:3)         :: p
     real (dp), dimension(0:3)                    :: p1, q
     real (dp), dimension(self%sizeX/2 + 1)       :: Ctheta, Stheta
-    real (dp), dimension(self%sizeX/2    )       :: phi
+    real (dp), dimension(self%sizeX/2)           :: phi
     real (dp)                                    :: gammaW, Eb, eW, pb, modp1, vW, qnw
 
-    Eb = (self%mt**2 + self%mb**2 - self%mW**2)/2/self%mt; phi = 0
+    Eb = (self%mt**2 + self%mb**2 - self%mW**2)/2/self%mt
     EW = (self%mt**2 + self%mW**2 - self%mb**2)/2/self%mt
     pb = sqrt(Eb**2 - self%mb**2); phi = 2 * Pi * x(self%sizeX/2 + 2:)
     Ctheta = 2 * x(:self%sizeX/2 + 1) - 1;  Stheta = sqrt( 1 - Ctheta**2 )
@@ -235,7 +235,7 @@ module MatrixElementsClass
 !ccccccccccccccc
 
   function GenerateVectors(self, x) result(p)
-    class (MatrixElements), intent(in) :: self
+    class (MatrixElements)          , intent(in) :: self
     real (dp), dimension(self%sizeX), intent(in) :: x
     real (dp), dimension(self%sizeP,0:3)         :: p
     real (dp), dimension(0:3)                    :: p1, q
@@ -244,7 +244,7 @@ module MatrixElementsClass
     real (dp)                                    :: vT, gammaT, gammaW, Eb, eW, &
                                                     vW, qnw, pb, modp1
 
-    Eb = (self%mt**2 + self%mb**2 - self%mW**2)/2/self%mt; phi = 0
+    Eb = (self%mt**2 + self%mb**2 - self%mW**2)/2/self%mt
     EW = (self%mt**2 + self%mW**2 - self%mb**2)/2/self%mt
     pb = sqrt(Eb**2 - self%mb**2); phi = 2 * Pi * x(self%sizeX/2 + 2:)
     vT = sqrt(1 - 4 * self%mt**2); gammaT = 1/sqrt(1 - vT**2)

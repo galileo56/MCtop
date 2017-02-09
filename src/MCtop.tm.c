@@ -289,7 +289,7 @@ MLYDEFN( devyield_result, MLDefaultYielder, ( MLINK mlp, MLYieldParameters yp))
 /********************************* end header *********************************/
 
 
-# line 131 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm"
+# line 149 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm"
 #include "mathlink.h"
 #include "ftypes.h"
 #include <stdio.h>
@@ -328,6 +328,34 @@ static void vectors4(double x[], long clen, double mt, double mb, double mW, dou
    MLPutFunction(stdlink, "Partition", 2);
    MLPutRealList(stdlink, res, 16);
    MLPutInteger(stdlink, 4);
+   MLEndPacket(stdlink);
+}
+
+extern double f90restvectors4_(double* x, double* mt, double* mb, double* mW, double* Q, double* res);
+
+static void restvectors4(double x[], long clen, double mt, double mb, double mW, double Q){
+  double res[16];
+
+   f90restvectors4_(x, &mt, &mb, &mW, &Q, res);
+
+   MLPutFunction(stdlink, "Transpose", 1);
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutRealList(stdlink, res, 16);
+   MLPutInteger(stdlink, 4);
+   MLEndPacket(stdlink);
+}
+
+extern double f90restvectors6_(double* x, double* mt, double* mb, double* mW, double* Q, double* res);
+
+static void restvectors6(double x[], long clen, double mt, double mb, double mW, double Q){
+  double res[24];
+
+   f90restvectors6_(x, &mt, &mb, &mW, &Q, res);
+
+   MLPutFunction(stdlink, "Transpose", 1);
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutRealList(stdlink, res, 24);
+   MLPutInteger(stdlink, 6);
    MLEndPacket(stdlink);
 }
 
@@ -399,7 +427,6 @@ char const* decay, char const* current, double Cmin, double Cmax, int Nbins, int
 
 }
 
-
 extern double f90esdistributions_(double* mt, double* mb, double* mW, double* Q,
 char const* spin, char const* decay, char const* current, double* ESmin, double* ESmax,
 int* Nbins, int* Nevent, int* Niter, double* res);
@@ -417,7 +444,7 @@ static void esdistributions(double mt, double mb, double mW, double Q, char cons
    MLPutFunction(stdlink, "Partition", 2);
    MLPutRealList(stdlink, res, 24*Nbins);
    MLPutInteger(stdlink, 8*Nbins);
-   MLPutInteger(stdlink, Nbins);
+   MLPutInteger(stdlink,   Nbins);
    MLEndPacket(stdlink);
 
 }
@@ -468,7 +495,7 @@ static void vectors6(double x[], long clen, double mt, double mb, double mW, dou
 int main(int argc, char *argv[]){
     return MLMain(argc, argv);
 }
-# line 472 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm.c"
+# line 499 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm.c"
 
 
 double cparamcomputer P(( double * _tp1, long _tpl1));
@@ -863,12 +890,74 @@ L0:	return res;
 } /* _tr11 */
 
 
+void restvectors4 P(( double * _tp1, long _tpl1, double _tp2, double _tp3, double _tp4, double _tp5));
+
+#if MLPROTOTYPES
+static int _tr12( MLINK mlp)
+#else
+static int _tr12(mlp) MLINK mlp;
+#endif
+{
+	int	res = 0;
+	double * _tp1;
+	long _tpl1;
+	double _tp2;
+	double _tp3;
+	double _tp4;
+	double _tp5;
+	if ( ! MLGetRealList( mlp, &_tp1, &_tpl1) ) goto L0;
+	if ( ! MLGetReal( mlp, &_tp2) ) goto L1;
+	if ( ! MLGetReal( mlp, &_tp3) ) goto L2;
+	if ( ! MLGetReal( mlp, &_tp4) ) goto L3;
+	if ( ! MLGetReal( mlp, &_tp5) ) goto L4;
+	if ( ! MLNewPacket(mlp) ) goto L5;
+
+	restvectors4(_tp1, _tpl1, _tp2, _tp3, _tp4, _tp5);
+
+	res = 1;
+L5: L4: L3: L2: L1:	MLReleaseReal64List(mlp, _tp1, _tpl1);
+
+L0:	return res;
+} /* _tr12 */
+
+
+void restvectors6 P(( double * _tp1, long _tpl1, double _tp2, double _tp3, double _tp4, double _tp5));
+
+#if MLPROTOTYPES
+static int _tr13( MLINK mlp)
+#else
+static int _tr13(mlp) MLINK mlp;
+#endif
+{
+	int	res = 0;
+	double * _tp1;
+	long _tpl1;
+	double _tp2;
+	double _tp3;
+	double _tp4;
+	double _tp5;
+	if ( ! MLGetRealList( mlp, &_tp1, &_tpl1) ) goto L0;
+	if ( ! MLGetReal( mlp, &_tp2) ) goto L1;
+	if ( ! MLGetReal( mlp, &_tp3) ) goto L2;
+	if ( ! MLGetReal( mlp, &_tp4) ) goto L3;
+	if ( ! MLGetReal( mlp, &_tp5) ) goto L4;
+	if ( ! MLNewPacket(mlp) ) goto L5;
+
+	restvectors6(_tp1, _tpl1, _tp2, _tp3, _tp4, _tp5);
+
+	res = 1;
+L5: L4: L3: L2: L1:	MLReleaseReal64List(mlp, _tp1, _tpl1);
+
+L0:	return res;
+} /* _tr13 */
+
+
 static struct func {
 	int   f_nargs;
 	int   manual;
 	int   (*f_func)P((MLINK));
 	const char  *f_name;
-	} _tramps[12] = {
+	} _tramps[14] = {
 		{ 1, 0, _tr0, "cparamcomputer" },
 		{ 7, 0, _tr1, "cparamlist" },
 		{12, 0, _tr2, "cparamdistribution" },
@@ -880,7 +969,9 @@ static struct func {
 		{ 5, 0, _tr8, "cparamminmax6" },
 		{ 5, 0, _tr9, "esminmax6" },
 		{ 5, 0, _tr10, "vectors4" },
-		{ 5, 0, _tr11, "vectors6" }
+		{ 5, 0, _tr11, "vectors6" },
+		{ 5, 0, _tr12, "restvectors4" },
+		{ 5, 0, _tr13, "restvectors6" }
 		};
 
 static const char* evalstrs[] = {
@@ -921,6 +1012,12 @@ static const char* evalstrs[] = {
 	"Vectors6::usage = \"Vectors6[x, mt, mb, mW, Q] computes the value",
 	" 6 four-vectors for top decay\"",
 	(const char*)0,
+	"RestVectors4::usage = \"Vectors4[x, mt, mb, mW, Q] computes the v",
+	"alue 4 four-vectors for top decay, in the top rest frame\"",
+	(const char*)0,
+	"RestVectors6::usage = \"Vectors6[x, mt, mb, mW, Q] computes the v",
+	"alue 6 four-vectors for top decay, in the top rest frame\"",
+	(const char*)0,
 	"ESMinMax4::usage = \"ESMinMax4[n, mt, mb, mW, Q] computes the max",
 	"imum and minimum value for Event shapes with 2-particle final st",
 	"ate\"",
@@ -950,7 +1047,7 @@ static const char* evalstrs[] = {
 	(const char*)0,
 	(const char*)0
 };
-#define CARDOF_EVALSTRS 22
+#define CARDOF_EVALSTRS 24
 
 static int _definepattern P(( MLINK, char*, char*, int));
 
@@ -986,6 +1083,8 @@ int MLInstall(mlp) MLINK mlp;
 	if (_res) _res = _doevalstr( mlp, 16);
 	if (_res) _res = _doevalstr( mlp, 17);
 	if (_res) _res = _doevalstr( mlp, 18);
+	if (_res) _res = _doevalstr( mlp, 19);
+	if (_res) _res = _doevalstr( mlp, 20);
 	if (_res) _res = _definepattern(mlp, (char *)"CparamComputer[p_]", (char *)"{Flatten[Transpose[p]]}", 0);
 	if (_res) _res = _definepattern(mlp, (char *)"CparamList[mt_, mb_, mW_, Q_, Cmin_, Cmax_, Nbins_]", (char *)"{mt, mb, mW, Q, Cmin, Cmax, Nbins}", 1);
 	if (_res) _res = _definepattern(mlp, (char *)"CparamDistribution[mt_, mb_, mW_, Q_, Spin_, decay_, current_,                  Cmin_, Cmax_, Nbins_, Nevent_, Niter_]", (char *)"{mt, mb, mW, Q, Spin, decay, current, Cmin, Cmax, Nbins, Nevent, Niter}", 2);
@@ -998,9 +1097,11 @@ int MLInstall(mlp) MLINK mlp;
 	if (_res) _res = _definepattern(mlp, (char *)"ESMinMax6[n_, mt_, mb_, mW_, Q_]", (char *)"{n, mt, mb, mW, Q}", 9);
 	if (_res) _res = _definepattern(mlp, (char *)"Vectors4[x_, mt_, mb_, mW_, Q_]", (char *)"{x, mt, mb, mW, Q}", 10);
 	if (_res) _res = _definepattern(mlp, (char *)"Vectors6[x_, mt_, mb_, mW_, Q_]", (char *)"{x, mt, mb, mW, Q}", 11);
-	if (_res) _res = _doevalstr( mlp, 19);
-	if (_res) _res = _doevalstr( mlp, 20);
+	if (_res) _res = _definepattern(mlp, (char *)"RestVectors4[x_, mt_, mb_, mW_, Q_]", (char *)"{x, mt, mb, mW, Q}", 12);
+	if (_res) _res = _definepattern(mlp, (char *)"RestVectors6[x_, mt_, mb_, mW_, Q_]", (char *)"{x, mt, mb, mW, Q}", 13);
 	if (_res) _res = _doevalstr( mlp, 21);
+	if (_res) _res = _doevalstr( mlp, 22);
+	if (_res) _res = _doevalstr( mlp, 23);
 	if (_res) _res = MLPutSymbol( mlp, "End");
 	if (_res) _res = MLFlush( mlp);
 	return _res;
@@ -1013,7 +1114,7 @@ int MLDoCallPacket( MLINK mlp)
 int MLDoCallPacket( mlp) MLINK mlp;
 #endif
 {
-	return _MLDoCallPacket( mlp, _tramps, 12);
+	return _MLDoCallPacket( mlp, _tramps, 14);
 } /* MLDoCallPacket */
 
 /******************************* begin trailer ********************************/
