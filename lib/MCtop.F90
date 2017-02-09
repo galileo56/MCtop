@@ -136,7 +136,7 @@ module MCtopClass
 
       p = self%MatEl%GenerateVectors(x); ES = EScomputer(p)
 
-      FunMatEl = 1
+      if ( self%spin(:6) == 'uncorr'  ) FunMatEl = 1
       if ( self%spin(:3) == 'top'     ) FunMatEl = self%MatEl%SpinWeight(p)
       if ( self%spin(:8) == 'complete') FunMatEl = self%MatEl%TotalSpinWeight(p, self%current)
 
@@ -197,9 +197,7 @@ module MCtopClass
       if ( dist2(j) <= tiny(1._dp) ) dist(j) = 0
     enddo
 
-    dist = FunMatEl([1,1,1,1,1,1,1] * 0.25_dp, 3._dp)
-
-    ! dist = dist/Abs(AVGI); dist2 = dist2/Abs(AVGI)
+    dist = dist/Abs(AVGI); dist2 = dist2/Abs(AVGI)
 
   contains
 
@@ -214,7 +212,7 @@ module MCtopClass
 
       p = self%MatEl%GenerateVectors(x); ES = Cparam(p)
 
-      FunMatEl = 1
+      if ( self%spin(:6) == 'uncorr'  ) FunMatEl = 1
       if ( self%spin(:3) == 'top'     ) FunMatEl = self%MatEl%SpinWeight(p)
       if ( self%spin(:8) == 'complete') FunMatEl = self%MatEl%TotalSpinWeight(p, self%current)
 
