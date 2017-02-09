@@ -148,10 +148,8 @@ module MCtopClass
         if ( k(l) >  self%Nbins ) k(l) = self%Nbins
 
         if ( k(l) > 0 ) then
-
           dist ( k(l), l ) = dist ( k(l), l ) + wgt * FunMatEl
           dist2( k(l), l ) = dist2( k(l), l ) + wgt * FunMatEl**2
-
         end if
 
       end do
