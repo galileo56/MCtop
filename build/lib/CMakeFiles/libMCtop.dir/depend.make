@@ -35,6 +35,8 @@ lib/CMakeFiles/libMCtop.dir/SpecFun.F90.o.provides.build:
 	$(CMAKE_COMMAND) -E touch lib/CMakeFiles/libMCtop.dir/SpecFun.F90.o.provides.build
 lib/CMakeFiles/libMCtop.dir/build: lib/CMakeFiles/libMCtop.dir/SpecFun.F90.o.provides.build
 
+lib/CMakeFiles/libMCtop.dir/Vegas.F90.o.requires: lib/CMakeFiles/libMCtop.dir/constants.mod.proxy
+lib/CMakeFiles/libMCtop.dir/Vegas.F90.o: lib/CMakeFiles/libMCtop.dir/constants.mod.stamp
 lib/CMakeFiles/libMCtop.dir/mc_vegas.mod.proxy: lib/CMakeFiles/libMCtop.dir/Vegas.F90.o.provides
 lib/CMakeFiles/libMCtop.dir/Vegas.F90.o.provides.build:
 	$(CMAKE_COMMAND) -E cmake_copy_f90_mod lib/mc_vegas lib/CMakeFiles/libMCtop.dir/mc_vegas.mod.stamp GNU

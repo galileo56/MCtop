@@ -2,17 +2,17 @@ module MC_VEGAS
 
 !  This module is a modification f95 version of VEGA_ALPHA.for
 !  by G.P. LEPAGE SEPT 1976/(REV)AUG 1979.
-!  
+!
 !   author: Hua-Sheng Shao
 !   Physics school of Peking University
-
+use constants, only: dp
 Implicit none
 save
 integer, parameter :: MAX_SIZE = 20            ! The max dimension s of the integrals
 ! The lower and upper integration limit
 integer,PRIVATE :: i_vegas
-real ( KIND(1d0) ), dimension (MAX_SIZE), public :: XL = [(0d0,i_vegas=1,MAX_SIZE)],&
-                                      XU=[(1d0,i_vegas=1,MAX_SIZE)]
+real (dp), dimension (MAX_SIZE), public :: XL = [(0_dp,i_vegas=1,MAX_SIZE)],&
+                                      XU=[(1_dp,i_vegas=1,MAX_SIZE)]
 integer, public :: NCALL=5000,&           ! The number of integrand evaluations per iteration
                 ITMX=5,&                  ! The maximum number of iterations
                 NPRN=5,&                  ! printed or not
@@ -26,20 +26,20 @@ integer, public :: NCALL=5000,&           ! The number of integrand evaluations 
             ! integrand is largest in magnitude (MDS=1), or
             ! where the contribution to the error is largest(MDS=-1)
 integer, public :: IINIP
-real ( KIND(1d0) ), public :: ACC=-1d0           ! Algorithm stops when the relative accuracy,
-                                          ! |SD/AVGI|, is less than ACC; accuracy is not 
+real (dp), public :: ACC=-1_dp           ! Algorithm stops when the relative accuracy,
+                                          ! |SD/AVGI|, is less than ACC; accuracy is not
             ! cheched when ACC<0
-real ( KIND(1d0) ), public :: MC_SI=0d0,&        ! sum(AVGI_i/SD_i^2,i=1,IT)
-                SWGT=0d0,&                ! sum(1/SD_i^2,i=1,IT)
-    SCHI=0d0,&                ! sum(AVGI_i^2/SD_i^2,i=1,IT)
-    ALPH=1.5d0                ! controls the rate which the grid is modified from
+real (dp), public :: MC_SI=0_dp,&        ! sum(AVGI_i/SD_i^2,i=1,IT)
+                SWGT=0_dp,&                ! sum(1/SD_i^2,i=1,IT)
+    SCHI=0_dp,&                ! sum(AVGI_i^2/SD_i^2,i=1,IT)
+    ALPH=1.5_dp                ! controls the rate which the grid is modified from
                               ! iteration to iteration; decreasing ALPH slows
             ! modification of the grid
             ! (ALPH=0 implies no modification)
-real ( KIND(1d0) ), public :: DSEED=1234567d0    ! seed of 
+real (dp), public :: DSEED=1234567_dp    ! seed of
 ! location of the I-th division on the J-th axis, normalized to lie between 0 and 1.
-real ( KIND(1d0) ), dimension (50, MAX_SIZE), public :: XI=1d0
-real ( KIND(1d0) ), public :: CALLS,TI,TSI
+real (dp), dimension (50, MAX_SIZE), public :: XI=1_dp
+real (dp), public :: CALLS,TI,TSI
 
 contains
 
@@ -49,15 +49,15 @@ contains
 subroutine RANDA(NR,R)
 !SPECIFICATIONS FOR ARGUMENTS
 integer, intent(IN) :: NR
-real ( KIND(1d0) ), dimension (NR), intent(OUT) :: R
+real (dp), dimension (NR), intent(OUT) :: R
 !SPECIFICATIONS FOR LOCAL VARIABLES
 integer :: I
 ! D2P31M=(2**31) - 1
 ! D2P31 =(2**31)(OR AN ADJUSTED VALUE)
-real ( KIND(1d0) ) :: D2P31M=2147483647.d0,D2P31=2147483711.d0
+real (dp) :: D2P31M=2147483647._dp, D2P31=2147483711._dp
 !FIRST EXECUTABLE STATEMENT
 DO I=1,NR
-   DSEED = DMOD(16807.d0*DSEED,D2P31M)
+   DSEED = DMOD(16807._dp*DSEED,D2P31M)
    R(I) = DSEED / D2P31
 ENDDO
 end subroutine RANDA
@@ -75,17 +75,17 @@ SUBROUTINE Vegas(NDIM,FXN,AVGI,SD,CHI2A,INIT)
 ! INIT=2  CALL VEGAS2
 ! INIT=3  CALL VEGAS3
 integer, intent(IN) :: NDIM
-real ( KIND(1d0) ), external :: FXN
+real (dp), external :: FXN
 integer, intent(IN), optional :: INIT
-real ( KIND(1d0) ), intent(INOUT) :: AVGI,SD,CHI2A
-real ( KIND(1d0) ), dimension (50,MAX_SIZE) :: D,DI
-real ( KIND(1d0) ), dimension (50) :: XIN,R
-real ( KIND(1d0) ), dimension (MAX_SIZE) :: DX,X,DT,RAND
+real (dp), intent(INOUT) :: AVGI,SD,CHI2A
+real (dp), dimension (50,MAX_SIZE) :: D,DI
+real (dp), dimension (50) :: XIN,R
+real (dp), dimension (MAX_SIZE) :: DX,X,DT,RAND
 integer, dimension (MAX_SIZE) :: IA,KG
 integer :: initflag
-real ( KIND(1d0) ), parameter :: ONE=1.d0
+real (dp), parameter :: ONE=1._dp
 integer :: I,J,K,NPG,NG,ND,NDM,LABEL=0
-real ( KIND(1d0) ) :: DXG,DV2G,XND,XJAC,RC,XN,DR,XO,TI2,WGT,FB,F2B,F,F2
+real (dp) :: DXG,DV2G,XND,XJAC,RC,XN,DR,XO,TI2,WGT,FB,F2B,F,F2
 !SAVE AVGI,SD,CHI2A
 !SQRT(A)=DSQRT(A)
 !ALOG(A)=DLOG(A)
@@ -102,10 +102,10 @@ ini0:IF(initflag.LT.1) THEN
        XI(1,J)=ONE
    ENDDO
 ENDIF ini0
-!  INIT=1    - INITIALIZES CUMULATIVE VARIABLES, BUT NOT GRID     
+!  INIT=1    - INITIALIZES CUMULATIVE VARIABLES, BUT NOT GRID
 ini1:IF(initflag.LT.2) THEN
   IT=0
-  MC_SI=0.d0
+  MC_SI=0._dp
   SWGT=MC_SI
   SCHI=MC_SI
 ENDIF ini1
@@ -114,7 +114,7 @@ ini2:IF(initflag.LE.2)THEN
    ND=NDMX
    NG=1
    IF(MDS.NE.0) THEN
-     NG = int( (NCALL/2.d0)**(1.d0/NDIM) )
+     NG = int( (NCALL/2._dp)**(1._dp/NDIM) )
      MDS=1
      IF((2*NG-NDMX).GE.0) THEN
        MDS=-1
@@ -129,7 +129,7 @@ ini2:IF(initflag.LE.2)THEN
    CALLS=DBLE(NPG*K)               ! The total number of random numbers M
    DXG=ONE/NG
    DV2G=(CALLS*DXG**NDIM)**2/NPG/NPG/(NPG-ONE)  ! 1/(Ms-1)
-   XND=ND                          ! ~NDMX! 
+   XND=ND                          ! ~NDMX!
                                    ! determines the number of increments along each axis
    NDM=ND-1                        ! ~NDMX-1
    DXG=DXG*XND                     ! determines the number of increments along each axis per sub-v
@@ -143,7 +143,7 @@ ini2:IF(initflag.LE.2)THEN
       RC=NDO/XND                   ! XND=ND
       outer:DO J=1, NDIM           ! Set the new division
           K=0
-          XN=0.d0
+          XN=0._dp
           DR=XN
           I=K
     LABEL=0
@@ -183,7 +183,7 @@ ENDIF ini2
 !  INIT=3       - MAIN INTEGRATION LOOP
 mainloop:DO
     IT=IT+1
-    TI=0.d0
+    TI=0._dp
     TSI=TI
     DO J=1,NDIM
        KG(J)=1
@@ -192,12 +192,12 @@ mainloop:DO
           DI(I,J)=TI
        ENDDO
  ENDDO
-    
+
     LABEL=0
  level1:DO
    level2:DO
      ifla:IF(LABEL.EQ.0)THEN
-           FB=0.d0
+           FB=0._dp
            F2B=FB
            level3:DO K=1,NPG
               CALL RANDA(NDIM,RAND)
@@ -215,7 +215,7 @@ mainloop:DO
                  X(J)=XL(J)+RC*DX(J)
                  WGT=WGT*XO*XND
               ENDDO
-     
+
               F=WGT
               F=F*FXN(X,WGT)
               F2=F*F
@@ -236,7 +236,7 @@ mainloop:DO
               DO J=1,NDIM
                 D(IA(J),J)=D(IA(J),J)+F2B
               ENDDO
-        ENDIF 
+        ENDIF
            K=NDIM
         ENDIF ifla
         KG(K)=MOD(KG(K),NG)+1
@@ -262,7 +262,7 @@ mainloop:DO
     SWGT=SWGT+WGT
     SCHI=SCHI+TI2*WGT
     AVGI=MC_SI/SWGT
-    CHI2A=(SCHI-MC_SI*AVGI)/(IT-0.9999d0)
+    CHI2A=(SCHI-MC_SI*AVGI)/(IT-0.9999_dp)
     SD=DSQRT(ONE/SWGT)
     IF(NPRN.GE.0) THEN
       TSI=DSQRT(TSI)
@@ -280,23 +280,23 @@ mainloop:DO
     outer2:DO J=1,NDIM
           XO=D(1,J)
           XN=D(2,J)
-          D(1,J)=(XO+XN)/2.d0
+          D(1,J)=(XO+XN)/2._dp
           DT(J)=D(1,J)
           inner2:DO I=2,NDM
               D(I,J)=XO+XN
               XO=XN
               XN=D(I+1,J)
-              D(I,J)=(D(I,J)+XN)/3.d0
+              D(I,J)=(D(I,J)+XN)/3._dp
               DT(J)=DT(J)+D(I,J)
           ENDDO inner2
-          D(ND,J)=(XN+XO)/2.d0
+          D(ND,J)=(XN+XO)/2._dp
           DT(J)=DT(J)+D(ND,J)
     ENDDO outer2
 
     le1:DO J=1,NDIM
-        RC=0.d0
+        RC=0._dp
         DO I=1,ND
-           R(I)=0.d0
+           R(I)=0._dp
            IF(D(I,J).GT.0.) THEN
                XO=DT(J)/D(I,J)
                R(I)=((XO-ONE)/XO/DLOG(XO))**ALPH
@@ -305,7 +305,7 @@ mainloop:DO
         ENDDO
         RC=RC/XND
         K=0
-        XN=0.d0
+        XN=0._dp
         DR=XN
         I=K
   LABEL=0
@@ -330,7 +330,7 @@ mainloop:DO
         EXIT
      ELSE
      LABEL=1
-     ENDIF 
+     ENDIF
   ENDDO le2
         DO I=1,NDM
            XI(I,J)=XIN(I)
@@ -349,7 +349,7 @@ ENDDO mainloop
      " ACCUMULATED RESULTS:   INTEGRAL = ",G14.8,/,&
      " DEV  = ",G10.4, /," CHI**2 PER IT'N = ",G10.4)
 ! X is the division of the coordinate
-! DELTA I is the sum of F in this interval 
+! DELTA I is the sum of F in this interval
 202   FORMAT(/,"DATA FOR AXIS ",I2,/,"    X       DELTA I       ", &
      24H   X       DELTA I      ,18H   X       DELTA I, &
       /(1H ,F7.6,1X,G11.4,5X,F7.6,1X,G11.4,5X,F7.6,1X,G11.4))

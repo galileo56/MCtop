@@ -35,6 +35,8 @@ CMakeFiles/subdir_mods.dir/lib/SpecFun.F90.o.provides.build:
 	$(CMAKE_COMMAND) -E touch CMakeFiles/subdir_mods.dir/lib/SpecFun.F90.o.provides.build
 CMakeFiles/subdir_mods.dir/build: CMakeFiles/subdir_mods.dir/lib/SpecFun.F90.o.provides.build
 
+CMakeFiles/subdir_mods.dir/lib/Vegas.F90.o.requires: CMakeFiles/subdir_mods.dir/constants.mod.proxy
+CMakeFiles/subdir_mods.dir/lib/Vegas.F90.o: CMakeFiles/subdir_mods.dir/constants.mod.stamp
 CMakeFiles/subdir_mods.dir/mc_vegas.mod.proxy: CMakeFiles/subdir_mods.dir/lib/Vegas.F90.o.provides
 CMakeFiles/subdir_mods.dir/lib/Vegas.F90.o.provides.build:
 	$(CMAKE_COMMAND) -E cmake_copy_f90_mod mc_vegas CMakeFiles/subdir_mods.dir/mc_vegas.mod.stamp GNU
