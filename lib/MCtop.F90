@@ -206,7 +206,7 @@ module MCtopClass
 
       p = self%MatEl%GenerateVectors(x); ES = Cparam(p)
       FunMatEl = self%MatEl%SpinWeight(self%spin, self%current, p)
-      k = Ceiling( self%Nbins * ES/self%ESmax(5) )
+      k = Ceiling( self%Nbins * (ES - self%ESmin(5) )/(self%ESmax(5) - self%ESmin(5) ) )
 
       if ( k <= 0          ) k = 1
       if ( k >  self%Nbins ) k = self%Nbins
