@@ -132,25 +132,25 @@ module MCtopClass
       real (dp), dimension(8)                     :: ES
       integer  , dimension(8)                     :: k
       real (dp), dimension(self%dimP,4)           :: p
-      integer                                     :: i
+      integer                                     :: l
 
       p = self%MatEl%GenerateVectors(x); ES = EScomputer(p)
 
-      if ( self%spin(:6) == 'uncorr'  ) FunMatEl = 1
-      if ( self%spin(:3) == 'top'     ) FunMatEl = self%MatEl%SpinWeight(p)
-      if ( self%spin(:8) == 'complete') FunMatEl = self%MatEl%TotalSpinWeight(p, self%current)
+      if ( self%spin(:6) == 'uncorr'   ) FunMatEl = 1
+      if ( self%spin(:3) == 'top'      ) FunMatEl = self%MatEl%SpinWeight(p)
+      if ( self%spin(:8) == 'complete' ) FunMatEl = self%MatEl%TotalSpinWeight(p, self%current)
 
       k = Ceiling( self%Nbins * (ES - self%ESmin )/(self%ESmax - self%ESmin ) )
 
-      do i = 1, 8
+      do l = 1, 8
 
-        if ( k(i) <= 0          ) k(i) = 1
-        if ( k(i) >  self%Nbins ) k(i) = self%Nbins
+        if ( k(l) <= 0          ) k(l) = 1
+        if ( k(l) >  self%Nbins ) k(l) = self%Nbins
 
-        if ( k(i) > 0 ) then
+        if ( k(l) > 0 ) then
 
-          dist ( k(i), i) = dist ( k(i), i ) + wgt * FunMatEl
-          dist2( k(i), i) = dist2( k(i), i ) + wgt * FunMatEl**2
+          dist ( k(l), l ) = dist ( k(l), l ) + wgt * FunMatEl
+          dist2( k(l), l ) = dist2( k(l), l ) + wgt * FunMatEl**2
 
         end if
 
