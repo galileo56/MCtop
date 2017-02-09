@@ -389,7 +389,10 @@ char const* decay, char const* current, double Cmax, int Nbins, int Nevent, int 
 
    f90cparamdistribution_(&mt, &mb, &mW, &Q, spin, decay, current, &Cmax, &Nbins, &Nevent, &Niter, res);
 
+   MLPutFunction(stdlink, "Transpose", 1);
+   MLPutFunction(stdlink, "Partition", 2);
    MLPutRealList(stdlink, res, 3*Nbins);
+   MLPutInteger(stdlink, Nbins);
    MLEndPacket(stdlink);
 
 }
@@ -402,7 +405,6 @@ static void eslist(double mt, double mb, double mW, double Q, double ESmax[], lo
 
    f90eslist_(&mt, &mb, &mW, &Q, ESmax, &Nbins, res);
 
-   //MLPutFunction(stdlink, "Transpose", 1);
    MLPutFunction(stdlink, "Partition", 2);
    MLPutRealList(stdlink, res, 8*Nbins);
    MLPutInteger(stdlink, Nbins);
@@ -440,7 +442,7 @@ static void vectors6(double x[], long clen, double mt, double mb, double mW, dou
 int main(int argc, char *argv[]){
     return MLMain(argc, argv);
 }
-# line 444 "/Users/vicent/GitHubProjects/MCtop/src/MCtop.tm.c"
+# line 446 "/Users/vicent/GitHubProjects/MCtop/src/MCtop.tm.c"
 
 
 double cparamcomputer P(( double * _tp1, long _tpl1));
