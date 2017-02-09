@@ -197,7 +197,7 @@ module MCtopClass
       if ( dist2(j) <= tiny(1._dp) ) dist(j) = 0
     enddo
 
-    ! dist = self%delta(5)
+    dist = FunMatEl([1,1,1,1,1,1,1] * 0.25_dp, 3._dp)
 
     ! dist = dist/Abs(AVGI); dist2 = dist2/Abs(AVGI)
 
