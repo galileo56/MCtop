@@ -65,13 +65,13 @@ end subroutine f90ESDistributions
 
 !ccccccccccccccc
 
-subroutine f90CparamDistribution(mt, mb, mW, Q, Spin, decay, current, ESmax, &
+subroutine f90CparamDistribution(mt, mb, mW, Q, Spin, decay, current, Cmax, &
                                  Nbins, Nevent, Niter, list)
   use constants, only: dp; use MatrixElementsClass; use MCtopClass; implicit none
   real (dp)                     , intent(in)  :: mt, mW, mb, Q
   integer                       , intent(in)  :: Nbins, Nevent, Niter
   character (len = *)           , intent(in)  :: Spin, decay, current
-  real (dp), dimension(8)       , intent(in)  :: ESmax
+  real (dp)                     , intent(in)  :: Cmax
   real (dp), dimension(Nbins, 3), intent(out) :: list
   type (MCtop)                                :: MC
   class (MatrixElements), allocatable         :: MatEl
@@ -88,7 +88,7 @@ subroutine f90CparamDistribution(mt, mb, mW, Q, Spin, decay, current, ESmax, &
     end select
   end if
 
-  MC   = MCtop(MatEl, Spin, current, ESmax, Nbins, Nevent, Niter)
+  MC   = MCtop(MatEl, Spin, current, [1,1,1,1,1,1,1,1] * Cmax, Nbins, Nevent, Niter)
   list = MC%ListCparam()
 
 end subroutine f90CparamDistribution

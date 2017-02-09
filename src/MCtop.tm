@@ -5,6 +5,7 @@
 :Evaluate:   Print["     Last modification: 08 - 01 - 2017        "]
 :Evaluate:   Print["     Version:           test 2                "]
 
+:Evaluate:  CparamDistribution::usage = "CparamDistribution[mt, mb, mW, Q, Spin, decay, current, Cmax, Nbins, Nevent, Niter] computes the distribution of the C-parameter event shape"
 :Evaluate:  CparamComputer::usage = "CparamComputer[p] computes the value of the C-parameter event shape"
 :Evaluate:  CparamList::usage = "CparamList[mt, mb, mW, Q, Cmax, Nbins] computes the values of the C-parameter event shape"
 :Evaluate:  ESList::usage = "ESList[mt, mb, mW, Q, ESmax, Nbins] computes the values of the event-shape variables"
@@ -33,6 +34,15 @@
 :Pattern:       CparamList[mt_, mb_, mW_, Q_, Cmax_, Nbins_]
 :Arguments:     {mt, mb, mW, Q, Cmax, Nbins}
 :ArgumentTypes: {Real, Real, Real, Real, Real, Integer}
+:ReturnType:    Manual
+:End:
+
+:Begin:
+:Function:      cparamdistribution
+:Pattern:       CparamDistribution[mt_, mb_, mW_, Q_, Spin_, decay_, current_,
+                 Cmax_, Nbins_, Nevent_, Niter_]
+:Arguments:     {mt, mb, mW, Q, Spin, decay, current, Cmax, Nbins, Nevent, Niter}
+:ArgumentTypes: {Real, Real, Real, Real, String, String, String, Real, Integer, Integer, Integer}
 :ReturnType:    Manual
 :End:
 
@@ -191,6 +201,21 @@ static void cparamlist(double mt, double mb, double mW, double Q, double Cmax, i
    f90cparamlist_(&mt, &mb, &mW, &Q, &Cmax, &Nbins, res);
 
    MLPutRealList(stdlink, res, Nbins);
+   MLEndPacket(stdlink);
+
+}
+
+extern double f90cparamdistribution_(double* mt, double* mb, double* mW, double* Q,
+char const* spin, char const* decay, char const* current, double* Cmax, int* Nbins,
+int* Nevent, int* Niter, double* res);
+
+static void cparamdistribution(double mt, double mb, double mW, double Q, char const* spin,
+char const* decay, char const* current, double Cmax, int Nbins, int Nevent, int Niter){
+  double res[3*Nbins];
+
+   f90cparamdistribution_(&mt, &mb, &mW, &Q, spin, decay, current, &Cmax, &Nbins, &Nevent, &Niter, res);
+
+   MLPutRealList(stdlink, res, 3*Nbins);
    MLEndPacket(stdlink);
 
 }
