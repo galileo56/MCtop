@@ -1,4 +1,6 @@
 
+! TODO: implement ESmin
+
 module MCtopClass
   use MatrixElementsClass; use constants, only: dp; use MC_VEGAS; implicit none
   private
@@ -35,13 +37,13 @@ module MCtopClass
 
 !ccccccccccccccc
 
-  subroutine delete_object(this)
-    type (MCtop) :: this
+   subroutine delete_object(this)
+     type (MCtop) :: this
 
      if ( allocated(this%ES   ) ) deallocate(this%ES  )
      if ( allocated(this%MatEl) ) deallocate(this%MatEl  )
 
-  end subroutine delete_object
+   end subroutine delete_object
 
 !ccccccccccccccc
 
