@@ -11,11 +11,12 @@ module MCtopClass
 
   type MCtop
     integer                    , private              :: Nbins, Nevent, Niter
-    type (MatrixElements)      , private              :: MatEl
+    class (MatrixElements)     , private, allocatable :: MatEl
     real (dp), dimension(:,:  ), private, allocatable :: ES
     real (dp), dimension(:,:,:), private, allocatable :: dist
     real (dp), dimension(8    ), private              :: ESmax, delta
-    character (len = 8)        , private              :: spin, decay, current
+    character (len = 8)        , private              :: spin, current
+    integer                    , private              :: dimX, dimP
 
   contains
 
@@ -38,28 +39,42 @@ module MCtopClass
   subroutine delete_object(this)
     type (MCtop) :: this
 
-     if ( allocated(this%dist) ) deallocate(this%dist)
-     if ( allocated(this%ES  ) ) deallocate(this%ES  )
+     if ( allocated(this%dist ) ) deallocate(this%dist)
+     if ( allocated(this%ES   ) ) deallocate(this%ES  )
+     if ( allocated(this%MatEl) ) deallocate(this%MatEl  )
 
   end subroutine delete_object
 
 !ccccccccccccccc
 
-   type (MCtop) function InMCtop(MatEl, Spin, decay, current, ESmax, Nbins, Nevent, Niter)
-     type (MatrixElements)  , intent(in) :: MatEl
-     character (len = *)    , intent(in) :: Spin, decay, current
+   type (MCtop) function InMCtop(MatEl, Spin, current, ESmax, Nbins, Nevent, Niter)
+     class (MatrixElements) , intent(in) :: MatEl
+     character (len = *)    , intent(in) :: Spin, current
      integer                , intent(in) :: Nbins, Nevent, Niter
      real (dp), dimension(8), intent(in) :: ESmax
-     real (dp)         , dimension(8)    :: delta
+     real (dp), dimension(8)             :: delta
      integer                             :: i
 
      InMCtop%Nbins = Nbins ; InMCtop%Nevent = Nevent; InMCtop%Niter = Niter
-     InMCtop%Spin  = Spin  ; InMCtop%decay  = decay ; InMCtop%current  = current
+     InMCtop%Spin  = Spin  ; InMCtop%current  = current
 
      allocate( InMCtop%dist(Nbins, 8, 2), InMCtop%ES(Nbins, 8) )
 
-     InMCtop%MatEl = MatEl ; delta = ESmax/Nbins; InMCtop%delta = delta
-     InMCtop%ESmax = ESmax
+     select type (MatEl)
+     type is (MatrixElements6)
+       allocate( MatrixElements6 :: InMCtop%MatEl )
+       select type (selector => InMCtop%MatEl)
+         type is (MatrixElements6);  selector = MatEl
+       end select
+     type is (MatrixElements4)
+       allocate( MatrixElements4 :: InMCtop%MatEl )
+       select type (selector => InMCtop%MatEl)
+       type is (MatrixElements4);  selector = MatEl
+       end select
+     end select
+
+     delta = ESmax/Nbins; InMCtop%delta = delta;  InMCtop%ESmax = ESmax
+     InMCtop%dimX = MatEl%dimX(); InMCtop%dimP = MatEl%dimP()
 
      do i = 1, Nbins
        InMCtop%ES(i,:) = Delta * (2 * i - 1)/2
@@ -82,13 +97,8 @@ module MCtopClass
 
     do j = 1, self%Niter
 
-    dist = 0;  dist2 = 0
-
-    if ( self%decay(:6) == 'stable' ) then
-      call VEGAS(3, FunMatEl4, AVGI, SD, CHI2A)
-    else
-      call VEGAS(7, FunMatEl6, AVGI, SD, CHI2A)
-    end if
+      dist = 0;  dist2 = 0
+      call VEGAS(self%dimX, FunMatEl, AVGI, SD, CHI2A)
 
       do i = 1, 8
 
@@ -120,64 +130,37 @@ module MCtopClass
 
 !ccccccccccccccc
 
-    real (dp) function FunMatEl4(x, wgt)
-      real (dp), dimension(3), intent(in) :: x
-      real (dp)              , intent(in) :: wgt
-      real (dp), dimension(8)             :: ES
-      integer  , dimension(8)             :: k
-      integer                             :: i
+    real (dp) function FunMatEl(x, wgt)
+      real (dp), dimension(self%dimX), intent(in) :: x
+      real (dp)                      , intent(in) :: wgt
+      real (dp), dimension(8)                     :: ES
+      integer  , dimension(8)                     :: k
+      real (dp), dimension(self%dimP,4)           :: p
+      integer                                     :: i
 
-      FunMatEl4 = 1
-      ES = EScomputer( self%MatEl%GenerateVectors4(x) )
+      p = self%MatEl%GenerateVectors(x); ES = EScomputer(p)
+
+      if ( self%spin(:6) == 'uncorr'  ) FunMatEl = 1
+      if ( self%spin(:3) == 'top'     ) FunMatEl = self%MatEl%SpinWeight(p)
+      if ( self%spin(:8) == 'complete') FunMatEl = self%MatEl%TotalSpinWeight(p, self%current)
+
       k = Ceiling( self%Nbins * ES/self%ESmax )
 
       do i = 1, 8
 
-        if ( k(i)    <= 0          ) k(i)    = 1
-        if ( k(i)    >  self%Nbins ) k(i)    = self%Nbins
+        if ( k(i)    <= 0          ) k(i) = 1
+        if ( k(i)    >  self%Nbins ) k(i) = self%Nbins
 
         if ( k(i) > 0 ) then
 
-          dist ( k(i), i) = dist ( k(i), i ) + wgt * FunMatEl4
-          dist2( k(i), i) = dist2( k(i), i ) + wgt * FunMatEl4**2
+          dist ( k(i), i) = dist ( k(i), i ) + wgt * FunMatEl
+          dist2( k(i), i) = dist2( k(i), i ) + wgt * FunMatEl**2
 
         end if
 
       end do
 
-    end function FunMatEl4
-
-!ccccccccccccccc
-
-    real (dp) function FunMatEl6(x, wgt)
-      real (dp)              , intent(in) :: wgt
-      real (dp), dimension(7), intent(in) :: x
-      real (dp), dimension(6,4)           :: p
-      real (dp), dimension(8)             :: ES
-      integer  , dimension(8)             :: k
-      integer                             :: i
-
-      p = self%MatEl%GenerateVectors6(x)
-
-      if ( self%spin(:6) == 'uncorr'  ) FunMatEl6 = 1
-      if ( self%spin(:3) == 'top'     ) FunMatEl6 = self%MatEl%SpinWeight(p)
-      if ( self%spin(:8) == 'complete') FunMatEl6 = self%MatEl%TotalSpinWeight(p, self%current)
-
-      ES = EScomputer(p); k = Ceiling( self%Nbins * ES/self%ESmax )
-
-      do i = 1, 8
-
-        if ( k(i) <= 0          ) k(i) = 1
-        if ( k(i) >  self%Nbins ) k(i) = self%Nbins
-
-        if ( k(i) > 0 ) then
-          dist ( k(i), i) = dist ( k(i), i ) + wgt * FunMatEl6
-          dist2( k(i), i) = dist2( k(i), i ) + wgt * FunMatEl6**2
-        end if
-
-      end do
-
-    end function FunMatEl6
+    end function FunMatEl
 
 !ccccccccccccccc
 
