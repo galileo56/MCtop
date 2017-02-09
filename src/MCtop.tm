@@ -237,7 +237,6 @@ char const* decay, char const* current, double Cmin, double Cmax, int Nbins, int
 
 }
 
-
 extern double f90esdistributions_(double* mt, double* mb, double* mW, double* Q,
 char const* spin, char const* decay, char const* current, double* ESmin, double* ESmax,
 int* Nbins, int* Nevent, int* Niter, double* res);
