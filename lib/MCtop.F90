@@ -87,14 +87,14 @@ module MCtopClass
     real (dp), dimension(self%Nbins, 8), intent(out) :: dist , dist2
     real (dp), dimension(self%Nbins, 8, self%Niter)  :: distTot , distTot2
     real (dp)                                        :: AVGI, SD, CHI2A
-    integer                                          :: i, j
+    integer                                          :: i, j, iter
 
-    NPRN = - 1; ITMX = 1; NCall = self%Nevent
+    NPRN = - 1; ITMX = 1; NCall = self%Nevent; iter = 1
 
     do j = 1, self%Niter
 
-      dist = 0;  dist2 = 0
-      call VEGAS(self%dimX, FunMatEl, AVGI, SD, CHI2A)
+      dist = 0;  dist2 = 0; if (j > 1) iter = 2
+      call VEGAS(self%dimX, FunMatEl, AVGI, SD, CHI2A, iter)
 
       do i = 1, 8
 
@@ -163,14 +163,14 @@ module MCtopClass
     real (dp), dimension(self%Nbins), intent(out) :: dist , dist2
     real (dp), dimension(self%Nbins, self%Niter)  :: distTot , distTot2
     real (dp)                                     :: AVGI, SD, CHI2A
-    integer                                       :: j
+    integer                                       :: j, iter
 
-    NPRN = - 1; ITMX = 1; NCall = self%Nevent
+    NPRN = - 1; ITMX = 1; NCall = self%Nevent; iter = 1
 
     do j = 1, self%Niter
 
-      dist = 0;  dist2 = 0
-      call VEGAS(self%dimX, FunMatEl, AVGI, SD, CHI2A)
+      dist = 0;  dist2 = 0; if (j > 1) iter = 2
+      call VEGAS(self%dimX, FunMatEl, AVGI, SD, CHI2A, iter)
 
       distTot(:,j) = dist(:)/self%Delta(5)
 
