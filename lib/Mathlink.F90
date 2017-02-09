@@ -24,11 +24,40 @@ subroutine f90ESDistributions(mt, mb, mW, Q, Spin, decay, current, ESmax, Nbins,
     end select
   end if
 
-  MC    = MCtop(MatEl, Spin, current, ESmax, Nbins, Nevent, Niter)
-
+  MC   = MCtop(MatEl, Spin, current, ESmax, Nbins, Nevent, Niter)
   list = MC%list()
 
 end subroutine f90ESDistributions
+
+!ccccccccccccccc
+
+subroutine f90CparamDistribution(mt, mb, mW, Q, Spin, decay, current, ESmax, &
+                                 Nbins, Nevent, Niter, list)
+  use constants, only: dp; use MatrixElementsClass; use MCtopClass; implicit none
+  real (dp)                     , intent(in)  :: mt, mW, mb, Q
+  integer                       , intent(in)  :: Nbins, Nevent, Niter
+  character (len = *)           , intent(in)  :: Spin, decay, current
+  real (dp), dimension(8)       , intent(in)  :: ESmax
+  real (dp), dimension(Nbins, 3), intent(out) :: list
+  type (MCtop)                                :: MC
+  class (MatrixElements), allocatable         :: MatEl
+
+  if ( decay(:6) == 'stable') then
+    allocate( MatrixElements4 :: MatEl )
+    select type (MatEl)
+    type is (MatrixElements4);  MatEl = MatrixElements4(mt, mb, mW, Q)
+    end select
+  else
+    allocate( MatrixElements6 :: MatEl )
+    select type (MatEl)
+    type is (MatrixElements6);  MatEl = MatrixElements6(mt, mb, mW, Q)
+    end select
+  end if
+
+  MC   = MCtop(MatEl, Spin, current, ESmax, Nbins, Nevent, Niter)
+  list = MC%ListCparam()
+
+end subroutine f90CparamDistribution
 
 !ccccccccccccccc
 
