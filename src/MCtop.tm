@@ -5,6 +5,7 @@
 :Evaluate:   Print["     Last modification: 08 - 01 - 2017        "]
 :Evaluate:   Print["     Version:           test 2                "]
 
+:Evaluate:  ESDistributions::usage = "ESDistributions[mt, mb, mW, Q, Spin, decay, current, ESmin, ESmax, Nbins, Nevent, Niter] computes the distribution of the event-shape variables"
 :Evaluate:  CparamDistribution::usage = "CparamDistribution[mt, mb, mW, Q, Spin, decay, current, Cmin, Cmax, Nbins, Nevent, Niter] computes the distribution of the C-parameter event shape"
 :Evaluate:  CparamComputer::usage = "CparamComputer[p] computes the value of the C-parameter event shape"
 :Evaluate:  CparamList::usage = "CparamList[mt, mb, mW, Q, Cmin, Cmax, Nbins] computes the values of the C-parameter event shape"
@@ -44,6 +45,16 @@
 :Arguments:     {mt, mb, mW, Q, Spin, decay, current, Cmin, Cmax, Nbins, Nevent, Niter}
 :ArgumentTypes: {Real, Real, Real, Real, String, String, String, Real, Real, Integer,
                  Integer, Integer}
+:ReturnType:    Manual
+:End:
+
+:Begin:
+:Function:      esdistributions
+:Pattern:       ESDistributions[mt_, mb_, mW_, Q_, Spin_, decay_, current_,
+                 Cmin_, Cmax_, Nbins_, Nevent_, Niter_]
+:Arguments:     {mt, mb, mW, Q, Spin, decay, current, Cmin, Cmax, Nbins, Nevent, Niter}
+:ArgumentTypes: {Real, Real, Real, Real, String, String, String, RealList, RealList,
+                 Integer, Integer, Integer}
 :ReturnType:    Manual
 :End:
 
@@ -221,6 +232,29 @@ char const* decay, char const* current, double Cmin, double Cmax, int Nbins, int
    MLPutFunction(stdlink, "Transpose", 1);
    MLPutFunction(stdlink, "Partition", 2);
    MLPutRealList(stdlink, res, 3*Nbins);
+   MLPutInteger(stdlink, Nbins);
+   MLEndPacket(stdlink);
+
+}
+
+
+extern double f90esdistributions_(double* mt, double* mb, double* mW, double* Q,
+char const* spin, char const* decay, char const* current, double* ESmin, double* ESmax,
+int* Nbins, int* Nevent, int* Niter, double* res);
+
+static void esdistributions(double mt, double mb, double mW, double Q, char const* spin,
+  char const* decay, char const* current, double ESmin[], long lenmin, double ESmax[],
+  long lenmax, int Nbins, int Nevent, int Niter){
+  double res[24*Nbins];
+
+   f90esdistributions_(&mt, &mb, &mW, &Q, spin, decay, current, ESmin, ESmax, &Nbins,
+   &Nevent, &Niter, res);
+
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutFunction(stdlink, "Transpose", 1);
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutRealList(stdlink, res, 24*Nbins);
+   MLPutInteger(stdlink, 8*Nbins);
    MLPutInteger(stdlink, Nbins);
    MLEndPacket(stdlink);
 
