@@ -48,7 +48,7 @@ contains
 ! Generate random numbers
 subroutine RANDA(NR,R)
 !SPECIFICATIONS FOR ARGUMENTS
-integer, intent(IN) :: NR
+integer, intent(in) :: NR
 real (dp), dimension (NR), intent(OUT) :: R
 !SPECIFICATIONS FOR LOCAL VARIABLES
 integer :: I
@@ -56,10 +56,11 @@ integer :: I
 ! D2P31 =(2**31)(OR AN ADJUSTED VALUE)
 real (dp) :: D2P31M=2147483647._dp, D2P31=2147483711._dp
 !FIRST EXECUTABLE STATEMENT
-DO I=1,NR
-   DSEED = DMOD(16807._dp*DSEED,D2P31M)
+DO I = 1,NR
+   DSEED = MOD(16807._dp * DSEED, D2P31M)
    R(I) = DSEED / D2P31
 ENDDO
+
 end subroutine RANDA
 
 !ccccccccccccccc
@@ -74,9 +75,9 @@ SUBROUTINE Vegas(NDIM,FXN,AVGI,SD,CHI2A,INIT)
 ! INIT=1  CALL VEGAS1
 ! INIT=2  CALL VEGAS2
 ! INIT=3  CALL VEGAS3
-integer, intent(IN) :: NDIM
+integer, intent(in) :: NDIM
 real (dp), external :: FXN
-integer, intent(IN), optional :: INIT
+integer, intent(in), optional :: INIT
 real (dp), intent(INOUT) :: AVGI,SD,CHI2A
 real (dp), dimension (50,MAX_SIZE) :: D,DI
 real (dp), dimension (50) :: XIN,R
