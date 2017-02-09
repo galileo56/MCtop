@@ -1,4 +1,6 @@
 
+! TODO: implement ESmin
+
 module MCtopClass
   use MatrixElementsClass; use constants, only: dp; use MC_VEGAS; implicit none
   private
@@ -21,7 +23,7 @@ module MCtopClass
 
     final                                             :: delete_object
     procedure, private                                :: callVegas, callVegasCparam
-    procedure, public                                 :: List, ListCparam
+    procedure, public                                 :: List, ListCparam, ESlist, CparamList
 
   end type MCtop
 
@@ -35,13 +37,13 @@ module MCtopClass
 
 !ccccccccccccccc
 
-  subroutine delete_object(this)
-    type (MCtop) :: this
+   subroutine delete_object(this)
+     type (MCtop) :: this
 
      if ( allocated(this%ES   ) ) deallocate(this%ES  )
      if ( allocated(this%MatEl) ) deallocate(this%MatEl  )
 
-  end subroutine delete_object
+   end subroutine delete_object
 
 !ccccccccccccccc
 
@@ -234,6 +236,26 @@ module MCtopClass
 
 !ccccccccccccccc
 
+  function ESList(self) result(dist)
+    class (MCtop) , intent(in)          :: self
+    real (dp), dimension(self%Nbins, 8) :: dist
+
+    dist = self%ES
+
+  end function ESList
+
+!ccccccccccccccc
+
+  function CparamList(self) result(dist)
+    class (MCtop) , intent(in)       :: self
+    real (dp), dimension(self%Nbins) :: dist
+
+    dist = self%ES(:,5)
+
+  end function CparamList
+
+!ccccccccccccccc
+
   function List(self) result(dist)
     class (MCtop) , intent(in)             :: self
     real (dp), dimension(self%Nbins, 8, 3) :: dist
@@ -246,7 +268,7 @@ module MCtopClass
 !ccccccccccccccc
 
   function ListCparam(self) result(dist)
-    class (MCtop) , intent(in)             :: self
+    class (MCtop) , intent(in)          :: self
     real (dp), dimension(self%Nbins, 3) :: dist
 
     dist(:,1) = self%ES(:,5)

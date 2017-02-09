@@ -1,6 +1,40 @@
 
 !ccccccccccccccc
 
+subroutine f90ESList(mt, mb, mW, Q, ESmax, Nbins, list)
+  use constants, only: dp; use MatrixElementsClass; use MCtopClass; implicit none
+  real (dp)                     , intent(in)  :: mt, mW, mb, Q
+  integer                       , intent(in)  :: Nbins
+  real (dp), dimension(8)       , intent(in)  :: ESmax
+  real (dp), dimension(Nbins, 8), intent(out) :: list
+  type (MCtop)                                :: MC
+  type (MatrixElements4)                      :: MatEl
+
+  MatEl = MatrixElements4(mt, mb, mW, Q)
+  MC    = MCtop(MatEl, 'uncorr', 'vector', ESmax, Nbins, 0, 0)
+  list  = MC%ESlist()
+
+end subroutine f90ESList
+
+!ccccccccccccccc
+
+subroutine f90CparamList(mt, mb, mW, Q, Cmax, Nbins, list)
+  use constants, only: dp; use MatrixElementsClass; use MCtopClass; implicit none
+  real (dp)                  , intent(in)  :: mt, mW, mb, Q
+  integer                    , intent(in)  :: Nbins
+  real (dp)                  , intent(in)  :: Cmax
+  real (dp), dimension(Nbins), intent(out) :: list
+  type (MCtop)                             :: MC
+  type (MatrixElements4)                   :: MatEl
+
+  MatEl = MatrixElements4(mt, mb, mW, Q)
+  MC    = MCtop(MatEl, 'uncorr', 'vector', [1,1,1,1,1,1,1,1] * Cmax, Nbins, 0, 0)
+  list  = MC%Cparamlist()
+
+end subroutine f90CparamList
+
+!ccccccccccccccc
+
 subroutine f90ESDistributions(mt, mb, mW, Q, Spin, decay, current, ESmax, Nbins, &
                               Nevent, Niter, list)
   use constants, only: dp; use MatrixElementsClass; use MCtopClass; implicit none

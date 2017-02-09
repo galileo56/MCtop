@@ -6,6 +6,8 @@
 :Evaluate:   Print["     Version:           test 2                "]
 
 :Evaluate:  CparamComputer::usage = "CparamComputer[p] computes the value of the C-parameter event shape"
+:Evaluate:  CparamList::usage = "CparamList[mt, mb, mW, Q, Cmax, Nbins] computes the values of the C-parameter event shape"
+:Evaluate:  ESList::usage = "ESList[mt, mb, mW, Q, ESmax, Nbins] computes the values of the event-shape variables"
 :Evaluate:  EScomputer::usage = "EScomputer[p] computes the value of the various event shapes"
 :Evaluate:  Vectors4::usage = "Vectors4[x, mt, mb, mW, Q] computes the value 4 four-vectors for top decay"
 :Evaluate:  Vectors6::usage = "Vectors6[x, mt, mb, mW, Q] computes the value 6 four-vectors for top decay"
@@ -24,6 +26,22 @@
 :Arguments:     {Flatten[Transpose[p]]}
 :ArgumentTypes: {RealList}
 :ReturnType:    Real
+:End:
+
+:Begin:
+:Function:      cparamlist
+:Pattern:       CparamList[mt_, mb_, mW_, Q_, Cmax_, Nbins_]
+:Arguments:     {mt, mb, mW, Q, Cmax, Nbins}
+:ArgumentTypes: {Real, Real, Real, Real, Real, Integer}
+:ReturnType:    Manual
+:End:
+
+:Begin:
+:Function:      eslist
+:Pattern:       ESList[mt_, mb_, mW_, Q_, ESmax_, Nbins_]
+:Arguments:     {mt, mb, mW, Q, ESmax, Nbins}
+:ArgumentTypes: {Real, Real, Real, Real, RealList, Integer}
+:ReturnType:    Manual
 :End:
 
 :Begin:
@@ -162,6 +180,35 @@ static void cparamminmax6(int n, double mt, double mb, double mW, double Q){
 
    MLPutRealList(stdlink, res, 2);
    MLEndPacket(stdlink);
+}
+
+extern double f90cparamlist_(double* mt, double* mb, double* mW, double* Q, double* Cmax,
+                             int* Nbins, double* res);
+
+static void cparamlist(double mt, double mb, double mW, double Q, double Cmax, int Nbins){
+  double res[Nbins];
+
+   f90cparamlist_(&mt, &mb, &mW, &Q, &Cmax, &Nbins, res);
+
+   MLPutRealList(stdlink, res, Nbins);
+   MLEndPacket(stdlink);
+
+}
+
+extern double f90eslist_(double* mt, double* mb, double* mW, double* Q, double* ESmax,
+                             int* Nbins, double* res);
+
+static void eslist(double mt, double mb, double mW, double Q, double ESmax[], long clen, int Nbins){
+  double res[8*Nbins];
+
+   f90eslist_(&mt, &mb, &mW, &Q, ESmax, &Nbins, res);
+
+   //MLPutFunction(stdlink, "Transpose", 1);
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutRealList(stdlink, res, 8*Nbins);
+   MLPutInteger(stdlink, Nbins);
+   MLEndPacket(stdlink);
+
 }
 
 extern double f90esminmax6_(int* n, double* mt, double* mb, double* mW, double* Q, double* res);
