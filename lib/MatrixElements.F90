@@ -18,7 +18,6 @@ module MatrixElementsClass
 
     procedure, pass (self), public       :: ESMinMax, CparamMinMax, GenerateVectors, &
                                             SpinWeight, TotalSpinWeight, dimX, dimP
-
   end type MatrixElements
 
 !ccccccccccccccc
