@@ -1,6 +1,4 @@
 
-! TODO: implement ESmin
-
 module MCtopClass
   use MatrixElementsClass; use constants, only: dp; use MC_VEGAS; implicit none
   private
