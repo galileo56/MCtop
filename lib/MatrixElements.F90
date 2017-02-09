@@ -17,7 +17,7 @@ module MatrixElementsClass
   contains
 
     procedure, pass (self), public       :: ESMinMax, CparamMinMax, GenerateVectors, &
-                                            SpinWeight, dimX, dimP
+                                            SpinWeight, dimX, dimP, GenerateRestVectors
   end type MatrixElements
 
 !ccccccccccccccc
@@ -174,38 +174,94 @@ module MatrixElementsClass
 
 !ccccccccccccccc
 
-  function GenerateVectors(self, x) result(p)
-    class (MatrixElements), intent(in) :: self
+  function GenerateRestVectors(self, x) result(p)
+    class (MatrixElements)          , intent(in) :: self
     real (dp), dimension(self%sizeX), intent(in) :: x
     real (dp), dimension(self%sizeP,0:3)         :: p
-    real (dp), dimension(0:3)           :: p1, q
-    real (dp), dimension(4)             :: Ctheta, Stheta
-    real (dp), dimension(3)             :: phi
-    real (dp)                           :: vT, gammaT, gammaW, Eb, eW, pb, modp1, &
-                                           vW, qnw
+    real (dp), dimension(0:3)                    :: p1, q
+    real (dp), dimension(self%sizeX/2 + 1)       :: Ctheta, Stheta
+    real (dp), dimension(self%sizeX/2)           :: phi
+    real (dp)                                    :: gammaW, Eb, eW, pb, modp1, vW, qnw
 
-    Ctheta = 0; Stheta = 0; phi = 0
+    Eb = (self%mt**2 + self%mb**2 - self%mW**2)/2/self%mt
+    EW = (self%mt**2 + self%mW**2 - self%mb**2)/2/self%mt
+    pb = sqrt(Eb**2 - self%mb**2); phi = 2 * Pi * x(self%sizeX/2 + 2:)
+    Ctheta = 2 * x(:self%sizeX/2 + 1) - 1;  Stheta = sqrt( 1 - Ctheta**2 )
+
+    p(1,0) = Eb ;  p(1,1:3:2) = - pb * [ Stheta(1), Ctheta(1) ]; p(1,2) = 0
 
     select type (self)
     type is (MatrixElements6)
 
-      Ctheta = 2 * x(:4) - 1;  Stheta = sqrt( 1 - Ctheta**2 );  phi = 2 * Pi * x(5:)
+      p(4,0)   = Eb  ;  p(4,3) = - pb * Ctheta(3)
+      p(4,1:2) = - pb * Stheta(3) * [ Cos( phi(2) ), Sin( phi(2) ) ]
 
-      vT = sqrt(1 - 4 * self%mt**2); gammaT = 1/sqrt(1 - vT**2)
+      p1(0) = EW;  p1(1:) = - p(1,1:)
 
-      Eb = (self%mt**2 + self%mb**2 - self%mW**2)/2/self%mt
-      EW = (self%mt**2 + self%mW**2 - self%mb**2)/2/self%mt
-      pb = sqrt(Eb**2 - self%mb**2)
+      modp1 = pb;  vW = pb/EW;  gammaW = 1/sqrt(1 - vW**2)
 
-      p(1,0) = gammaT * ( Eb - pb * vT * Ctheta(1) );  p(1,1) = - pb * Stheta(1)
-      p(1,3) = gammaT * ( Eb * vT - pb * Ctheta(1) );  p(1,2) = 0
+      q(0) = self%mW/2; q(3) = self%mW * Ctheta(2)/2
+      q(1:2) = self%mW * Stheta(2)/2 * [ Cos( phi(1) ), Sin( phi(1) ) ]
+
+      qnw = VecProd3(q, p1)/pb
+
+      p(2:3,0) = gammaW * ( q(0) + [1,-1] * vW * qnw )
+      p(2,1:)  = ( q(0) * vW * gammaW - (1 - gammaW) * qnw ) * p1(1:)/modp1 + q(1:)
+      p(3,1:)  = ( q(0) * vW * gammaW + (1 - gammaW) * qnw ) * p1(1:)/modp1 - q(1:)
+
+      p1(3)   = pb * Ctheta(3)
+      p1(1:2) = pb * Stheta(3) * [ Cos( phi(2) ), Sin( phi(2) ) ]
+
+      q(3)   = self%mW * Ctheta(4)/2
+      q(1:2) = self%mW * Stheta(4)/2 * [ Cos( phi(3) ), Sin( phi(3) ) ]
+
+      qnw = VecProd3(q, p1)/modp1
+
+      p(5:6,0) = gammaW * ( q(0) + [1,-1] * vW * qnw )
+      p(5,1:)  = ( q(0) * vW * gammaW - (1 - gammaW) * qnw ) * p1(1:)/modp1 + q(1:)
+      p(6,1:)  = ( q(0) * vW * gammaW + (1 - gammaW) * qnw ) * p1(1:)/modp1 - q(1:)
+
+    type is (MatrixElements4)
+
+       p(3,0)   =   EW   ;  p(3,1:) = - p(1,1:)
+       p(2,0)   =   Eb   ;  p(2,3) = - pb * Ctheta(2)
+       p(2,1:2) = - pb * Stheta(2) * [ Cos( phi(1) ), Sin( phi(1) ) ]
+       p(4,0)   =   EW   ;  p(4,1:) = - p(2,1:)
+
+    end select
+
+  end function GenerateRestVectors
+
+!ccccccccccccccc
+
+  function GenerateVectors(self, x) result(p)
+    class (MatrixElements)          , intent(in) :: self
+    real (dp), dimension(self%sizeX), intent(in) :: x
+    real (dp), dimension(self%sizeP,0:3)         :: p
+    real (dp), dimension(0:3)                    :: p1, q
+    real (dp), dimension(self%sizeX/2 + 1)       :: Ctheta, Stheta
+    real (dp), dimension(self%sizeX/2)           :: phi
+    real (dp)                                    :: vT, gammaT, gammaW, Eb, eW, &
+                                                    vW, qnw, pb, modp1
+
+    Eb = (self%mt**2 + self%mb**2 - self%mW**2)/2/self%mt
+    EW = (self%mt**2 + self%mW**2 - self%mb**2)/2/self%mt
+    pb = sqrt(Eb**2 - self%mb**2); phi = 2 * Pi * x(self%sizeX/2 + 2:)
+    vT = sqrt(1 - 4 * self%mt**2); gammaT = 1/sqrt(1 - vT**2)
+    Ctheta = 2 * x(:self%sizeX/2 + 1) - 1;  Stheta = sqrt( 1 - Ctheta**2 )
+
+    p(1,0) = gammaT * ( Eb - pb * vT * Ctheta(1) );  p(1,1) = - pb * Stheta(1)
+    p(1,3) = gammaT * ( Eb * vT - pb * Ctheta(1) );  p(1,2) = 0
+
+    select type (self)
+    type is (MatrixElements6)
 
       p(4,0)   = gammaT * ( Eb + pb * vT * Ctheta(3) )
       p(4,1:2) = - pb * Stheta(3) * [ Cos( phi(2) ), Sin( phi(2) ) ]
       p(4,3)   = - gammaT * ( Eb * vT + pb * Ctheta(3) )
 
-      p1(0) = gammaT * ( EW + pb * vT * Ctheta(1) );  p1(1) = pb * Stheta(1)
-      p1(3) = gammaT * ( pb * Ctheta(1) + EW * vT );  p1(2) = 0
+      p1(0) = gammaT * ( EW + pb * vT * Ctheta(1) );  p1(1:2) = - p(1,1:2)
+      p1(3) = gammaT * ( pb * Ctheta(1) + EW * vT )
 
       modp1 = Abs3(p1);  vW = modp1/p1(0);  gammaW = 1/sqrt(1 - vW**2)
 
@@ -224,8 +280,8 @@ module MatrixElementsClass
 
       modp1 = Abs3(p1);  vW = modp1/p1(0);  gammaW = 1/sqrt(1 - vW**2)
 
-      q(0) = self%mW/2;  q(3) = self%mW * Ctheta(4)/2
-      q(1:2) = self%mW * Stheta(4)/2 * [ Cos( phi(3) ), Sin( phi(3) )]
+      q(3) = self%mW * Ctheta(4)/2
+      q(1:2) = self%mW * Stheta(4)/2 * [ Cos( phi(3) ), Sin( phi(3) ) ]
 
       qnw = VecProd3(q, p1)/modp1
 
@@ -235,56 +291,46 @@ module MatrixElementsClass
 
     type is (MatrixElements4)
 
-       Ctheta(:2) = 2 * x(:2) - 1;  Stheta = sqrt( 1 - Ctheta**2 );  phi(1) = 2 * Pi * x(3)
+      p(3,0) = gammaT * ( EW + pb * vT * Ctheta(1) )   ;  p(3,1) = pb * Stheta(1)
+      p(3,3) = gammaT * ( EW * vT + pb * Ctheta(1) )   ;  p(3,2) = 0
 
-       vT = sqrt(1 - 4 * self%mt**2);  gammaT = 1/sqrt(1 - vt**2)
+      p(2,0)   =   gammaT * ( Eb + pb * vT * Ctheta(2) )
+      p(2,1:2) = - pb * Stheta(2) * [ Cos( phi(1) ), Sin( phi(1) ) ]
+      p(2,3)   = - gammaT * ( Eb * vT + pb * Ctheta(2) )
 
-       Eb = (self%mt**2 + self%mb**2 - self%mW**2)/2/self%mt
-       EW = (self%mt**2 + self%mW**2 - self%mb**2)/2/self%mt
-       pb = sqrt(Eb**2 - self%mb**2)
+      p(4,0) = gammaT * ( EW - pb * vT * Ctheta(2) )
+      p(4,1:2) = pb * Stheta(2) * [ Cos( phi(1) ), Sin( phi(1) ) ]
+      p(4,3) = gammaT * ( pb * Ctheta(2) - EW * vT )
 
-       p(1,0) =   gammaT * ( Eb - pb * vT * Ctheta(1) ) ;  p(1,1) = - pb * Stheta(1)
-       p(1,3) =   gammaT * ( Eb * vT - pb * Ctheta(1) ) ;  p(1,2) = 0
-
-       p(3,0) = gammaT * ( EW + pb * vT * Ctheta(1) )   ;  p(3,1) = pb * Stheta(1)
-       p(3,3) = gammaT * ( EW * vT + pb * Ctheta(1) )   ;  p(3,2) = 0
-
-       p(2,0)   =   gammaT * ( Eb + pb * vT * Ctheta(2) )
-       p(2,1:2) = - pb * Stheta(2) * [ Cos(phi(1)), Sin(phi(1)) ]
-       p(2,3)   = - gammaT * ( Eb * vT + pb * Ctheta(2) )
-
-       p(4,0) = gammaT * ( EW - pb * vT * Ctheta(2) )
-       p(4,1:2) = pb * Stheta(2) * [ Cos(phi(1)), Sin(phi(1)) ]
-       p(4,3) = gammaT * ( pb * Ctheta(2) - EW * vT )
     end select
 
   end function GenerateVectors
 
  !ccccccccccccccc
 
-    function CparamMinMax(self, n) result(res)
-      class (MatrixElements), intent(in)   :: self
-      integer               , intent(in)   :: n
-      real (dp), dimension(2)              :: res
-      real (dp), allocatable, dimension(:) :: x
-      real (dp)                            :: ES
-      integer                              :: i
+  function CparamMinMax(self, n) result(res)
+    class (MatrixElements), intent(in)   :: self
+    integer               , intent(in)   :: n
+    real (dp), dimension(2)              :: res
+    real (dp), allocatable, dimension(:) :: x
+    real (dp)                            :: ES
+    integer                              :: i
 
-      res(1) = 10; res(2) = 0
+    res(1) = 10; res(2) = 0
 
-      select type (self)
-      type is (MatrixElements4)
-        allocate( x(3) )
-      type is (MatrixElements6)
-        allocate( x(7) )
-      end select
+    select type (self)
+    type is (MatrixElements4)
+      allocate( x(3) )
+    type is (MatrixElements6)
+      allocate( x(7) )
+    end select
 
-      do i = 1, n
-        call Random_number(x); ES = Cparam( self%GenerateVectors(x) )
-        if ( ES > res(2) ) res(2) = ES;  if ( ES < res(1) ) res(1) = ES
-      end do
+    do i = 1, n
+      call Random_number(x); ES = Cparam( self%GenerateVectors(x) )
+      if ( ES > res(2) ) res(2) = ES;  if ( ES < res(1) ) res(1) = ES
+    end do
 
-    end function CparamMinMax
+  end function CparamMinMax
 
 !ccccccccccccccc
 

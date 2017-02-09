@@ -196,11 +196,39 @@ subroutine f90Vectors6(x, mt, mb, mW, Q, p)
   real (dp), dimension(7)  , intent(in)  :: x
   real (dp)                , intent(in)  :: mt, mW, mb, Q
   real (dp), dimension(6,4), intent(out) :: p
-  type (MatrixElements6)                  :: MatEl
+  type (MatrixElements6)                 :: MatEl
 
   MatEl = MatrixElements6(mt, mb, mW, Q)
   p     = MatEl%GenerateVectors(x)
 
 end subroutine f90Vectors6
+
+!ccccccccccccccc
+
+subroutine f90RestVectors4(x, mt, mb, mW, Q, p)
+  use constants, only: dp; use MatrixElementsClass; implicit none
+  real (dp), dimension(3)  , intent(in)  :: x
+  real (dp)                , intent(in)  :: mt, mW, mb, Q
+  real (dp), dimension(4,4), intent(out) :: p
+  type (MatrixElements4)                 :: MatEl
+
+  MatEl = MatrixElements4(mt, mb, mW, Q)
+  p     = MatEl%GenerateRestVectors(x)
+
+end subroutine f90RestVectors4
+
+!ccccccccccccccc
+
+subroutine f90RestVectors6(x, mt, mb, mW, Q, p)
+  use constants, only: dp; use MatrixElementsClass; implicit none
+  real (dp), dimension(7)  , intent(in)  :: x
+  real (dp)                , intent(in)  :: mt, mW, mb, Q
+  real (dp), dimension(6,4), intent(out) :: p
+  type (MatrixElements6)                 :: MatEl
+
+  MatEl = MatrixElements6(mt, mb, mW, Q)
+  p     = MatEl%GenerateRestVectors(x)
+
+end subroutine f90RestVectors6
 
 !ccccccccccccccc

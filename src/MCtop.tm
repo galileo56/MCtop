@@ -13,6 +13,8 @@
 :Evaluate:  EScomputer::usage = "EScomputer[p] computes the value of the various event shapes"
 :Evaluate:  Vectors4::usage = "Vectors4[x, mt, mb, mW, Q] computes the value 4 four-vectors for top decay"
 :Evaluate:  Vectors6::usage = "Vectors6[x, mt, mb, mW, Q] computes the value 6 four-vectors for top decay"
+:Evaluate:  RestVectors4::usage = "Vectors4[x, mt, mb, mW, Q] computes the value 4 four-vectors for top decay, in the top rest frame"
+:Evaluate:  RestVectors6::usage = "Vectors6[x, mt, mb, mW, Q] computes the value 6 four-vectors for top decay, in the top rest frame"
 :Evaluate:  ESMinMax4::usage = "ESMinMax4[n, mt, mb, mW, Q] computes the maximum and minimum value for Event shapes with 2-particle final state"
 :Evaluate:  ESMinMax6::usage = "ESMinMax6[n, mt, mb, mW, Q] computes the maximum and minimum value for Event shapes with 3-particle final state"
 :Evaluate:  CparamMinMax4::usage = "CparamMinMax4[n, mt, mb, mW, Q] computes the maximum and minimum value for the C-parameter Event shape with 2-particle final state"
@@ -122,6 +124,22 @@
 :ReturnType:    Manual
 :End:
 
+:Begin:
+:Function:      restvectors4
+:Pattern:       RestVectors4[x_, mt_, mb_, mW_, Q_]
+:Arguments:     {x, mt, mb, mW, Q}
+:ArgumentTypes: {RealList, Real, Real, Real, Real}
+:ReturnType:    Manual
+:End:
+
+:Begin:
+:Function:      restvectors6
+:Pattern:       RestVectors6[x_, mt_, mb_, mW_, Q_]
+:Arguments:     {x, mt, mb, mW, Q}
+:ArgumentTypes: {RealList, Real, Real, Real, Real}
+:ReturnType:    Manual
+:End:
+
 :Evaluate:   realQ = Head[# + 1.] === Real &
 
 :Evaluate:   End[]
@@ -166,6 +184,34 @@ static void vectors4(double x[], long clen, double mt, double mb, double mW, dou
    MLPutFunction(stdlink, "Partition", 2);
    MLPutRealList(stdlink, res, 16);
    MLPutInteger(stdlink, 4);
+   MLEndPacket(stdlink);
+}
+
+extern double f90restvectors4_(double* x, double* mt, double* mb, double* mW, double* Q, double* res);
+
+static void restvectors4(double x[], long clen, double mt, double mb, double mW, double Q){
+  double res[16];
+
+   f90restvectors4_(x, &mt, &mb, &mW, &Q, res);
+
+   MLPutFunction(stdlink, "Transpose", 1);
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutRealList(stdlink, res, 16);
+   MLPutInteger(stdlink, 4);
+   MLEndPacket(stdlink);
+}
+
+extern double f90restvectors6_(double* x, double* mt, double* mb, double* mW, double* Q, double* res);
+
+static void restvectors6(double x[], long clen, double mt, double mb, double mW, double Q){
+  double res[24];
+
+   f90restvectors6_(x, &mt, &mb, &mW, &Q, res);
+
+   MLPutFunction(stdlink, "Transpose", 1);
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutRealList(stdlink, res, 24);
+   MLPutInteger(stdlink, 6);
    MLEndPacket(stdlink);
 }
 
