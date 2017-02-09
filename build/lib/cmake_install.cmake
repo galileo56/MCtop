@@ -1,4 +1,4 @@
-# Install script for directory: /Users/vicent/GitHubProjects/MCtop/lib
+# Install script for directory: /Users/vmateu/GitHub/MCtop/lib
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -29,17 +29,17 @@ endif()
 
 if("${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "/Users/vicent/GitHubProjects/MCtop/lib/../lib/liblibMCtop.a")
+   "/Users/vmateu/GitHub/MCtop/lib/../lib/liblibMCtop.a")
   if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-file(INSTALL DESTINATION "/Users/vicent/GitHubProjects/MCtop/lib/../lib" TYPE STATIC_LIBRARY FILES "/Users/vicent/GitHubProjects/MCtop/build/lib/liblibMCtop.a")
-  if(EXISTS "$ENV{DESTDIR}/Users/vicent/GitHubProjects/MCtop/lib/../lib/liblibMCtop.a" AND
-     NOT IS_SYMLINK "$ENV{DESTDIR}/Users/vicent/GitHubProjects/MCtop/lib/../lib/liblibMCtop.a")
-    execute_process(COMMAND "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ranlib" "$ENV{DESTDIR}/Users/vicent/GitHubProjects/MCtop/lib/../lib/liblibMCtop.a")
+file(INSTALL DESTINATION "/Users/vmateu/GitHub/MCtop/lib/../lib" TYPE STATIC_LIBRARY FILES "/Users/vmateu/GitHub/MCtop/build/lib/liblibMCtop.a")
+  if(EXISTS "$ENV{DESTDIR}/Users/vmateu/GitHub/MCtop/lib/../lib/liblibMCtop.a" AND
+     NOT IS_SYMLINK "$ENV{DESTDIR}/Users/vmateu/GitHub/MCtop/lib/../lib/liblibMCtop.a")
+    execute_process(COMMAND "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ranlib" "$ENV{DESTDIR}/Users/vmateu/GitHub/MCtop/lib/../lib/liblibMCtop.a")
   endif()
 endif()
 
