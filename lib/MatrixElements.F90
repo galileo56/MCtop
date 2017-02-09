@@ -17,7 +17,7 @@ module MatrixElementsClass
   contains
 
     procedure, pass (self), public       :: ESMinMax, CparamMinMax, GenerateVectors, &
-                                            SpinWeight, TotalSpinWeight, dimX, dimP
+                                            SpinWeight, dimX, dimP
   end type MatrixElements
 
 !ccccccccccccccc
@@ -84,102 +84,93 @@ module MatrixElementsClass
 
 !ccccccccccccccc
 
-  real (dp) function SpinWeight(self, p) ! TODO: normalize matrix elements
+  real (dp) function SpinWeight(self, spin, current, p) ! TODO: normalize matrix elements
     class (MatrixElements), intent(in) :: self
-    real (dp), intent(in) :: p(self%sizeP,0:3)
-    real (dp)             :: p1p2, p4p5, a
+    character (len = *)   , intent(in) :: spin, current
+    real (dp)             , intent(in) :: p(self%sizeP,0:3)
+    real (dp)                          :: p1p2, p1p4, p1p5, p1p6, p2p4, p2p6, &
+    p2p5, p3p4, p3p5, p3p6, p4p6, p4p5, a
 
     select type (self)
     type is (MatrixElements4)
       SpinWeight = 1
     type is (MatrixElements6)
 
-      a = (self%mt**2 - self%mb**2)/2
-      p1p2 = FourProd( p(1,:), p(2,:) );  p4p5 = FourProd( p(4,:), p(5,:) )
-      SpinWeight = 1.e5_dp * p1p2 * (a - p1p2) * p4p5 * (a - p4p5)
+      if ( spin(:6) == 'uncorr' ) then
+        SpinWeight = 1
+      else if ( spin(:3) == 'top' ) then
+
+        a = (self%mt**2 - self%mb**2)/2
+        p1p2 = FourProd( p(1,:), p(2,:) );  p4p5 = FourProd( p(4,:), p(5,:) )
+        SpinWeight = 1.e5_dp * p1p2 * (a - p1p2) * p4p5 * (a - p4p5)
+
+      else if ( spin(:8) == 'complete' ) then
+
+        p1p2 = FourProd( p(1,:), p(2,:) ); p1p4 = FourProd( p(1,:), p(4,:) )
+        p1p5 = FourProd( p(1,:), p(5,:) ); p1p6 = FourProd( p(1,:), p(6,:) )
+        p2p4 = FourProd( p(2,:), p(4,:) ); p2p5 = FourProd( p(2,:), p(5,:) )
+        p2p6 = FourProd( p(2,:), p(6,:) ); p3p4 = FourProd( p(3,:), p(4,:) )
+        p3p5 = FourProd( p(3,:), p(5,:) ); p3p6 = FourProd( p(3,:), p(6,:) )
+        p4p6 = FourProd( p(4,:), p(6,:) ); SpinWeight = 0
+
+        if ( current(:6) == 'vector' ) then
+
+          SpinWeight = &
+          - 8*p1p2**2*p4p6**2 - 4*self%mb**2*p1p2*p4p6**2 - 4*self%mb**2*p1p2**2* &
+          p4p6 - 2*self%mb**4*p1p2*p4p6 + 4*self%mt**2*p1p2*p4p6**2 - 8*self%mt**2*p1p2* &
+          p3p6*p4p6**2 - 8*self%mt**2*p1p2*p3p5*p4p6**2 - 8*self%mt**2*p1p2*p3p4* &
+          p4p6**2 + 4*self%mt**2*p1p2**2*p4p6 - 8*self%mt**2*p1p2**2*p3p5*p4p6 - 8* &
+          self%mt**2*p1p2**2*p2p5*p4p6 - 8*self%mt**2*p1p2**2*p1p5*p4p6 + 4*self%mt**2* &
+          self%mb**2*p1p2*p4p6 - 4*self%mt**2*self%mb**2*p1p2*p3p6*p4p6 - 8*self%mt**2*self%mb**2* &
+          p1p2*p3p5*p4p6 - 4*self%mt**2*self%mb**2*p1p2*p3p4*p4p6 - 4*self%mt**2*self%mb**2* &
+          p1p2*p2p5*p4p6 - 4*self%mt**2*self%mb**2*p1p2*p1p5*p4p6 - 2*self%mt**4*p1p2* &
+          p4p6 + 4*self%mt**4*p1p2*p3p6*p4p6 + 4*self%mt**4*p1p2*p3p4*p4p6 + 4*self%mt**4 &
+          *p1p2*p2p5*p4p6 + 4*self%mt**4*p1p2*p1p5*p4p6
+
+        else if ( current(:5) == 'axial' ) then
+
+          SpinWeight = &
+          - 16*p1p2**2*p4p6**2 - 8*self%mb**2*p1p2*p4p6**2 - 8*self%mb**2*p1p2**2* &
+          p4p6 - 4*self%mb**4*p1p2*p4p6 + 8*self%mt**2*p1p2*p4p6**2 - 16*self%mt**2*p1p2* &
+          p3p6*p4p6**2 - 16*self%mt**2*p1p2*p3p5*p4p6**2 - 16*self%mt**2*p1p2*p3p4* &
+          p4p6**2 + 8*self%mt**2*p1p2**2*p4p6 + 64*self%mt**2*p1p2**2*p4p6**2 - 16* &
+          self%mt**2*p1p2**2*p3p5*p4p6 - 16*self%mt**2*p1p2**2*p2p5*p4p6 - 16*self%mt**2* &
+          p1p2**2*p1p5*p4p6 + 8*self%mt**2*self%mb**2*p1p2*p4p6 + 32*self%mt**2*self%mb**2* &
+          p1p2*p4p6**2 - 8*self%mt**2*self%mb**2*p1p2*p3p6*p4p6 - 16*self%mt**2*self%mb**2* &
+          p1p2*p3p5*p4p6 - 8*self%mt**2*self%mb**2*p1p2*p3p4*p4p6 - 8*self%mt**2*self%mb**2* &
+          p1p2*p2p5*p4p6 - 8*self%mt**2*self%mb**2*p1p2*p1p5*p4p6 + 32*self%mt**2*self%mb**2* &
+          p1p2**2*p4p6 + 16*self%mt**2*self%mb**4*p1p2*p4p6 - 4*self%mt**4*p1p2*p4p6 - 32 &
+          *self%mt**4*p1p2*p4p6**2 + 8*self%mt**4*p1p2*p3p6*p4p6 + 32*self%mt**4*p1p2* &
+          p3p6*p4p6**2 + 16*self%mt**4*p1p2*p3p5*p4p6 + 32*self%mt**4*p1p2*p3p5* &
+          p4p6**2 - 32*self%mt**4*p1p2*p3p5*p3p6*p4p6 - 32*self%mt**4*p1p2*p3p5**2* &
+          p4p6 + 8*self%mt**4*p1p2*p3p4*p4p6 + 32*self%mt**4*p1p2*p3p4*p4p6**2 - 32* &
+          self%mt**4*p1p2*p3p4*p3p5*p4p6
+
+          SpinWeight = SpinWeight + &
+          8*self%mt**4*p1p2*p2p5*p4p6 - 32*self%mt**4*p1p2*p2p5*p3p6*p4p6 &
+          - 32*self%mt**4*p1p2*p2p5*p3p5*p4p6 - 32*self%mt**4*p1p2*p2p5*p3p4*p4p6 &
+          + 8*self%mt**4*p1p2*p1p5*p4p6 - 32*self%mt**4*p1p2*p1p5*p3p6*p4p6 - 32* &
+          self%mt**4*p1p2*p1p5*p3p5*p4p6 - 32*self%mt**4*p1p2*p1p5*p3p4*p4p6 - 32* &
+          self%mt**4*p1p2**2*p4p6 - 32*self%mt**4*p1p2**2*p4p6**2 + 32*self%mt**4*p1p2**2 &
+          *p3p5*p4p6 + 32*self%mt**4*p1p2**2*p2p5*p4p6 + 32*self%mt**4*p1p2**2*p1p5* &
+          p4p6 - 32*self%mt**4*self%mb**2*p1p2*p4p6 - 16*self%mt**4*self%mb**2*p1p2*p4p6**2 + &
+          16*self%mt**4*self%mb**2*p1p2*p3p6*p4p6 + 32*self%mt**4*self%mb**2*p1p2*p3p5*p4p6 + &
+          16*self%mt**4*self%mb**2*p1p2*p3p4*p4p6 + 16*self%mt**4*self%mb**2*p1p2*p2p5*p4p6 + &
+          16*self%mt**4*self%mb**2*p1p2*p1p5*p4p6 - 16*self%mt**4*self%mb**2*p1p2**2*p4p6 - 8* &
+          self%mt**4*self%mb**4*p1p2*p4p6 + 16*self%mt**6*p1p2*p4p6 + 16*self%mt**6*p1p2* &
+          p4p6**2 - 16*self%mt**6*p1p2*p3p6*p4p6 - 32*self%mt**6*p1p2*p3p5*p4p6 - 16 &
+          *self%mt**6*p1p2*p3p4*p4p6 - 16*self%mt**6*p1p2*p2p5*p4p6 - 16*self%mt**6*p1p2* &
+          p1p5*p4p6 + 16*self%mt**6*p1p2**2*p4p6 + 16*self%mt**6*self%mb**2*p1p2*p4p6 - 8 &
+          *self%mt**8*p1p2*p4p6
+
+          SpinWeight = 1.e5_dp * SpinWeight
+
+        end if
+      end if
 
     end select
 
   end function SpinWeight
-
-!ccccccccccccccc
-
-  double precision function TotalSpinWeight(self, p, current) ! TODO: normalize matrix elements
-    class (MatrixElements)     , intent(in) :: self
-    real (dp), dimension(self%sizeP,0:3), intent(in) :: p
-    character (len = *)        , intent(in) :: current
-    real (dp)                               :: p1p2, p1p4, p1p5, p1p6, p2p4, p2p6, &
-    p2p5, p3p4, p3p5, p3p6, p4p6
-
-    select type (self)
-    type is (MatrixElements4)
-      TotalSpinWeight = 1
-    type is (MatrixElements6)
-
-      p1p2 = FourProd( p(1,:), p(2,:) ); p1p4 = FourProd( p(1,:), p(4,:) )
-      p1p5 = FourProd( p(1,:), p(5,:) ); p1p6 = FourProd( p(1,:), p(6,:) )
-      p2p4 = FourProd( p(2,:), p(4,:) ); p2p5 = FourProd( p(2,:), p(5,:) )
-      p2p6 = FourProd( p(2,:), p(6,:) ); p3p4 = FourProd( p(3,:), p(4,:) )
-      p3p5 = FourProd( p(3,:), p(5,:) ); p3p6 = FourProd( p(3,:), p(6,:) )
-      p4p6 = FourProd( p(4,:), p(6,:) ); TotalSpinWeight = 0
-
-      if ( current(:6) == 'vector' ) then
-
-        TotalSpinWeight = &
-        - 8*p1p2**2*p4p6**2 - 4*self%mb**2*p1p2*p4p6**2 - 4*self%mb**2*p1p2**2* &
-        p4p6 - 2*self%mb**4*p1p2*p4p6 + 4*self%mt**2*p1p2*p4p6**2 - 8*self%mt**2*p1p2* &
-        p3p6*p4p6**2 - 8*self%mt**2*p1p2*p3p5*p4p6**2 - 8*self%mt**2*p1p2*p3p4* &
-        p4p6**2 + 4*self%mt**2*p1p2**2*p4p6 - 8*self%mt**2*p1p2**2*p3p5*p4p6 - 8* &
-        self%mt**2*p1p2**2*p2p5*p4p6 - 8*self%mt**2*p1p2**2*p1p5*p4p6 + 4*self%mt**2* &
-        self%mb**2*p1p2*p4p6 - 4*self%mt**2*self%mb**2*p1p2*p3p6*p4p6 - 8*self%mt**2*self%mb**2* &
-        p1p2*p3p5*p4p6 - 4*self%mt**2*self%mb**2*p1p2*p3p4*p4p6 - 4*self%mt**2*self%mb**2* &
-        p1p2*p2p5*p4p6 - 4*self%mt**2*self%mb**2*p1p2*p1p5*p4p6 - 2*self%mt**4*p1p2* &
-        p4p6 + 4*self%mt**4*p1p2*p3p6*p4p6 + 4*self%mt**4*p1p2*p3p4*p4p6 + 4*self%mt**4 &
-        *p1p2*p2p5*p4p6 + 4*self%mt**4*p1p2*p1p5*p4p6
-
-      else if ( current(:5) == 'axial' ) then
-
-        TotalSpinWeight = &
-        - 16*p1p2**2*p4p6**2 - 8*self%mb**2*p1p2*p4p6**2 - 8*self%mb**2*p1p2**2* &
-        p4p6 - 4*self%mb**4*p1p2*p4p6 + 8*self%mt**2*p1p2*p4p6**2 - 16*self%mt**2*p1p2* &
-        p3p6*p4p6**2 - 16*self%mt**2*p1p2*p3p5*p4p6**2 - 16*self%mt**2*p1p2*p3p4* &
-        p4p6**2 + 8*self%mt**2*p1p2**2*p4p6 + 64*self%mt**2*p1p2**2*p4p6**2 - 16* &
-        self%mt**2*p1p2**2*p3p5*p4p6 - 16*self%mt**2*p1p2**2*p2p5*p4p6 - 16*self%mt**2* &
-        p1p2**2*p1p5*p4p6 + 8*self%mt**2*self%mb**2*p1p2*p4p6 + 32*self%mt**2*self%mb**2* &
-        p1p2*p4p6**2 - 8*self%mt**2*self%mb**2*p1p2*p3p6*p4p6 - 16*self%mt**2*self%mb**2* &
-        p1p2*p3p5*p4p6 - 8*self%mt**2*self%mb**2*p1p2*p3p4*p4p6 - 8*self%mt**2*self%mb**2* &
-        p1p2*p2p5*p4p6 - 8*self%mt**2*self%mb**2*p1p2*p1p5*p4p6 + 32*self%mt**2*self%mb**2* &
-        p1p2**2*p4p6 + 16*self%mt**2*self%mb**4*p1p2*p4p6 - 4*self%mt**4*p1p2*p4p6 - 32 &
-        *self%mt**4*p1p2*p4p6**2 + 8*self%mt**4*p1p2*p3p6*p4p6 + 32*self%mt**4*p1p2* &
-        p3p6*p4p6**2 + 16*self%mt**4*p1p2*p3p5*p4p6 + 32*self%mt**4*p1p2*p3p5* &
-        p4p6**2 - 32*self%mt**4*p1p2*p3p5*p3p6*p4p6 - 32*self%mt**4*p1p2*p3p5**2* &
-        p4p6 + 8*self%mt**4*p1p2*p3p4*p4p6 + 32*self%mt**4*p1p2*p3p4*p4p6**2 - 32* &
-        self%mt**4*p1p2*p3p4*p3p5*p4p6
-
-        TotalSpinWeight = TotalSpinWeight + &
-        8*self%mt**4*p1p2*p2p5*p4p6 - 32*self%mt**4*p1p2*p2p5*p3p6*p4p6 &
-        - 32*self%mt**4*p1p2*p2p5*p3p5*p4p6 - 32*self%mt**4*p1p2*p2p5*p3p4*p4p6 &
-        + 8*self%mt**4*p1p2*p1p5*p4p6 - 32*self%mt**4*p1p2*p1p5*p3p6*p4p6 - 32* &
-        self%mt**4*p1p2*p1p5*p3p5*p4p6 - 32*self%mt**4*p1p2*p1p5*p3p4*p4p6 - 32* &
-        self%mt**4*p1p2**2*p4p6 - 32*self%mt**4*p1p2**2*p4p6**2 + 32*self%mt**4*p1p2**2 &
-        *p3p5*p4p6 + 32*self%mt**4*p1p2**2*p2p5*p4p6 + 32*self%mt**4*p1p2**2*p1p5* &
-        p4p6 - 32*self%mt**4*self%mb**2*p1p2*p4p6 - 16*self%mt**4*self%mb**2*p1p2*p4p6**2 + &
-        16*self%mt**4*self%mb**2*p1p2*p3p6*p4p6 + 32*self%mt**4*self%mb**2*p1p2*p3p5*p4p6 + &
-        16*self%mt**4*self%mb**2*p1p2*p3p4*p4p6 + 16*self%mt**4*self%mb**2*p1p2*p2p5*p4p6 + &
-        16*self%mt**4*self%mb**2*p1p2*p1p5*p4p6 - 16*self%mt**4*self%mb**2*p1p2**2*p4p6 - 8* &
-        self%mt**4*self%mb**4*p1p2*p4p6 + 16*self%mt**6*p1p2*p4p6 + 16*self%mt**6*p1p2* &
-        p4p6**2 - 16*self%mt**6*p1p2*p3p6*p4p6 - 32*self%mt**6*p1p2*p3p5*p4p6 - 16 &
-        *self%mt**6*p1p2*p3p4*p4p6 - 16*self%mt**6*p1p2*p2p5*p4p6 - 16*self%mt**6*p1p2* &
-        p1p5*p4p6 + 16*self%mt**6*p1p2**2*p4p6 + 16*self%mt**6*self%mb**2*p1p2*p4p6 - 8 &
-        *self%mt**8*p1p2*p4p6
-
-      end if
-
-      TotalSpinWeight = 1.e5_dp * TotalSpinWeight
-
-    end select
-
-  end function TotalSpinWeight
 
 !ccccccccccccccc
 
