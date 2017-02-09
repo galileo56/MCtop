@@ -89,7 +89,7 @@ module MCtopClass
     real (dp)                                        :: AVGI, SD, CHI2A
     integer                                          :: i, j
 
-    NPRN = - 1; ITMX = 1
+    NPRN = - 1; ITMX = 1; NCall = self%Nevent
 
     do j = 1, self%Niter
 
@@ -171,7 +171,7 @@ module MCtopClass
     real (dp)                                     :: AVGI, SD, CHI2A
     integer                                       :: j
 
-    NPRN = - 1; ITMX = 1
+    NPRN = - 1; ITMX = 1; NCall = self%Nevent
 
     do j = 1, self%Niter
 
@@ -197,7 +197,9 @@ module MCtopClass
       if ( dist2(j) <= tiny(1._dp) ) dist(j) = 0
     enddo
 
-    dist(2) = dist(2)/Abs(AVGI); dist2(2) = dist2(2)/Abs(AVGI)
+    ! dist = self%delta(5)
+
+    ! dist = dist/Abs(AVGI); dist2 = dist2/Abs(AVGI)
 
   contains
 
