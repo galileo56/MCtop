@@ -96,7 +96,7 @@ module MatrixElementsClass
 ! If one considers correlation among the W decay products, these do not exist
 ! In the case of stable W, there are no correlations within the top decay products
 
-  real (dp) function SpinWeight(self, spin, current, p) ! TODO: normalize matrix elements for complete correlations, 6-particle final state
+  real (dp) function SpinWeight(self, spin, current, p)
     class (MatrixElements), intent(in) :: self
     character (len = *)   , intent(in) :: spin, current
     real (dp)             , intent(in) :: p(self%sizeP,0:3)
@@ -173,6 +173,9 @@ module MatrixElementsClass
           p4p6 + 4*self%mt4*p1p2*p3p6*p4p6 + 4*self%mt4*p1p2*p3p4*p4p6 + 4*self%mt4 &
           *p1p2*p2p5*p4p6 + 4*self%mt4*p1p2*p1p5*p4p6
 
+          SpinWeight = - 64 * self%mt2 * SpinWeight/(1 + 2 * self%mt2)/&
+                        ( (self%mb2 - self%mt2)**2 - self%mW4 )**2
+
         else if ( current(:5) == 'axial' ) then
 
           SpinWeight = &
@@ -209,7 +212,8 @@ module MatrixElementsClass
           p1p5*p4p6 + 16*self%mt6*p1p2**2*p4p6 + 16*self%mt6*self%mb2*p1p2*p4p6 - 8 &
           *self%mt8*p1p2*p4p6
 
-          SpinWeight = 1.e5_dp * SpinWeight
+          SpinWeight = - 32 * SpinWeight/(1 - 4 * self%mt2)/&
+                       ( (self%mb2 - self%mt2)**2 - self%mW4 )**2
 
         end if
       end if
