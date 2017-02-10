@@ -96,12 +96,12 @@ module MatrixElementsClass
 ! If one considers correlation among the W decay products, these do not exist
 ! In the case of stable W, there are no correlations within the top decay products
 
-  real (dp) function SpinWeight(self, spin, current, p) ! TODO: normalize matrix elements for complete correlations
+  real (dp) function SpinWeight(self, spin, current, p) ! TODO: normalize matrix elements for complete correlations, 6-particle final state
     class (MatrixElements), intent(in) :: self
     character (len = *)   , intent(in) :: spin, current
     real (dp)             , intent(in) :: p(self%sizeP,0:3)
-    real (dp)                          :: p1p2, p1p4, p1p5, p1p6, p2p4, p2p6, &
-                                          p2p5, p3p4, p3p5, p3p6, p4p6, p4p5, a
+    real (dp)                          :: p1p2, p1p4, p1p5, p1p6, p2p4, p2p6, a, &
+                                          p2p5, p3p4, p3p5, p3p6, p4p6, p4p5
     select type (self)
     type is (MatrixElements4)
       if ( spin(:8) == 'complete' ) then
@@ -116,6 +116,9 @@ module MatrixElementsClass
           (  FourProd( p(1,:), p(4,:) ) + FourProd( p(2,:), p(3,:) )  ) +                    &
           2 * (self%mb2 - self%mW2) * FourProd( p(3,:), p(4,:) )  )
 
+          SpinWeight = 2 * SpinWeight/(1 + 2 * self%mt2)/( (self%mb2 - self%mt2)**2 + &
+          (self%mb2 + self%mt2) * self%mW2 - 2 * self%mW4 )**2
+
         else if ( current(:5) == 'axial' ) then
 
           SpinWeight = 4 * self%mt2 * ( - (self%mb2 - self%mt2)**4 - (2 * self%mb6 -        &
@@ -127,6 +130,9 @@ module MatrixElementsClass
           - self%mt2 + 2 * self%mW2)**2 * (  - (self%mt2 - self%mb2 + self%mW2) *           &
           (  FourProd( p(1,:), p(4,:) ) + FourProd( p(2,:), p(3,:) )  ) +                   &
           2 * (self%mb2 - self%mW2) * FourProd( p(3,:), p(4,:) )  )
+
+          SpinWeight = SpinWeight/(1 - 6 * self%mt2)/( (self%mb2 - self%mt2)**2 + &
+          (self%mb2 + self%mt2) * self%mW2 - 2 * self%mW4 )**2
 
         end if
 
