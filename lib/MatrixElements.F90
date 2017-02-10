@@ -502,6 +502,37 @@ module MatrixElementsClass
 
 !ccccccccccccccc
 
+  real (dp) function CparamBeta(self, p)
+    class (MatrixElements)              , intent(in) :: self
+    real (dp), dimension(self%sizeP,0:3), intent(in) :: p ! cartesian coordinates, top rest frame
+    real (dp), dimension(self%sizeP,4)               :: q ! light-cone coordinates
+    integer                                          :: i, j, npart
+
+    CparamBeta = 2 * (self%mt2 - self%mb2); q = p
+
+    do i = 1, self%sizeP
+      q(i,1) = p(i,0) + p(i,3);  q(i,1) = p(i,0) - p(i,3)
+    end do
+
+    select type (self)
+    type is (MatrixElements6)
+
+      CparamBeta = CparamBeta - self%mt2 * (   self%mW4 * &
+      ( 1/q(2,1)/q(3,1) + 1/q(5,2)/q(6,2) )  + 4 * (  FourProd( p(1,:), p(2,:) )**2/q(1,1)/q(2,1) &
+      + FourProd( p(1,:), p(3,:) )**2/q(1,1)/q(3,1) + FourProd( p(4,:), p(5,:) )**2/q(4,2)/q(5,2) &
+      + FourProd( p(4,:), p(6,:) )**2/q(4,2)/q(6,2) )   )
+
+    type is (MatrixElements4)
+      CparamBeta = CparamBeta - 2 * self%mW2 - self%mt2 * &
+      (self%mt2 - self%mb2 - self%mW2)**2 * ( 1/q(1,1)/q(3,1) + 1/q(2,2)/q(4,2) )
+    end select
+
+    CparamBeta = 3 * CparamBeta
+
+  end function CparamBeta
+
+!ccccccccccccccc
+
   function CrossProd(p1, p2) result(q)
     real (dp), dimension(3), intent(in) :: p1, p2
     real (dp), dimension(3)             :: q
