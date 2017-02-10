@@ -504,11 +504,11 @@ module MatrixElementsClass
 
   real (dp) function CparamBeta(self, p)
     class (MatrixElements)              , intent(in) :: self
-    real (dp), dimension(self%sizeP,0:3), intent(in) :: p ! cartesian coordinates, top rest frame
+    real (dp), dimension(self%sizeP,0:3), intent(in) :: p ! cartesian coordinates, top and anti-top rest frame
     real (dp), dimension(self%sizeP,4)               :: q ! light-cone coordinates
-    integer                                          :: i, j, npart
+    integer                                          :: i, j
 
-    CparamBeta = 2 * (self%mt2 - self%mb2); q = p
+    CparamBeta = 2 * self%mt2; q = p
 
     do i = 1, self%sizeP
       q(i,1) = p(i,0) + p(i,3);  q(i,1) = p(i,0) - p(i,3)
@@ -523,7 +523,7 @@ module MatrixElementsClass
       + FourProd( p(4,:), p(6,:) )**2/q(4,2)/q(6,2) )   )
 
     type is (MatrixElements4)
-      CparamBeta = CparamBeta - 2 * self%mW2 - self%mt2 * &
+      CparamBeta = CparamBeta - self%mt2 * &
       (self%mt2 - self%mb2 - self%mW2)**2 * ( 1/q(1,1)/q(3,1) + 1/q(2,2)/q(4,2) )
     end select
 
