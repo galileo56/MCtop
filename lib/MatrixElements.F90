@@ -1,5 +1,4 @@
 
-! TODO: include matrix elements for 4-particle decay
 ! TODO: include non-zero width for top and W
 
 module MatrixElementsClass
@@ -11,9 +10,9 @@ module MatrixElementsClass
 
   type, abstract                         ::  MatrixElements
     private
-    real (dp)                            :: mt, mb, mW, mt2, mW2, mb2
     integer                              :: sizeX, sizeP
-
+    real (dp)                            :: mt, mb, mW, mb4, mt2, mW2, mW4, mW6, mW8,&
+                                            mb2, mt4, mt6, mt8, mb6
   contains
 
     procedure, pass (self), public       :: ESMinMax, CparamMinMax, GenerateVectors, &
@@ -55,7 +54,11 @@ module MatrixElementsClass
 
     InMatEl4%mt = mt/Q;  InMatEl4%mW = mW/Q;  InMatEl4%mb = mb/Q
     InMatEl4%mt2 = InMatEl4%mt**2;  InMatEl4%mW2 = InMatEl4%mW**2
-    InMatEl4%mb2 = InMatEl4%mb**2;  InMatEl4%sizeX = 3;  InMatEl4%sizeP = 4
+    InMatEl4%mb2 = InMatEl4%mb**2;  InMatEl4%mt4 = InMatEl4%mt2**2
+    InMatEl4%mt6 = InMatEl4%mt2**3;  InMatEl4%mb4 = InMatEl4%mb2**2
+    InMatEl4%mt8 = InMatEl4%mt4**2; InMatEl4%mW4 = InMatEl4%mW2**2
+    InMatEl4%mW6 = InMatEl4%mW2**3;  InMatEl4%mW8 = InMatEl4%mW4**2
+    InMatEl4%mb6 = InMatEl4%mb2**3;  InMatEl4%sizeX = 3;   InMatEl4%sizeP = 4
 
   end function InMatEl4
 
@@ -66,7 +69,11 @@ module MatrixElementsClass
 
     InMatEl6%mt = mt/Q;  InMatEl6%mW = mW/Q;  InMatEl6%mb = mb/Q
     InMatEl6%mt2 = InMatEl6%mt**2;  InMatEl6%mW2 = InMatEl6%mW**2
-    InMatEl6%mb2 = InMatEl6%mb**2;  InMatEl6%sizeX = 7;  InMatEl6%sizeP = 6
+    InMatEl6%mb2 = InMatEl6%mb**2;  InMatEl6%mt4 = InMatEl6%mt2**2
+    InMatEl6%mt6 = InMatEl6%mt2**3;  InMatEl6%mb4 = InMatEl6%mb2**2
+    InMatEl6%mt8 = InMatEl6%mt4**2; InMatEl6%mW4 = InMatEl6%mW2**2
+    InMatEl6%mW6 = InMatEl6%mW2**3;  InMatEl6%mW8 = InMatEl6%mW4**2
+    InMatEl6%mb6 = InMatEl6%mb2**3;  InMatEl6%sizeX = 7;  InMatEl6%sizeP = 6
 
   end function InMatEl6
 
@@ -97,7 +104,35 @@ module MatrixElementsClass
                                           p2p5, p3p4, p3p5, p3p6, p4p6, p4p5, a
     select type (self)
     type is (MatrixElements4)
-      SpinWeight = 1
+      if ( spin(:8) == 'complete' ) then
+
+        if ( current(:6) == 'vector' ) then
+
+          SpinWeight = 4 * self%mt4 * self%mW2 *( (self%mb2 - self%mt2)**2 + self%mb2 *      &
+          self%mW2 - 2 * self%mW4 ) + ( (self%mb2 - self%mt2)**4 + 2 * self%mb2 *            &
+          (self%mb2 - self%mt2)**2 * self%mW2 + (- 3 * self%mb4 + 8 * self%mb2 * self%mt2 -  &
+          3 * self%mt4) * self%mW4 - 4 * self%mb2 * self%mW6 + 4 * self%mW8 ) + 2 * self%mt2 &
+          * (self%mb2 - self%mt2 + 2 * self%mW2)**2 * (  (self%mb2 - self%mt2 - self%mW2) *  &
+          (  FourProd( p(1,:), p(4,:) ) + FourProd( p(2,:), p(3,:) )  ) +                    &
+          2 * (self%mb2 - self%mW2) * FourProd( p(3,:), p(4,:) )  )
+
+        else if ( current(:5) == 'axial' ) then
+
+          SpinWeight = 4 * self%mt2 * ( - (self%mb2 - self%mt2)**4 - (2 * self%mb6 -        &
+          3 * self%mb4 * self%mt2 + self%mt6) * self%mW2 + 3 * (self%mb4 - 3 * self%mb2     &
+          * self%mt2 + self%mt4) * self%mW4 + 2 * (2 * self%mb2 + self%mt2) * self%mW6 -    &
+          4 * self%mW8 ) + ( (self%mb2 - self%mt2)**4 + 2 * self%mb2 * (self%mb2 -          &
+          self%mt2)**2 * self%mW2 + (8 * self%mb2 * self%mt2 - 3 * self%mb4 - 3 * self%mt4) &
+          * self%mW4 - 4 * self%mb2 * self%mW6 + 4 * self%mW8) + 2 * self%mt2 * (self%mb2   &
+          - self%mt2 + 2 * self%mW2)**2 * (  - (self%mt2 - self%mb2 + self%mW2) *           &
+          (  FourProd( p(1,:), p(4,:) ) + FourProd( p(2,:), p(3,:) )  ) +                   &
+          2 * (self%mb2 - self%mW2) * FourProd( p(3,:), p(4,:) )  )
+
+        end if
+
+      else
+        SpinWeight = 1
+      end if
     type is (MatrixElements6)
 
       if ( spin(:6) == 'uncorr' ) then
@@ -122,21 +157,21 @@ module MatrixElementsClass
 
           SpinWeight = &
           - 8*p1p2**2*p4p6**2 - 4*self%mb2*p1p2*p4p6**2 - 4*self%mb2*p1p2**2* &
-          p4p6 - 2*self%mb**4*p1p2*p4p6 + 4*self%mt2*p1p2*p4p6**2 - 8*self%mt2*p1p2* &
+          p4p6 - 2*self%mb4*p1p2*p4p6 + 4*self%mt2*p1p2*p4p6**2 - 8*self%mt2*p1p2* &
           p3p6*p4p6**2 - 8*self%mt2*p1p2*p3p5*p4p6**2 - 8*self%mt2*p1p2*p3p4* &
           p4p6**2 + 4*self%mt2*p1p2**2*p4p6 - 8*self%mt2*p1p2**2*p3p5*p4p6 - 8* &
           self%mt2*p1p2**2*p2p5*p4p6 - 8*self%mt2*p1p2**2*p1p5*p4p6 + 4*self%mt2* &
           self%mb2*p1p2*p4p6 - 4*self%mt2*self%mb2*p1p2*p3p6*p4p6 - 8*self%mt2*self%mb2* &
           p1p2*p3p5*p4p6 - 4*self%mt2*self%mb2*p1p2*p3p4*p4p6 - 4*self%mt2*self%mb2* &
-          p1p2*p2p5*p4p6 - 4*self%mt2*self%mb2*p1p2*p1p5*p4p6 - 2*self%mt**4*p1p2* &
-          p4p6 + 4*self%mt**4*p1p2*p3p6*p4p6 + 4*self%mt**4*p1p2*p3p4*p4p6 + 4*self%mt**4 &
-          *p1p2*p2p5*p4p6 + 4*self%mt**4*p1p2*p1p5*p4p6
+          p1p2*p2p5*p4p6 - 4*self%mt2*self%mb2*p1p2*p1p5*p4p6 - 2*self%mt4*p1p2* &
+          p4p6 + 4*self%mt4*p1p2*p3p6*p4p6 + 4*self%mt4*p1p2*p3p4*p4p6 + 4*self%mt4 &
+          *p1p2*p2p5*p4p6 + 4*self%mt4*p1p2*p1p5*p4p6
 
         else if ( current(:5) == 'axial' ) then
 
           SpinWeight = &
           - 16*p1p2**2*p4p6**2 - 8*self%mb2*p1p2*p4p6**2 - 8*self%mb2*p1p2**2* &
-          p4p6 - 4*self%mb**4*p1p2*p4p6 + 8*self%mt2*p1p2*p4p6**2 - 16*self%mt2*p1p2* &
+          p4p6 - 4*self%mb4*p1p2*p4p6 + 8*self%mt2*p1p2*p4p6**2 - 16*self%mt2*p1p2* &
           p3p6*p4p6**2 - 16*self%mt2*p1p2*p3p5*p4p6**2 - 16*self%mt2*p1p2*p3p4* &
           p4p6**2 + 8*self%mt2*p1p2**2*p4p6 + 64*self%mt2*p1p2**2*p4p6**2 - 16* &
           self%mt2*p1p2**2*p3p5*p4p6 - 16*self%mt2*p1p2**2*p2p5*p4p6 - 16*self%mt2* &
@@ -144,29 +179,29 @@ module MatrixElementsClass
           p1p2*p4p6**2 - 8*self%mt2*self%mb2*p1p2*p3p6*p4p6 - 16*self%mt2*self%mb2* &
           p1p2*p3p5*p4p6 - 8*self%mt2*self%mb2*p1p2*p3p4*p4p6 - 8*self%mt2*self%mb2* &
           p1p2*p2p5*p4p6 - 8*self%mt2*self%mb2*p1p2*p1p5*p4p6 + 32*self%mt2*self%mb2* &
-          p1p2**2*p4p6 + 16*self%mt2*self%mb**4*p1p2*p4p6 - 4*self%mt**4*p1p2*p4p6 - 32 &
-          *self%mt**4*p1p2*p4p6**2 + 8*self%mt**4*p1p2*p3p6*p4p6 + 32*self%mt**4*p1p2* &
-          p3p6*p4p6**2 + 16*self%mt**4*p1p2*p3p5*p4p6 + 32*self%mt**4*p1p2*p3p5* &
-          p4p6**2 - 32*self%mt**4*p1p2*p3p5*p3p6*p4p6 - 32*self%mt**4*p1p2*p3p5**2* &
-          p4p6 + 8*self%mt**4*p1p2*p3p4*p4p6 + 32*self%mt**4*p1p2*p3p4*p4p6**2 - 32* &
-          self%mt**4*p1p2*p3p4*p3p5*p4p6
+          p1p2**2*p4p6 + 16*self%mt2*self%mb4*p1p2*p4p6 - 4*self%mt4*p1p2*p4p6 - 32 &
+          *self%mt4*p1p2*p4p6**2 + 8*self%mt4*p1p2*p3p6*p4p6 + 32*self%mt4*p1p2* &
+          p3p6*p4p6**2 + 16*self%mt4*p1p2*p3p5*p4p6 + 32*self%mt4*p1p2*p3p5* &
+          p4p6**2 - 32*self%mt4*p1p2*p3p5*p3p6*p4p6 - 32*self%mt4*p1p2*p3p5**2* &
+          p4p6 + 8*self%mt4*p1p2*p3p4*p4p6 + 32*self%mt4*p1p2*p3p4*p4p6**2 - 32* &
+          self%mt4*p1p2*p3p4*p3p5*p4p6
 
           SpinWeight = SpinWeight + &
-          8*self%mt**4*p1p2*p2p5*p4p6 - 32*self%mt**4*p1p2*p2p5*p3p6*p4p6 &
-          - 32*self%mt**4*p1p2*p2p5*p3p5*p4p6 - 32*self%mt**4*p1p2*p2p5*p3p4*p4p6 &
-          + 8*self%mt**4*p1p2*p1p5*p4p6 - 32*self%mt**4*p1p2*p1p5*p3p6*p4p6 - 32* &
-          self%mt**4*p1p2*p1p5*p3p5*p4p6 - 32*self%mt**4*p1p2*p1p5*p3p4*p4p6 - 32* &
-          self%mt**4*p1p2**2*p4p6 - 32*self%mt**4*p1p2**2*p4p6**2 + 32*self%mt**4*p1p2**2 &
-          *p3p5*p4p6 + 32*self%mt**4*p1p2**2*p2p5*p4p6 + 32*self%mt**4*p1p2**2*p1p5* &
-          p4p6 - 32*self%mt**4*self%mb2*p1p2*p4p6 - 16*self%mt**4*self%mb2*p1p2*p4p6**2 + &
-          16*self%mt**4*self%mb2*p1p2*p3p6*p4p6 + 32*self%mt**4*self%mb2*p1p2*p3p5*p4p6 + &
-          16*self%mt**4*self%mb2*p1p2*p3p4*p4p6 + 16*self%mt**4*self%mb2*p1p2*p2p5*p4p6 + &
-          16*self%mt**4*self%mb2*p1p2*p1p5*p4p6 - 16*self%mt**4*self%mb2*p1p2**2*p4p6 - 8* &
-          self%mt**4*self%mb**4*p1p2*p4p6 + 16*self%mt**6*p1p2*p4p6 + 16*self%mt**6*p1p2* &
-          p4p6**2 - 16*self%mt**6*p1p2*p3p6*p4p6 - 32*self%mt**6*p1p2*p3p5*p4p6 - 16 &
-          *self%mt**6*p1p2*p3p4*p4p6 - 16*self%mt**6*p1p2*p2p5*p4p6 - 16*self%mt**6*p1p2* &
-          p1p5*p4p6 + 16*self%mt**6*p1p2**2*p4p6 + 16*self%mt**6*self%mb2*p1p2*p4p6 - 8 &
-          *self%mt**8*p1p2*p4p6
+          8*self%mt4*p1p2*p2p5*p4p6 - 32*self%mt4*p1p2*p2p5*p3p6*p4p6 &
+          - 32*self%mt4*p1p2*p2p5*p3p5*p4p6 - 32*self%mt4*p1p2*p2p5*p3p4*p4p6 &
+          + 8*self%mt4*p1p2*p1p5*p4p6 - 32*self%mt4*p1p2*p1p5*p3p6*p4p6 - 32* &
+          self%mt4*p1p2*p1p5*p3p5*p4p6 - 32*self%mt4*p1p2*p1p5*p3p4*p4p6 - 32* &
+          self%mt4*p1p2**2*p4p6 - 32*self%mt4*p1p2**2*p4p6**2 + 32*self%mt4*p1p2**2 &
+          *p3p5*p4p6 + 32*self%mt4*p1p2**2*p2p5*p4p6 + 32*self%mt4*p1p2**2*p1p5* &
+          p4p6 - 32*self%mt4*self%mb2*p1p2*p4p6 - 16*self%mt4*self%mb2*p1p2*p4p6**2 + &
+          16*self%mt4*self%mb2*p1p2*p3p6*p4p6 + 32*self%mt4*self%mb2*p1p2*p3p5*p4p6 + &
+          16*self%mt4*self%mb2*p1p2*p3p4*p4p6 + 16*self%mt4*self%mb2*p1p2*p2p5*p4p6 + &
+          16*self%mt4*self%mb2*p1p2*p1p5*p4p6 - 16*self%mt4*self%mb2*p1p2**2*p4p6 - 8* &
+          self%mt4*self%mb4*p1p2*p4p6 + 16*self%mt6*p1p2*p4p6 + 16*self%mt6*p1p2* &
+          p4p6**2 - 16*self%mt6*p1p2*p3p6*p4p6 - 32*self%mt6*p1p2*p3p5*p4p6 - 16 &
+          *self%mt6*p1p2*p3p4*p4p6 - 16*self%mt6*p1p2*p2p5*p4p6 - 16*self%mt6*p1p2* &
+          p1p5*p4p6 + 16*self%mt6*p1p2**2*p4p6 + 16*self%mt6*self%mb2*p1p2*p4p6 - 8 &
+          *self%mt8*p1p2*p4p6
 
           SpinWeight = 1.e5_dp * SpinWeight
 
