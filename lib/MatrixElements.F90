@@ -11,7 +11,7 @@ module MatrixElementsClass
 
   type, abstract                         ::  MatrixElements
     private
-    real (dp)                            :: mt, mb, mW
+    real (dp)                            :: mt, mb, mW, mt2, mW2, mb2
     integer                              :: sizeX, sizeP
 
   contains
@@ -54,7 +54,8 @@ module MatrixElementsClass
     real (dp), intent(in) :: mt, mW, mb, Q
 
     InMatEl4%mt = mt/Q;  InMatEl4%mW = mW/Q;  InMatEl4%mb = mb/Q
-    InMatEl4%sizeX = 3;  InMatEl4%sizeP = 4
+    InMatEl4%mt2 = InMatEl4%mt**2;  InMatEl4%mW2 = InMatEl4%mW**2
+    InMatEl4%mb2 = InMatEl4%mb**2;  InMatEl4%sizeX = 3;  InMatEl4%sizeP = 4
 
   end function InMatEl4
 
@@ -64,7 +65,8 @@ module MatrixElementsClass
     real (dp), intent(in) :: mt, mW, mb, Q
 
     InMatEl6%mt = mt/Q;  InMatEl6%mW = mW/Q;  InMatEl6%mb = mb/Q
-    InMatEl6%sizeX = 7;  InMatEl6%sizeP = 6
+    InMatEl6%mt2 = InMatEl6%mt**2;  InMatEl6%mW2 = InMatEl6%mW**2
+    InMatEl6%mb2 = InMatEl6%mb**2;  InMatEl6%sizeX = 7;  InMatEl6%sizeP = 6
 
   end function InMatEl6
 
@@ -84,13 +86,15 @@ module MatrixElementsClass
 
 !ccccccccccccccc
 
-  real (dp) function SpinWeight(self, spin, current, p) ! TODO: normalize matrix elements
+! If one considers correlation among the W decay products, these do not exist
+! In the case of stable W, there are no correlations within the top decay products
+
+  real (dp) function SpinWeight(self, spin, current, p) ! TODO: normalize matrix elements for complete correlations
     class (MatrixElements), intent(in) :: self
     character (len = *)   , intent(in) :: spin, current
     real (dp)             , intent(in) :: p(self%sizeP,0:3)
     real (dp)                          :: p1p2, p1p4, p1p5, p1p6, p2p4, p2p6, &
-    p2p5, p3p4, p3p5, p3p6, p4p6, p4p5, a
-
+                                          p2p5, p3p4, p3p5, p3p6, p4p6, p4p5, a
     select type (self)
     type is (MatrixElements4)
       SpinWeight = 1
@@ -100,9 +104,10 @@ module MatrixElementsClass
         SpinWeight = 1
       else if ( spin(:3) == 'top' ) then
 
-        a = (self%mt**2 - self%mb**2)/2
+        a = self%mt2 - self%mb2
         p1p2 = FourProd( p(1,:), p(2,:) );  p4p5 = FourProd( p(4,:), p(5,:) )
-        SpinWeight = 1.e5_dp * p1p2 * (a - p1p2) * p4p5 * (a - p4p5)
+        SpinWeight = 144 * p1p2 * (a - 2 * p1p2) * p4p5 * (a - 2 * p4p5)/ &
+        ( a**2 + self%mW2 * (self%mt2 + self%mb2 - 2 * self%mW2) )**2
 
       else if ( spin(:8) == 'complete' ) then
 
@@ -116,30 +121,30 @@ module MatrixElementsClass
         if ( current(:6) == 'vector' ) then
 
           SpinWeight = &
-          - 8*p1p2**2*p4p6**2 - 4*self%mb**2*p1p2*p4p6**2 - 4*self%mb**2*p1p2**2* &
-          p4p6 - 2*self%mb**4*p1p2*p4p6 + 4*self%mt**2*p1p2*p4p6**2 - 8*self%mt**2*p1p2* &
-          p3p6*p4p6**2 - 8*self%mt**2*p1p2*p3p5*p4p6**2 - 8*self%mt**2*p1p2*p3p4* &
-          p4p6**2 + 4*self%mt**2*p1p2**2*p4p6 - 8*self%mt**2*p1p2**2*p3p5*p4p6 - 8* &
-          self%mt**2*p1p2**2*p2p5*p4p6 - 8*self%mt**2*p1p2**2*p1p5*p4p6 + 4*self%mt**2* &
-          self%mb**2*p1p2*p4p6 - 4*self%mt**2*self%mb**2*p1p2*p3p6*p4p6 - 8*self%mt**2*self%mb**2* &
-          p1p2*p3p5*p4p6 - 4*self%mt**2*self%mb**2*p1p2*p3p4*p4p6 - 4*self%mt**2*self%mb**2* &
-          p1p2*p2p5*p4p6 - 4*self%mt**2*self%mb**2*p1p2*p1p5*p4p6 - 2*self%mt**4*p1p2* &
+          - 8*p1p2**2*p4p6**2 - 4*self%mb2*p1p2*p4p6**2 - 4*self%mb2*p1p2**2* &
+          p4p6 - 2*self%mb**4*p1p2*p4p6 + 4*self%mt2*p1p2*p4p6**2 - 8*self%mt2*p1p2* &
+          p3p6*p4p6**2 - 8*self%mt2*p1p2*p3p5*p4p6**2 - 8*self%mt2*p1p2*p3p4* &
+          p4p6**2 + 4*self%mt2*p1p2**2*p4p6 - 8*self%mt2*p1p2**2*p3p5*p4p6 - 8* &
+          self%mt2*p1p2**2*p2p5*p4p6 - 8*self%mt2*p1p2**2*p1p5*p4p6 + 4*self%mt2* &
+          self%mb2*p1p2*p4p6 - 4*self%mt2*self%mb2*p1p2*p3p6*p4p6 - 8*self%mt2*self%mb2* &
+          p1p2*p3p5*p4p6 - 4*self%mt2*self%mb2*p1p2*p3p4*p4p6 - 4*self%mt2*self%mb2* &
+          p1p2*p2p5*p4p6 - 4*self%mt2*self%mb2*p1p2*p1p5*p4p6 - 2*self%mt**4*p1p2* &
           p4p6 + 4*self%mt**4*p1p2*p3p6*p4p6 + 4*self%mt**4*p1p2*p3p4*p4p6 + 4*self%mt**4 &
           *p1p2*p2p5*p4p6 + 4*self%mt**4*p1p2*p1p5*p4p6
 
         else if ( current(:5) == 'axial' ) then
 
           SpinWeight = &
-          - 16*p1p2**2*p4p6**2 - 8*self%mb**2*p1p2*p4p6**2 - 8*self%mb**2*p1p2**2* &
-          p4p6 - 4*self%mb**4*p1p2*p4p6 + 8*self%mt**2*p1p2*p4p6**2 - 16*self%mt**2*p1p2* &
-          p3p6*p4p6**2 - 16*self%mt**2*p1p2*p3p5*p4p6**2 - 16*self%mt**2*p1p2*p3p4* &
-          p4p6**2 + 8*self%mt**2*p1p2**2*p4p6 + 64*self%mt**2*p1p2**2*p4p6**2 - 16* &
-          self%mt**2*p1p2**2*p3p5*p4p6 - 16*self%mt**2*p1p2**2*p2p5*p4p6 - 16*self%mt**2* &
-          p1p2**2*p1p5*p4p6 + 8*self%mt**2*self%mb**2*p1p2*p4p6 + 32*self%mt**2*self%mb**2* &
-          p1p2*p4p6**2 - 8*self%mt**2*self%mb**2*p1p2*p3p6*p4p6 - 16*self%mt**2*self%mb**2* &
-          p1p2*p3p5*p4p6 - 8*self%mt**2*self%mb**2*p1p2*p3p4*p4p6 - 8*self%mt**2*self%mb**2* &
-          p1p2*p2p5*p4p6 - 8*self%mt**2*self%mb**2*p1p2*p1p5*p4p6 + 32*self%mt**2*self%mb**2* &
-          p1p2**2*p4p6 + 16*self%mt**2*self%mb**4*p1p2*p4p6 - 4*self%mt**4*p1p2*p4p6 - 32 &
+          - 16*p1p2**2*p4p6**2 - 8*self%mb2*p1p2*p4p6**2 - 8*self%mb2*p1p2**2* &
+          p4p6 - 4*self%mb**4*p1p2*p4p6 + 8*self%mt2*p1p2*p4p6**2 - 16*self%mt2*p1p2* &
+          p3p6*p4p6**2 - 16*self%mt2*p1p2*p3p5*p4p6**2 - 16*self%mt2*p1p2*p3p4* &
+          p4p6**2 + 8*self%mt2*p1p2**2*p4p6 + 64*self%mt2*p1p2**2*p4p6**2 - 16* &
+          self%mt2*p1p2**2*p3p5*p4p6 - 16*self%mt2*p1p2**2*p2p5*p4p6 - 16*self%mt2* &
+          p1p2**2*p1p5*p4p6 + 8*self%mt2*self%mb2*p1p2*p4p6 + 32*self%mt2*self%mb2* &
+          p1p2*p4p6**2 - 8*self%mt2*self%mb2*p1p2*p3p6*p4p6 - 16*self%mt2*self%mb2* &
+          p1p2*p3p5*p4p6 - 8*self%mt2*self%mb2*p1p2*p3p4*p4p6 - 8*self%mt2*self%mb2* &
+          p1p2*p2p5*p4p6 - 8*self%mt2*self%mb2*p1p2*p1p5*p4p6 + 32*self%mt2*self%mb2* &
+          p1p2**2*p4p6 + 16*self%mt2*self%mb**4*p1p2*p4p6 - 4*self%mt**4*p1p2*p4p6 - 32 &
           *self%mt**4*p1p2*p4p6**2 + 8*self%mt**4*p1p2*p3p6*p4p6 + 32*self%mt**4*p1p2* &
           p3p6*p4p6**2 + 16*self%mt**4*p1p2*p3p5*p4p6 + 32*self%mt**4*p1p2*p3p5* &
           p4p6**2 - 32*self%mt**4*p1p2*p3p5*p3p6*p4p6 - 32*self%mt**4*p1p2*p3p5**2* &
@@ -153,14 +158,14 @@ module MatrixElementsClass
           self%mt**4*p1p2*p1p5*p3p5*p4p6 - 32*self%mt**4*p1p2*p1p5*p3p4*p4p6 - 32* &
           self%mt**4*p1p2**2*p4p6 - 32*self%mt**4*p1p2**2*p4p6**2 + 32*self%mt**4*p1p2**2 &
           *p3p5*p4p6 + 32*self%mt**4*p1p2**2*p2p5*p4p6 + 32*self%mt**4*p1p2**2*p1p5* &
-          p4p6 - 32*self%mt**4*self%mb**2*p1p2*p4p6 - 16*self%mt**4*self%mb**2*p1p2*p4p6**2 + &
-          16*self%mt**4*self%mb**2*p1p2*p3p6*p4p6 + 32*self%mt**4*self%mb**2*p1p2*p3p5*p4p6 + &
-          16*self%mt**4*self%mb**2*p1p2*p3p4*p4p6 + 16*self%mt**4*self%mb**2*p1p2*p2p5*p4p6 + &
-          16*self%mt**4*self%mb**2*p1p2*p1p5*p4p6 - 16*self%mt**4*self%mb**2*p1p2**2*p4p6 - 8* &
+          p4p6 - 32*self%mt**4*self%mb2*p1p2*p4p6 - 16*self%mt**4*self%mb2*p1p2*p4p6**2 + &
+          16*self%mt**4*self%mb2*p1p2*p3p6*p4p6 + 32*self%mt**4*self%mb2*p1p2*p3p5*p4p6 + &
+          16*self%mt**4*self%mb2*p1p2*p3p4*p4p6 + 16*self%mt**4*self%mb2*p1p2*p2p5*p4p6 + &
+          16*self%mt**4*self%mb2*p1p2*p1p5*p4p6 - 16*self%mt**4*self%mb2*p1p2**2*p4p6 - 8* &
           self%mt**4*self%mb**4*p1p2*p4p6 + 16*self%mt**6*p1p2*p4p6 + 16*self%mt**6*p1p2* &
           p4p6**2 - 16*self%mt**6*p1p2*p3p6*p4p6 - 32*self%mt**6*p1p2*p3p5*p4p6 - 16 &
           *self%mt**6*p1p2*p3p4*p4p6 - 16*self%mt**6*p1p2*p2p5*p4p6 - 16*self%mt**6*p1p2* &
-          p1p5*p4p6 + 16*self%mt**6*p1p2**2*p4p6 + 16*self%mt**6*self%mb**2*p1p2*p4p6 - 8 &
+          p1p5*p4p6 + 16*self%mt**6*p1p2**2*p4p6 + 16*self%mt**6*self%mb2*p1p2*p4p6 - 8 &
           *self%mt**8*p1p2*p4p6
 
           SpinWeight = 1.e5_dp * SpinWeight
@@ -183,9 +188,9 @@ module MatrixElementsClass
     real (dp), dimension(self%sizeX/2)           :: phi
     real (dp)                                    :: gammaW, Eb, eW, pb, modp1, vW, qnw
 
-    Eb = (self%mt**2 + self%mb**2 - self%mW**2)/2/self%mt
-    EW = (self%mt**2 + self%mW**2 - self%mb**2)/2/self%mt
-    pb = sqrt(Eb**2 - self%mb**2); phi = 2 * Pi * x(self%sizeX/2 + 2:)
+    Eb = (self%mt2 + self%mb2 - self%mW2)/2/self%mt
+    EW = (self%mt2 + self%mW2 - self%mb2)/2/self%mt
+    pb = sqrt(Eb**2 - self%mb2); phi = 2 * Pi * x(self%sizeX/2 + 2:)
     Ctheta = 2 * x(:self%sizeX/2 + 1) - 1;  Stheta = sqrt( 1 - Ctheta**2 )
 
     p(1,0) = Eb ;  p(1,1:3:2) = - pb * [ Stheta(1), Ctheta(1) ]; p(1,2) = 0
@@ -244,23 +249,23 @@ module MatrixElementsClass
     real (dp)                                    :: vT, gammaT, gammaW, Eb, eW, &
                                                     vW, qnw, pb, modp1
 
-    Eb = (self%mt**2 + self%mb**2 - self%mW**2)/2/self%mt
-    EW = (self%mt**2 + self%mW**2 - self%mb**2)/2/self%mt
-    pb = sqrt(Eb**2 - self%mb**2); phi = 2 * Pi * x(self%sizeX/2 + 2:)
-    vT = sqrt(1 - 4 * self%mt**2); gammaT = 1/sqrt(1 - vT**2)
+    Eb = (self%mt2 + self%mb2 - self%mW2)/2/self%mt
+    EW = (self%mt2 + self%mW2 - self%mb2)/2/self%mt
+    pb = sqrt(Eb**2 - self%mb2); phi = 2 * Pi * x(self%sizeX/2 + 2:)
+    vT = sqrt(1 - 4 * self%mt2); gammaT = 1/sqrt(1 - vT**2)
     Ctheta = 2 * x(:self%sizeX/2 + 1) - 1;  Stheta = sqrt( 1 - Ctheta**2 )
 
-    p(1,0) = gammaT * ( Eb - pb * vT * Ctheta(1) );  p(1,1) = - pb * Stheta(1)
+    p(1,0) = gammaT * ( Eb - pb * vT * Ctheta(1) );  p(1,1) = - pb * Stheta(1) ! bottom from top
     p(1,3) = gammaT * ( Eb * vT - pb * Ctheta(1) );  p(1,2) = 0
 
     select type (self)
     type is (MatrixElements6)
 
-      p(4,0)   = gammaT * ( Eb + pb * vT * Ctheta(3) )
+      p(4,0)   = gammaT * ( Eb + pb * vT * Ctheta(3) )                         ! anti-bottom from anti-top
       p(4,1:2) = - pb * Stheta(3) * [ Cos( phi(2) ), Sin( phi(2) ) ]
       p(4,3)   = - gammaT * ( Eb * vT + pb * Ctheta(3) )
 
-      p1(0) = gammaT * ( EW + pb * vT * Ctheta(1) );  p1(1:2) = - p(1,1:2)
+      p1(0) = gammaT * ( EW + pb * vT * Ctheta(1) );  p1(1:2) = - p(1,1:2)     ! W from top
       p1(3) = gammaT * ( pb * Ctheta(1) + EW * vT )
 
       modp1 = Abs3(p1);  vW = modp1/p1(0);  gammaW = 1/sqrt(1 - vW**2)
@@ -270,11 +275,11 @@ module MatrixElementsClass
 
       qnw = VecProd3(q, p1)/modp1
 
-      p(2:3,0) = gammaW * ( q(0) + [1,-1] * vW * qnw )
+      p(2:3,0) = gammaW * ( q(0) + [1,-1] * vW * qnw )                         ! W decay procucts
       p(2,1:)  = ( q(0) * vW * gammaW - (1 - gammaW) * qnw ) * p1(1:)/modp1 + q(1:)
       p(3,1:)  = ( q(0) * vW * gammaW + (1 - gammaW) * qnw ) * p1(1:)/modp1 - q(1:)
 
-      p1(0)   = gammaT * ( EW - pb * vT * Ctheta(3) )
+      p1(0)   = gammaT * ( EW - pb * vT * Ctheta(3) )                          ! anti-W from anti-top
       p1(1:2) = pb * Stheta(3) * [ Cos( phi(2) ), Sin( phi(2) ) ]
       p1(3)   = gammaT * ( pb * Ctheta(3) - EW * vT )
 
@@ -285,20 +290,20 @@ module MatrixElementsClass
 
       qnw = VecProd3(q, p1)/modp1
 
-      p(5:6,0) = gammaW * ( q(0) + [1,-1] * vW * qnw )
+      p(5:6,0) = gammaW * ( q(0) + [1,-1] * vW * qnw )                         ! anti-W decay procucts
       p(5,1:) = ( q(0) * vW * gammaW - (1 - gammaW) * qnw ) * p1(1:)/modp1 + q(1:)
       p(6,1:) = ( q(0) * vW * gammaW + (1 - gammaW) * qnw ) * p1(1:)/modp1 - q(1:)
 
     type is (MatrixElements4)
 
-      p(3,0) = gammaT * ( EW + pb * vT * Ctheta(1) )   ;  p(3,1) = pb * Stheta(1)
+      p(3,0) = gammaT * ( EW + pb * vT * Ctheta(1) )   ;  p(3,1) = pb * Stheta(1) ! W from top
       p(3,3) = gammaT * ( EW * vT + pb * Ctheta(1) )   ;  p(3,2) = 0
 
-      p(2,0)   =   gammaT * ( Eb + pb * vT * Ctheta(2) )
+      p(2,0)   =   gammaT * ( Eb + pb * vT * Ctheta(2) )                          ! anti-bottom from anti-top
       p(2,1:2) = - pb * Stheta(2) * [ Cos( phi(1) ), Sin( phi(1) ) ]
       p(2,3)   = - gammaT * ( Eb * vT + pb * Ctheta(2) )
 
-      p(4,0) = gammaT * ( EW - pb * vT * Ctheta(2) )
+      p(4,0) = gammaT * ( EW - pb * vT * Ctheta(2) )                              ! anti-W from anti-top
       p(4,1:2) = pb * Stheta(2) * [ Cos( phi(1) ), Sin( phi(1) ) ]
       p(4,3) = gammaT * ( pb * Ctheta(2) - EW * vT )
 
