@@ -232,45 +232,42 @@ module MatrixElementsClass
     real (dp), dimension(0:3)                    :: p1, q
     real (dp), dimension(self%sizeX/2 + 1)       :: Ctheta, Stheta
     real (dp), dimension(self%sizeX/2)           :: phi
-    real (dp)                                    :: gammaW, Eb, eW, pb, modp1, vW, qnw
+    real (dp)                                    :: gammaW, Eb, eW, pb, vW, qnw
 
     Eb = (self%mt2 + self%mb2 - self%mW2)/2/self%mt
     EW = (self%mt2 + self%mW2 - self%mb2)/2/self%mt
     pb = sqrt(Eb**2 - self%mb2); phi = 2 * Pi * x(self%sizeX/2 + 2:)
     Ctheta = 2 * x(:self%sizeX/2 + 1) - 1;  Stheta = sqrt( 1 - Ctheta**2 )
 
-    p(1,0) = Eb ;  p(1,1:3:2) = - pb * [ Stheta(1), Ctheta(1) ]; p(1,2) = 0
+    p(1,0) = Eb ;  p(1,1:3:2) = - pb * [ Stheta(1), Ctheta(1) ]; p(1,2) = 0 ! bottom from top
 
     select type (self)
     type is (MatrixElements6)
 
-      p(4,0)   = Eb  ;  p(4,3) = - pb * Ctheta(3)
+      p(4,0)   = Eb  ;  p(4,3) = - pb * Ctheta(3)                               ! bottom from top-bar
       p(4,1:2) = - pb * Stheta(3) * [ Cos( phi(2) ), Sin( phi(2) ) ]
 
-      p1(0) = EW;  p1(1:) = - p(1,1:)
+      p1(0) = EW;  p1(1:) = - p(1,1:); vW = pb/EW;  gammaW = EW/self%mW         ! W from top in top rest frame
 
-      modp1 = pb;  vW = pb/EW;  gammaW = 1/sqrt(1 - vW**2)
-
-      q(0) = self%mW/2; q(3) = self%mW * Ctheta(2)/2
-      q(1:2) = self%mW * Stheta(2)/2 * [ Cos( phi(1) ), Sin( phi(1) ) ]
+      q(0) = self%mW/2; q(3) = q(0) * Ctheta(2)                                 ! W from top decay products in W rest frame
+      q(1:2) = q(0) * Stheta(2) * [ Cos( phi(1) ), Sin( phi(1) ) ]
 
       qnw = VecProd3(q, p1)/pb
 
-      p(2:3,0) = gammaW * ( q(0) + [1,-1] * vW * qnw )
-      p(2,1:)  = ( q(0) * vW * gammaW - (1 - gammaW) * qnw ) * p1(1:)/modp1 + q(1:)
-      p(3,1:)  = ( q(0) * vW * gammaW + (1 - gammaW) * qnw ) * p1(1:)/modp1 - q(1:)
+      p(2:3,0) = gammaW * ( q(0) + [1,-1] * vW * qnw )                     ! W decay products from top
+      p(2,1:)  = ( q(0) * vW * gammaW - (1 - gammaW) * qnw ) * p1(1:)/pb + q(1:)
+      p(3,1:)  = ( q(0) * vW * gammaW + (1 - gammaW) * qnw ) * p1(1:)/pb - q(1:)
 
-      p1(3)   = pb * Ctheta(3)
-      p1(1:2) = pb * Stheta(3) * [ Cos( phi(2) ), Sin( phi(2) ) ]
+      p1(1:)   = - p(4,1:)
 
-      q(3)   = self%mW * Ctheta(4)/2
-      q(1:2) = self%mW * Stheta(4)/2 * [ Cos( phi(3) ), Sin( phi(3) ) ]
+      q(3)   = q(0) * Ctheta(4)
+      q(1:2) = q(0) * Stheta(4) * [ Cos( phi(3) ), Sin( phi(3) ) ]
 
-      qnw = VecProd3(q, p1)/modp1
+      qnw = VecProd3(q, p1)/pb
 
       p(5:6,0) = gammaW * ( q(0) + [1,-1] * vW * qnw )
-      p(5,1:)  = ( q(0) * vW * gammaW - (1 - gammaW) * qnw ) * p1(1:)/modp1 + q(1:)
-      p(6,1:)  = ( q(0) * vW * gammaW + (1 - gammaW) * qnw ) * p1(1:)/modp1 - q(1:)
+      p(5,1:)  = ( q(0) * vW * gammaW - (1 - gammaW) * qnw ) * p1(1:)/pb + q(1:)
+      p(6,1:)  = ( q(0) * vW * gammaW + (1 - gammaW) * qnw ) * p1(1:)/pb - q(1:)
 
     type is (MatrixElements4)
 
@@ -511,6 +508,7 @@ module MatrixElementsClass
     integer                                          :: i, j
 
     p = self%GenerateRestVectors(x)
+    ! p = self%GenerateVectors(x)
 
     do i = 1, self%sizeP
       q(i,1) = p(i,0) + p(i,3);  q(i,2) = p(i,0) - p(i,3)
@@ -519,14 +517,14 @@ module MatrixElementsClass
     select type (self)
     type is (MatrixElements6)
 
-      CparamBeta = 4  - self%mW4 * &
+      CparamBeta = 4 - self%mW4 * &
       ( 1/q(2,1)/q(3,1) + 1/q(5,2)/q(6,2) )  - 4 * (  FourProd( p(1,:), p(2,:) )**2/q(1,1)/q(2,1) &
       + FourProd( p(1,:), p(3,:) )**2/q(1,1)/q(3,1) + FourProd( p(4,:), p(5,:) )**2/q(4,2)/q(5,2) &
       + FourProd( p(4,:), p(6,:) )**2/q(4,2)/q(6,2)  )
 
     type is (MatrixElements4)
 
-      CparamBeta =   4 - (self%mt2 - self%mb2 - self%mW2)**2 &
+      CparamBeta = 4 - (self%mt2 - self%mb2 - self%mW2)**2 &
        * ( 1/q(1,1)/q(2,1) + 1/q(3,2)/q(4,2) )
 
     end select
@@ -538,6 +536,8 @@ module MatrixElementsClass
     end do
 
     CparamBeta = 3 * self%mt2 * CparamBeta
+
+    CparamBeta = FourProd( p(1,:), p(2,:) )
 
   end function CparamBeta
 
