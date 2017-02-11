@@ -274,9 +274,9 @@ module MatrixElementsClass
 
     type is (MatrixElements4)
 
-       p(3,0)   =   EW   ;  p(3,1:) = - p(1,1:)
-       p(2,0)   =   Eb   ;  p(2,3) = - pb * Ctheta(2)
-       p(2,1:2) = - pb * Stheta(2) * [ Cos( phi(1) ), Sin( phi(1) ) ]
+       p(2,0)   =   EW   ;  p(2,1:) = - p(1,1:)
+       p(3,0)   =   Eb   ;  p(3,3) = - pb * Ctheta(2)
+       p(3,1:2) = - pb * Stheta(2) * [ Cos( phi(1) ), Sin( phi(1) ) ]
        p(4,0)   =   EW   ;  p(4,1:) = - p(2,1:)
 
     end select
@@ -342,12 +342,12 @@ module MatrixElementsClass
 
     type is (MatrixElements4)
 
-      p(3,0) = gammaT * ( EW + pb * vT * Ctheta(1) )   ;  p(3,1) = pb * Stheta(1) ! W from top
-      p(3,3) = gammaT * ( EW * vT + pb * Ctheta(1) )   ;  p(3,2) = 0
+      p(2,0) = gammaT * ( EW + pb * vT * Ctheta(1) )   ;  p(2,1) = pb * Stheta(1) ! W from top
+      p(2,3) = gammaT * ( EW * vT + pb * Ctheta(1) )   ;  p(2,2) = 0
 
-      p(2,0)   =   gammaT * ( Eb + pb * vT * Ctheta(2) )                          ! anti-bottom from anti-top
-      p(2,1:2) = - pb * Stheta(2) * [ Cos( phi(1) ), Sin( phi(1) ) ]
-      p(2,3)   = - gammaT * ( Eb * vT + pb * Ctheta(2) )
+      p(3,0)   =   gammaT * ( Eb + pb * vT * Ctheta(2) )                          ! anti-bottom from anti-top
+      p(3,1:2) = - pb * Stheta(2) * [ Cos( phi(1) ), Sin( phi(1) ) ]
+      p(3,3)   = - gammaT * ( Eb * vT + pb * Ctheta(2) )
 
       p(4,0) = gammaT * ( EW - pb * vT * Ctheta(2) )                              ! anti-W from anti-top
       p(4,1:2) = pb * Stheta(2) * [ Cos( phi(1) ), Sin( phi(1) ) ]
@@ -511,7 +511,6 @@ module MatrixElementsClass
     integer                                          :: i, j
 
     p = self%GenerateRestVectors(x)
-    ! p = self%GenerateVectors(x)
 
     do i = 1, self%sizeP
       q(i,1) = p(i,0) + p(i,3);  q(i,2) = p(i,0) - p(i,3)
@@ -520,27 +519,25 @@ module MatrixElementsClass
     select type (self)
     type is (MatrixElements6)
 
-      CparamBeta = self%mt2 * (4  - self%mW4 * &
+      CparamBeta = 4  - self%mW4 * &
       ( 1/q(2,1)/q(3,1) + 1/q(5,2)/q(6,2) )  - 4 * (  FourProd( p(1,:), p(2,:) )**2/q(1,1)/q(2,1) &
       + FourProd( p(1,:), p(3,:) )**2/q(1,1)/q(3,1) + FourProd( p(4,:), p(5,:) )**2/q(4,2)/q(5,2) &
-      + FourProd( p(4,:), p(6,:) )**2/q(4,2)/q(6,2) )   )
+      + FourProd( p(4,:), p(6,:) )**2/q(4,2)/q(6,2)  )
 
     type is (MatrixElements4)
 
-      CparamBeta = self%mt2 *(  4 - (self%mt2 - self%mb2 - self%mW2)**2 &
-       * ( 1/q(1,1)/q(3,1) + 1/q(2,2)/q(4,2) )  )
+      CparamBeta =   4 - (self%mt2 - self%mb2 - self%mW2)**2 &
+       * ( 1/q(1,1)/q(2,1) + 1/q(3,2)/q(4,2) )
 
     end select
 
     do i = 1, self%sizeP/2
       do j = self%sizeP/2 + 1, self%sizeP/2
-        CparamBeta = CparamBeta - FourProdPerp( p(i,:), p(j,:) )**2/q(i,1)**2/q(j,2)
+        CparamBeta = CparamBeta - self%mt2 * FourProdPerp( p(i,:), p(j,:) )**2/q(i,1)**2/q(j,2)
       end do
     end do
 
-    CparamBeta = 3 * CparamBeta
-
-    ! CparamBeta = FourProd( p(2,:), p(4,:) )
+    CparamBeta = 3 * self%mt2 * CparamBeta
 
   end function CparamBeta
 
