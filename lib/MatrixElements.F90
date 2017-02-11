@@ -16,7 +16,8 @@ module MatrixElementsClass
   contains
 
     procedure, pass (self), public       :: ESMinMax, CparamMinMax, GenerateVectors, &
-                                            SpinWeight, dimX, dimP, GenerateRestVectors
+                                            SpinWeight, dimX, dimP, CparamBeta,      &
+                                            GenerateRestVectors
   end type MatrixElements
 
 !ccccccccccccccc
@@ -502,11 +503,14 @@ module MatrixElementsClass
 
 !ccccccccccccccc
 
-  real (dp) function CparamBeta(self, p)
+  real (dp) function CparamBeta(self, x)
     class (MatrixElements)              , intent(in) :: self
-    real (dp), dimension(self%sizeP,0:3), intent(in) :: p ! cartesian coordinates, top and anti-top rest frame
+    real (dp), dimension(self%sizeX)    , intent(in) :: x ! cartesian coordinates, top and anti-top rest frame
+    real (dp), dimension(self%sizeP,0:3)             :: p ! cartesian coordinates, top and anti-top rest frame
     real (dp), dimension(self%sizeP,2)               :: q ! + and - light-cone coordinates
     integer                                          :: i, j
+
+    p = self%GenerateRestVectors(x)
 
     do i = 1, self%sizeP
       q(i,1) = p(i,0) + p(i,3);  q(i,2) = p(i,0) - p(i,3)
