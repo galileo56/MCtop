@@ -258,9 +258,8 @@ module MatrixElementsClass
       p(2,1:)  = ( q(0) * vW * gammaW - (1 - gammaW) * qnw ) * p1(1:)/pb + q(1:)
       p(3,1:)  = ( q(0) * vW * gammaW + (1 - gammaW) * qnw ) * p1(1:)/pb - q(1:)
 
-      p1(1:)   = - p(4,1:)
+      p1(1:)   = - p(4,1:);  q(3) = q(0) * Ctheta(4)
 
-      q(3)   = q(0) * Ctheta(4)
       q(1:2) = q(0) * Stheta(4) * [ Cos( phi(3) ), Sin( phi(3) ) ]
 
       qnw = VecProd3(q, p1)/pb
