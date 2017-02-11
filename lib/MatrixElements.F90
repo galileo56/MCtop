@@ -131,7 +131,7 @@ module MatrixElementsClass
           (  FourProd( p(1,:), p(4,:) ) + FourProd( p(2,:), p(3,:) )  ) +                   &
           2 * (self%mb2 - self%mW2) * FourProd( p(3,:), p(4,:) )  )
 
-          SpinWeight = SpinWeight/(1 - 6 * self%mt2)/( (self%mb2 - self%mt2)**2 + &
+          SpinWeight = 2 * SpinWeight/(1 - 6 * self%mt2)/( (self%mb2 - self%mt2)**2 + &
           (self%mb2 + self%mt2) * self%mW2 - 2 * self%mW4 )**2
 
         end if

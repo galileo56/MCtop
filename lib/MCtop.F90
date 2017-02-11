@@ -90,10 +90,11 @@ module MCtopClass
     integer                                          :: i, j, iter
 
     NPRN = - 1; ITMX = 1; NCall = self%Nevent; iter = 1
+    if (self%dimX <= 3) iter = 0; distTot = 0; distTot2 = 0
 
     do j = 1, self%Niter
 
-      dist = 0;  dist2 = 0; if (j > 1) iter = 2
+      dist = 0;  dist2 = 0; if (j > 1 .and. self%dimX > 3) iter = 2
       call VEGAS(self%dimX, FunMatEl, AVGI, SD, CHI2A, iter)
 
       do i = 1, 8
@@ -120,7 +121,7 @@ module MCtopClass
       enddo
     end do
 
-    dist(2,:) = dist(2,:)/AVGI; dist2(2,:) = dist2(2,:)/AVGI
+    ! dist(2,:) = dist(2,:)/AVGI; dist2(2,:) = dist2(2,:)/AVGI
 
     contains
 
@@ -166,10 +167,11 @@ module MCtopClass
     integer                                       :: j, iter
 
     NPRN = - 1; ITMX = 1; NCall = self%Nevent; iter = 1
+    if (self%dimX <= 3) iter = 0; distTot = 0; distTot2 = 0
 
     do j = 1, self%Niter
 
-      dist = 0;  dist2 = 0; if (j > 1) iter = 2
+      dist = 0;  dist2 = 0; if (j > 1 .and. self%dimX > 3) iter = 2
       call VEGAS(self%dimX, FunMatEl, AVGI, SD, CHI2A, iter)
 
       distTot(:,j) = dist(:)/self%Delta(5)
@@ -191,7 +193,8 @@ module MCtopClass
       if ( dist2(j) <= tiny(1._dp) ) dist(j) = 0
     enddo
 
-    dist = dist/AVGI; dist2 = dist2/AVGI
+    ! dist = dist/AVGI; dist2 = dist2/AVGI
+    ! dist = dist/sum(dist)/self%delta(5); dist2 = dist2/sum(dist)/self%delta(5)
 
   contains
 
