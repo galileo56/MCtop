@@ -109,7 +109,7 @@ end subroutine f90CparamComputer
 
 !ccccccccccccccc
 
-subroutine f90CparamBeta4(mt, mb, mW, Q, x, ES)
+subroutine f90CparamBeta4(x, mt, mb, mW, Q, ES)
   use constants, only: dp; use MatrixElementsClass; implicit none
   real (dp),               intent(in)  :: mt, mb, mW, Q
   real (dp), dimension(3), intent(in)  :: x
@@ -123,7 +123,7 @@ end subroutine f90CparamBeta4
 
 !ccccccccccccccc
 
-subroutine f90Cparam4(mt, mb, mW, Q, x, ES)
+subroutine f90Cparam4(x, mt, mb, mW, Q, ES)
   use constants, only: dp; use MatrixElementsClass; implicit none
   real (dp),               intent(in)  :: mt, mb, mW, Q
   real (dp), dimension(3), intent(in)  :: x
@@ -139,7 +139,7 @@ end subroutine f90Cparam4
 
 !ccccccccccccccc
 
-subroutine f90Cparam6(mt, mb, mW, Q, x, ES)
+subroutine f90Cparam6(x, mt, mb, mW, Q, ES)
   use constants, only: dp; use MatrixElementsClass; implicit none
   real (dp),               intent(in)  :: mt, mb, mW, Q
   real (dp), dimension(7), intent(in)  :: x
@@ -155,7 +155,7 @@ end subroutine f90Cparam6
 
 !ccccccccccccccc
 
-subroutine f90CparamBeta6(mt, mb, mW, Q, x, ES)
+subroutine f90CparamBeta6(x, mt, mb, mW, Q, ES)
   use constants, only: dp; use MatrixElementsClass; implicit none
   real (dp),               intent(in)  :: mt, mb, mW, Q
   real (dp), dimension(7), intent(in)  :: x
