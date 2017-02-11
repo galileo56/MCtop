@@ -502,6 +502,43 @@ module MatrixElementsClass
 
 !ccccccccccccccc
 
+  real (dp) function CparamBeta(self, p)
+    class (MatrixElements)              , intent(in) :: self
+    real (dp), dimension(self%sizeP,0:3), intent(in) :: p ! cartesian coordinates, top and anti-top rest frame
+    real (dp), dimension(self%sizeP,2)               :: q ! + and - light-cone coordinates
+    integer                                          :: i, j
+
+    do i = 1, self%sizeP
+      q(i,1) = p(i,0) + p(i,3);  q(i,2) = p(i,0) - p(i,3)
+    end do
+
+    select type (self)
+    type is (MatrixElements6)
+
+      CparamBeta = 4 * self%mt2 - self%mt2 * (   self%mW4 * &
+      ( 1/q(2,1)/q(3,1) + 1/q(5,2)/q(6,2) )  + 4 * (  FourProd( p(1,:), p(2,:) )**2/q(1,1)/q(2,1) &
+      + FourProd( p(1,:), p(3,:) )**2/q(1,1)/q(3,1) + FourProd( p(4,:), p(5,:) )**2/q(4,2)/q(5,2) &
+      + FourProd( p(4,:), p(6,:) )**2/q(4,2)/q(6,2) )   )
+
+    type is (MatrixElements4)
+
+      CparamBeta = 4 * self%mt2 - self%mt2 * &
+      (self%mt2 - self%mb2 - self%mW2)**2 * ( 1/q(1,1)/q(3,1) + 1/q(2,2)/q(4,2) )
+
+    end select
+
+    do i = 1, self%sizeP/2
+      do j = self%sizeP/2 + 1, self%sizeP/2
+        CparamBeta = CparamBeta - FourProdPerp( p(i,:), p(j,:) )**2/q(i,1)**2/q(j,2)
+      end do
+    end do
+
+    CparamBeta = 3 * CparamBeta
+
+  end function CparamBeta
+
+!ccccccccccccccc
+
   function CrossProd(p1, p2) result(q)
     real (dp), dimension(3), intent(in) :: p1, p2
     real (dp), dimension(3)             :: q
@@ -520,6 +557,15 @@ module MatrixElementsClass
     FourProd = p1(0) * p2(0) - VecProd3(p1, p2)
 
   end function FourProd
+
+!ccccccccccccccc
+
+  real (dp) function FourProdPerp(p1, p2)
+    real (dp), dimension(0:3), intent(in) :: p1, p2
+
+    FourProdPerp = 4 * p1(0) * p2(0) - 2 * FourProd(p1, p2)
+
+  end function FourProdPerp
 
 !ccccccccccccccc
 
