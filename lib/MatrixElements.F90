@@ -511,6 +511,7 @@ module MatrixElementsClass
     integer                                          :: i, j
 
     p = self%GenerateRestVectors(x)
+    ! p = self%GenerateVectors(x)
 
     do i = 1, self%sizeP
       q(i,1) = p(i,0) + p(i,3);  q(i,2) = p(i,0) - p(i,3)
@@ -519,15 +520,15 @@ module MatrixElementsClass
     select type (self)
     type is (MatrixElements6)
 
-      CparamBeta = 4 * self%mt2 - self%mt2 * (   self%mW4 * &
-      ( 1/q(2,1)/q(3,1) + 1/q(5,2)/q(6,2) )  + 4 * (  FourProd( p(1,:), p(2,:) )**2/q(1,1)/q(2,1) &
+      CparamBeta = self%mt2 * (4  - self%mW4 * &
+      ( 1/q(2,1)/q(3,1) + 1/q(5,2)/q(6,2) )  - 4 * (  FourProd( p(1,:), p(2,:) )**2/q(1,1)/q(2,1) &
       + FourProd( p(1,:), p(3,:) )**2/q(1,1)/q(3,1) + FourProd( p(4,:), p(5,:) )**2/q(4,2)/q(5,2) &
       + FourProd( p(4,:), p(6,:) )**2/q(4,2)/q(6,2) )   )
 
     type is (MatrixElements4)
 
-      CparamBeta = 4 * self%mt2 - self%mt2 * &
-      (self%mt2 - self%mb2 - self%mW2)**2 * ( 1/q(1,1)/q(3,1) + 1/q(2,2)/q(4,2) )
+      CparamBeta = self%mt2 *(  4 - (self%mt2 - self%mb2 - self%mW2)**2 &
+       * ( 1/q(1,1)/q(3,1) + 1/q(2,2)/q(4,2) )  )
 
     end select
 
@@ -538,6 +539,8 @@ module MatrixElementsClass
     end do
 
     CparamBeta = 3 * CparamBeta
+
+    ! CparamBeta = FourProd( p(2,:), p(4,:) )
 
   end function CparamBeta
 
