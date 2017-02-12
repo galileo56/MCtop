@@ -121,7 +121,7 @@ module MCtopClass
       enddo
     end do
 
-    ! dist(2,:) = dist(2,:)/AVGI; dist2(2,:) = dist2(2,:)/AVGI
+    dist = dist/AVGI; dist2 = dist2/AVGI
 
     contains
 
@@ -159,8 +159,9 @@ module MCtopClass
 
 !ccccccccccccccc
 
-  subroutine callVegasCparam(self, dist, dist2)
-    class (MCtop), intent(in)                     :: self
+  subroutine callVegasCparam(self, expand, dist, dist2)
+    class (MCtop)                   , intent(in)  :: self
+    character (len = *)             , intent(in)  :: expand
     real (dp), dimension(self%Nbins), intent(out) :: dist , dist2
     real (dp), dimension(self%Nbins, self%Niter)  :: distTot , distTot2
     real (dp)                                     :: AVGI, SD, CHI2A
@@ -207,8 +208,13 @@ module MCtopClass
       integer                                     :: k
       real (dp), dimension(self%dimP,4)           :: p
 
-      p = self%MatEl%GenerateVectors(x); ES = Cparam(p)
-      FunMatEl = self%MatEl%SpinWeight(self%spin, self%current, p)
+      if ( expand(:6) == 'expand') then
+        ES = self%MatEl%CparamBeta(x); FunMatEl = 1
+      else
+        p = self%MatEl%GenerateVectors(x); ES = Cparam(p)
+        FunMatEl = self%MatEl%SpinWeight(self%spin, self%current, p)
+      end if
+
       k = Ceiling( self%Nbins * (ES - self%ESmin(5) )/(self%ESmax(5) - self%ESmin(5) ) )
 
       if ( k <= 0          ) k = 1
@@ -258,12 +264,13 @@ module MCtopClass
 
 !ccccccccccccccc
 
-  function ListCparam(self) result(dist)
-    class (MCtop) , intent(in)          :: self
+  function ListCparam(self, expand) result(dist)
+    class (MCtop)          , intent(in) :: self
+    character (len = *)    , intent(in) :: expand
     real (dp), dimension(self%Nbins, 3) :: dist
 
     dist(:,1) = self%ES(:,5)
-    call self%callVegasCparam( dist(:,2), dist(:,3)  )
+    call self%callVegasCparam( expand, dist(:,2), dist(:,3)  )
 
   end function ListCparam
 

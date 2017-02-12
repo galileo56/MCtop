@@ -17,7 +17,8 @@ module MatrixElementsClass
 
     procedure, pass (self), public       :: ESMinMax, CparamMinMax, GenerateVectors, &
                                             SpinWeight, dimX, dimP, CparamBeta,      &
-                                            GenerateRestVectors, GenerateVectors2
+                                            GenerateRestVectors, GenerateVectors2,   &
+                                            SetMasses
   end type MatrixElements
 
 !ccccccccccccccc
@@ -53,17 +54,7 @@ module MatrixElementsClass
   type (MatrixElements4) function InMatEl4(mt, mb, mW, Q)
     real (dp), intent(in) :: mt, mW, mb, Q
 
-    InMatEl4%mt = mt/Q;  InMatEl4%mW = mW/Q;  InMatEl4%mb = mb/Q
-    InMatEl4%mt2 = InMatEl4%mt**2;  InMatEl4%mW2 = InMatEl4%mW**2
-    InMatEl4%mb2 = InMatEl4%mb**2;  InMatEl4%mt4 = InMatEl4%mt2**2
-    InMatEl4%mt6 = InMatEl4%mt2**3; InMatEl4%mb4 = InMatEl4%mb2**2
-    InMatEl4%mt8 = InMatEl4%mt4**2; InMatEl4%mW4 = InMatEl4%mW2**2
-    InMatEl4%mW6 = InMatEl4%mW2**3; InMatEl4%mW8 = InMatEl4%mW4**2
-    InMatEl4%mb6 = InMatEl4%mb2**3; InMatEl4%sizeX = 3;   InMatEl4%sizeP = 4
-    InMatEl4%Eb = (InMatEl4%mt2 + InMatEl4%mb2 - InMatEl4%mW2)/2/InMatEl4%mt
-    InMatEl4%EW = (InMatEl4%mt2 + InMatEl4%mW2 - InMatEl4%mb2)/2/InMatEl4%mt
-    InMatEl4%pb = sqrt(InMatEl4%Eb**2 - InMatEl4%mb2)
-    InMatEl4%vT = sqrt(1 - 4 * InMatEl4%mt2)
+    call InMatEl4%SetMasses(mt, mb, mW, Q); InMatEl4%sizeX = 3;  InMatEl4%sizeP = 4
 
   end function InMatEl4
 
@@ -72,19 +63,26 @@ module MatrixElementsClass
   type (MatrixElements6) function InMatEl6(mt, mb, mW, Q)
     real (dp), intent(in) :: mt, mW, mb, Q
 
-    InMatEl6%mt = mt/Q;  InMatEl6%mW = mW/Q;  InMatEl6%mb = mb/Q
-    InMatEl6%mt2 = InMatEl6%mt**2;  InMatEl6%mW2 = InMatEl6%mW**2
-    InMatEl6%mb2 = InMatEl6%mb**2;  InMatEl6%mt4 = InMatEl6%mt2**2
-    InMatEl6%mt6 = InMatEl6%mt2**3;  InMatEl6%mb4 = InMatEl6%mb2**2
-    InMatEl6%mt8 = InMatEl6%mt4**2; InMatEl6%mW4 = InMatEl6%mW2**2
-    InMatEl6%mW6 = InMatEl6%mW2**3;  InMatEl6%mW8 = InMatEl6%mW4**2
-    InMatEl6%mb6 = InMatEl6%mb2**3;  InMatEl6%sizeX = 7;  InMatEl6%sizeP = 6
-    InMatEl6%Eb = (InMatEl6%mt2 + InMatEl6%mb2 - InMatEl6%mW2)/2/InMatEl6%mt
-    InMatEl6%EW = (InMatEl6%mt2 + InMatEl6%mW2 - InMatEl6%mb2)/2/InMatEl6%mt
-    InMatEl6%pb = sqrt(InMatEl6%Eb**2 - InMatEl6%mb2)
-    InMatEl6%vT = sqrt(1 - 4 * InMatEl6%mt2)
+    call InMatEl6%SetMasses(mt, mb, mW, Q); InMatEl6%sizeX = 7;  InMatEl6%sizeP = 6
 
   end function InMatEl6
+
+!ccccccccccccccc
+
+  subroutine SetMasses(self, mt, mb, mW, Q)
+    class (MatrixElements), intent(inout) :: self
+    real (dp)             , intent(in)    :: mt, mW, mb, Q
+
+    self%mt = mt/Q;  self%mW = mW/Q;  self%mb = mb/Q; self%mt2 = self%mt**2
+    self%mW2 = self%mW**2 ;  self%mb2 = self%mb**2;   self%mt4 = self%mt2**2
+    self%mt6 = self%mt2**3;  self%mb4 = self%mb2**2;  self%mt8 = self%mt4**2
+    self%mW4 = self%mW2**2;  self%mW6 = self%mW2**3;  self%mW8 = self%mW4**2
+    self%mb6 = self%mb2**3;  self%vT = sqrt(1 - 4 * self%mt2)
+    self%Eb = (self%mt2 + self%mb2 - self%mW2)/2/self%mt
+    self%EW = (self%mt2 + self%mW2 - self%mb2)/2/self%mt
+    self%pb = sqrt(self%Eb**2 - self%mb2)
+
+  end subroutine SetMasses
 
 !ccccccccccccccc
 
