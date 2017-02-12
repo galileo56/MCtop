@@ -530,7 +530,6 @@ module MatrixElementsClass
     integer                                          :: i, j
 
     p = self%GenerateRestVectors(x)
-    ! p = self%GenerateVectors(x)
 
     do i = 1, self%sizeP
       q(i,1) = p(i,0) + p(i,3);  q(i,2) = p(i,0) - p(i,3)
@@ -552,8 +551,8 @@ module MatrixElementsClass
     end select
 
     do i = 1, self%sizeP/2
-      do j = self%sizeP/2 + 1, self%sizeP/2
-        CparamBeta = CparamBeta - self%mt2 * FourProdPerp( p(i,:), p(j,:) )**2/q(i,1)**2/q(j,2)
+      do j = self%sizeP/2 + 1, self%sizeP
+        CparamBeta = CparamBeta - FourProdPerp( p(i,:), p(j,:) )**2/q(i,1)/q(j,2)
       end do
     end do
 
