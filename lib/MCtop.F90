@@ -121,7 +121,7 @@ module MCtopClass
       enddo
     end do
 
-    dist = dist/AVGI; dist2 = dist2/AVGI
+    ! dist = dist/AVGI; dist2 = dist2/AVGI
 
     contains
 
