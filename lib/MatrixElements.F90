@@ -17,7 +17,7 @@ module MatrixElementsClass
 
     procedure, pass (self), public       :: ESMinMax, CparamMinMax, GenerateVectors, &
                                             SpinWeight, dimX, dimP, CparamBeta,      &
-                                            GenerateRestVectors
+                                            GenerateRestVectors, GenerateVectors2
   end type MatrixElements
 
 !ccccccccccccccc
@@ -250,10 +250,10 @@ module MatrixElementsClass
     select type (self)
     type is (MatrixElements6)
 
-      p(4,0)   =   self%Eb  ;  p(4,3) = - self%pb * Ctheta(3)                               ! bottom from top-bar
+      p(4,0)   =   self%Eb  ;  p(4,3) = - self%pb * Ctheta(3)                   ! bottom from top-bar
       p(4,1:2) = - self%pb * Stheta(3) * [ Cos( phi(2) ), Sin( phi(2) ) ]
 
-      p1(0) = self%EW;  p1(1:) = - p(1,1:); vW = self%pb/self%EW;           ! W from top in top rest frame
+      p1(0) = self%EW;  p1(1:) = - p(1,1:); vW = self%pb/self%EW;               ! W from top in top rest frame
       gammaW = self%EW/self%mW
 
       q(0)   = self%mW/2; q(3) = q(0) * Ctheta(2)                               ! W from top decay products in W rest frame
@@ -288,7 +288,7 @@ module MatrixElementsClass
 
 !ccccccccccccccc
 
-  function GenerateVectors(self, x) result(p)
+  function GenerateVectors2(self, x) result(p)
     class (MatrixElements)          , intent(in) :: self
     real (dp), dimension(self%sizeX), intent(in) :: x
     real (dp), dimension(self%sizeP,0:3)         :: p
@@ -313,7 +313,7 @@ module MatrixElementsClass
       p1(0) = ( self%EW + self%pb * self%vT * Ctheta(1) )/2/self%mt;  p1(1:2) = - p(1,1:2)     ! W from top
       p1(3) = ( self%pb * Ctheta(1) + self%EW * self%vT )/2/self%mt
 
-      modp1 = Abs3(p1);  vW = modp1/p1(0);  gammaW = 1/sqrt(1 - vW**2)
+      modp1 = Abs3(p1);  vW = modp1/p1(0);  gammaW = p1(0)/self%mW
 
       q(0) = self%mW/2; q(3) = q(0) * Ctheta(2)
       q(1:2) = q(0) * Stheta(2) * [ Cos( phi(1) ), Sin( phi(1) ) ]
@@ -328,7 +328,7 @@ module MatrixElementsClass
       p1(1:2) = self%pb * Stheta(3) * [ Cos( phi(2) ), Sin( phi(2) ) ]
       p1(3)   = ( self%pb * Ctheta(3) - self%EW * self%vT )/2/self%mt
 
-      modp1 = Abs3(p1);  vW = modp1/p1(0);  gammaW = 1/sqrt(1 - vW**2)
+      modp1 = Abs3(p1);  vW = modp1/p1(0);  gammaW = p1(0)/self%mW
 
       q(3)   = q(0) * Ctheta(4)
       q(1:2) = q(0) * Stheta(4) * [ Cos( phi(3) ), Sin( phi(3) ) ]
@@ -353,6 +353,26 @@ module MatrixElementsClass
       p(4,3)   = ( self%pb * Ctheta(2) - self%EW * self%vT )/2/self%mt
 
     end select
+
+  end function GenerateVectors2
+
+!ccccccccccccccc
+
+  function GenerateVectors(self, x) result(p)
+    class (MatrixElements)          , intent(in) :: self
+    real (dp), dimension(self%sizeX), intent(in) :: x
+    real (dp), dimension(self%sizeP,0:3)         :: p
+    integer                                      :: i
+
+    p = self%GenerateRestVectors(x)
+
+    do i = 1, self%sizeP/2
+      p(i,0:3:3) = [ p(i,0) + self%vt * p(i,3), p(i,3) + self%vt * p(i,0)]/2/self%mt
+    end do
+
+    do i = self%sizeP/2 + 1, self%sizeP
+      p(i,0:3:3) = [ p(i,0) - self%vt * p(i,3), p(i,3) - self%vt * p(i,0)]/2/self%mt
+    end do
 
   end function GenerateVectors
 
@@ -585,7 +605,7 @@ module MatrixElementsClass
   real (dp) function Abs3(p)
     real (dp), dimension(0:3), intent(in) :: p
 
-    Abs3 = sqrt(  sum( p(1:)**2 )  )
+    Abs3 = sqrt(  VecProd3(p, p)  )
 
   end function Abs3
 
