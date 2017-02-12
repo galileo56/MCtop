@@ -280,7 +280,7 @@ module MatrixElementsClass
        p(2,0)   =   self%EW   ;  p(2,1:) = - p(1,1:)
        p(3,0)   =   self%Eb   ;  p(3,3) = - self%pb * Ctheta(2)
        p(3,1:2) = - self%pb * Stheta(2) * [ Cos( phi(1) ), Sin( phi(1) ) ]
-       p(4,0)   =   self%EW   ;  p(4,1:) = - p(2,1:)
+       p(4,0)   =   self%EW   ;  p(4,1:) = - p(3,1:)
 
     end select
 
@@ -344,13 +344,13 @@ module MatrixElementsClass
       p(2,0) = ( self%EW + self%pb * self%vT * Ctheta(1) )/2/self%mt   ;  p(2,1) = self%pb * Stheta(1) ! W from top
       p(2,3) = ( self%EW * self%vT + self%pb * Ctheta(1) )/2/self%mt   ;  p(2,2) = 0
 
-      p(3,0)   =   ( self%Eb + self%pb * self%vT * Ctheta(2) )/2/self%mt                          ! anti-bottom from anti-top
+      p(3,0)   =   ( self%Eb + self%pb * self%vT * Ctheta(2) )/2/self%mt        ! anti-bottom from anti-top
       p(3,1:2) = - self%pb * Stheta(2) * [ Cos( phi(1) ), Sin( phi(1) ) ]
       p(3,3)   = - ( self%Eb * self%vT + self%pb * Ctheta(2) )/2/self%mt
 
-      p(4,0) = ( self%EW - self%pb * self%vT * Ctheta(2) )/2/self%mt                              ! anti-W from anti-top
+      p(4,0)   = ( self%EW - self%pb * self%vT * Ctheta(2) )/2/self%mt            ! anti-W from anti-top
       p(4,1:2) = self%pb * Stheta(2) * [ Cos( phi(1) ), Sin( phi(1) ) ]
-      p(4,3) = ( self%pb * Ctheta(2) - self%EW * self%vT )/2/self%mt
+      p(4,3)   = ( self%pb * Ctheta(2) - self%EW * self%vT )/2/self%mt
 
     end select
 
