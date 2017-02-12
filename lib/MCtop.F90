@@ -121,6 +121,8 @@ module MCtopClass
       enddo
     end do
 
+    dist = dist/AVGI; dist2 = dist2/AVGI
+
     contains
 
 !ccccccccccccccc
@@ -193,7 +195,7 @@ module MCtopClass
     enddo
 
     ! dist = dist/AVGI; dist2 = dist2/AVGI
-    dist = dist/sum(dist)/self%delta(5); dist2 = dist2/sum(dist)/self%delta(5)
+    ! dist = dist/sum(dist)/self%delta(5); dist2 = dist2/sum(dist)/self%delta(5)
 
   contains
 
