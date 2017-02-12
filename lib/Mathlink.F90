@@ -109,6 +109,66 @@ end subroutine f90CparamComputer
 
 !ccccccccccccccc
 
+subroutine f90CparamBeta4(x, mt, mb, mW, Q, ES)
+  use constants, only: dp; use MatrixElementsClass; implicit none
+  real (dp),               intent(in)  :: mt, mb, mW, Q
+  real (dp), dimension(3), intent(in)  :: x
+  real (dp)              , intent(out) :: ES
+  type (MatrixElements4)               :: MatEl
+
+  MatEl = MatrixElements4(mt, mb, mW, Q)
+  ES    = MatEl%CparamBeta(x)
+
+end subroutine f90CparamBeta4
+
+!ccccccccccccccc
+
+subroutine f90Cparam4(x, mt, mb, mW, Q, ES)
+  use constants, only: dp; use MatrixElementsClass; implicit none
+  real (dp),               intent(in)  :: mt, mb, mW, Q
+  real (dp), dimension(3), intent(in)  :: x
+  real (dp), dimension(4,0:3)          :: p
+  real (dp)              , intent(out) :: ES
+  type (MatrixElements4)               :: MatEl
+
+  MatEl = MatrixElements4(mt, mb, mW, Q)
+  p     = MatEl%GenerateVectors(x)
+  ES    = Cparam(p)
+
+end subroutine f90Cparam4
+
+!ccccccccccccccc
+
+subroutine f90Cparam6(x, mt, mb, mW, Q, ES)
+  use constants, only: dp; use MatrixElementsClass; implicit none
+  real (dp),               intent(in)  :: mt, mb, mW, Q
+  real (dp), dimension(7), intent(in)  :: x
+  real (dp), dimension(6,0:3)          :: p
+  real (dp)              , intent(out) :: ES
+  type (MatrixElements6)               :: MatEl
+
+  MatEl = MatrixElements6(mt, mb, mW, Q)
+  p     = MatEl%GenerateVectors(x)
+  ES    = Cparam(p)
+
+end subroutine f90Cparam6
+
+!ccccccccccccccc
+
+subroutine f90CparamBeta6(x, mt, mb, mW, Q, ES)
+  use constants, only: dp; use MatrixElementsClass; implicit none
+  real (dp),               intent(in)  :: mt, mb, mW, Q
+  real (dp), dimension(7), intent(in)  :: x
+  real (dp)              , intent(out) :: ES
+  type (MatrixElements6)               :: MatEl
+
+  MatEl = MatrixElements6(mt, mb, mW, Q)
+  ES    = MatEl%CparamBeta(x)
+
+end subroutine f90CparamBeta6
+
+!ccccccccccccccc
+
 subroutine f90EScomputer(p, len, ES)
   use constants, only: dp; use MatrixElementsClass, only: EScomputer; implicit none
   integer                     , intent(in) :: len

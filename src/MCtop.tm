@@ -5,6 +5,10 @@
 :Evaluate:   Print["     Last modification: 08 - 01 - 2017        "]
 :Evaluate:   Print["     Version:           test 2                "]
 
+:Evaluate:  Cparam4::usage = "Cparam4[x, mt, mb, mW, Q] computes the value of C-parameter for top decay into 2 particles"
+:Evaluate:  Cparam6::usage = "Cparam6[x, mt, mb, mW, Q] computes the value of C-parameter for top decay into 3 particles"
+:Evaluate:  CparamBeta4::usage = "CparamBeta4[x, mt, mb, mW, Q] computes the expanded value of C-parameter for top decay into 2 particles"
+:Evaluate:  CparamBeta6::usage = "CparamBeta6[x, mt, mb, mW, Q] computes the expanded value of C-parameter for top decay into 3 particles"
 :Evaluate:  ESDistributions::usage = "ESDistributions[mt, mb, mW, Q, Spin, decay, current, ESmin, ESmax, Nbins, Nevent, Niter] computes the distribution of the event-shape variables"
 :Evaluate:  CparamDistribution::usage = "CparamDistribution[mt, mb, mW, Q, Spin, decay, current, Cmin, Cmax, Nbins, Nevent, Niter] computes the distribution of the C-parameter event shape"
 :Evaluate:  CparamComputer::usage = "CparamComputer[p] computes the value of the C-parameter event shape"
@@ -117,6 +121,38 @@
 :End:
 
 :Begin:
+:Function:      cparam4
+:Pattern:       Cparam4[x_, mt_, mb_, mW_, Q_]
+:Arguments:     {x, mt, mb, mW, Q}
+:ArgumentTypes: {RealList, Real, Real, Real, Real}
+:ReturnType:    Real
+:End:
+
+:Begin:
+:Function:      cparam6
+:Pattern:       Cparam6[x_, mt_, mb_, mW_, Q_]
+:Arguments:     {x, mt, mb, mW, Q}
+:ArgumentTypes: {RealList, Real, Real, Real, Real}
+:ReturnType:    Real
+:End:
+
+:Begin:
+:Function:      cparambeta4
+:Pattern:       CparamBeta4[x_, mt_, mb_, mW_, Q_]
+:Arguments:     {x, mt, mb, mW, Q}
+:ArgumentTypes: {RealList, Real, Real, Real, Real}
+:ReturnType:    Real
+:End:
+
+:Begin:
+:Function:      cparambeta6
+:Pattern:       CparamBeta6[x_, mt_, mb_, mW_, Q_]
+:Arguments:     {x, mt, mb, mW, Q}
+:ArgumentTypes: {RealList, Real, Real, Real, Real}
+:ReturnType:    Real
+:End:
+
+:Begin:
 :Function:      vectors6
 :Pattern:       Vectors6[x_, mt_, mb_, mW_, Q_]
 :Arguments:     {x, mt, mb, mW, Q}
@@ -171,6 +207,46 @@ static double cparamcomputer(double p[], long clen){
 
    return res;
 
+}
+
+extern double f90cparam4_(double* x, double* mt, double* mb, double* mW, double* Q, double* res);
+
+static double cparam4(double x[], long clen, double mt, double mb, double mW, double Q){
+  double res;
+
+   f90cparam4_(x, &mt, &mb, &mW, &Q, &res);
+
+   return res;
+}
+
+extern double f90cparam6_(double* x, double* mt, double* mb, double* mW, double* Q, double* res);
+
+static double cparam6(double x[], long clen, double mt, double mb, double mW, double Q){
+  double res;
+
+   f90cparam6_(x, &mt, &mb, &mW, &Q, &res);
+
+   return res;
+}
+
+extern double f90cparambeta4_(double* x, double* mt, double* mb, double* mW, double* Q, double* res);
+
+static double cparambeta4(double x[], long clen, double mt, double mb, double mW, double Q){
+  double res;
+
+   f90cparambeta4_(x, &mt, &mb, &mW, &Q, &res);
+
+   return res;
+}
+
+extern double f90cparambeta6_(double* x, double* mt, double* mb, double* mW, double* Q, double* res);
+
+static double cparambeta6(double x[], long clen, double mt, double mb, double mW, double Q){
+  double res;
+
+   f90cparambeta6_(x, &mt, &mb, &mW, &Q, &res);
+
+   return res;
 }
 
 extern double f90vectors4_(double* x, double* mt, double* mb, double* mW, double* Q, double* res);

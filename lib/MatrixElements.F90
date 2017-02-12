@@ -12,11 +12,12 @@ module MatrixElementsClass
     private
     integer                              :: sizeX, sizeP
     real (dp)                            :: mt, mb, mW, mb4, mt2, mW2, mW4, mW6, mW8,&
-                                            mb2, mt4, mt6, mt8, mb6
+                                            mb2, mt4, mt6, mt8, mb6, Eb, EW, pb, vt
   contains
 
     procedure, pass (self), public       :: ESMinMax, CparamMinMax, GenerateVectors, &
-                                            SpinWeight, dimX, dimP, GenerateRestVectors
+                                            SpinWeight, dimX, dimP, CparamBeta,      &
+                                            GenerateRestVectors, GenerateVectors2
   end type MatrixElements
 
 !ccccccccccccccc
@@ -55,10 +56,14 @@ module MatrixElementsClass
     InMatEl4%mt = mt/Q;  InMatEl4%mW = mW/Q;  InMatEl4%mb = mb/Q
     InMatEl4%mt2 = InMatEl4%mt**2;  InMatEl4%mW2 = InMatEl4%mW**2
     InMatEl4%mb2 = InMatEl4%mb**2;  InMatEl4%mt4 = InMatEl4%mt2**2
-    InMatEl4%mt6 = InMatEl4%mt2**3;  InMatEl4%mb4 = InMatEl4%mb2**2
+    InMatEl4%mt6 = InMatEl4%mt2**3; InMatEl4%mb4 = InMatEl4%mb2**2
     InMatEl4%mt8 = InMatEl4%mt4**2; InMatEl4%mW4 = InMatEl4%mW2**2
-    InMatEl4%mW6 = InMatEl4%mW2**3;  InMatEl4%mW8 = InMatEl4%mW4**2
-    InMatEl4%mb6 = InMatEl4%mb2**3;  InMatEl4%sizeX = 3;   InMatEl4%sizeP = 4
+    InMatEl4%mW6 = InMatEl4%mW2**3; InMatEl4%mW8 = InMatEl4%mW4**2
+    InMatEl4%mb6 = InMatEl4%mb2**3; InMatEl4%sizeX = 3;   InMatEl4%sizeP = 4
+    InMatEl4%Eb = (InMatEl4%mt2 + InMatEl4%mb2 - InMatEl4%mW2)/2/InMatEl4%mt
+    InMatEl4%EW = (InMatEl4%mt2 + InMatEl4%mW2 - InMatEl4%mb2)/2/InMatEl4%mt
+    InMatEl4%pb = sqrt(InMatEl4%Eb**2 - InMatEl4%mb2)
+    InMatEl4%vT = sqrt(1 - 4 * InMatEl4%mt2)
 
   end function InMatEl4
 
@@ -74,6 +79,10 @@ module MatrixElementsClass
     InMatEl6%mt8 = InMatEl6%mt4**2; InMatEl6%mW4 = InMatEl6%mW2**2
     InMatEl6%mW6 = InMatEl6%mW2**3;  InMatEl6%mW8 = InMatEl6%mW4**2
     InMatEl6%mb6 = InMatEl6%mb2**3;  InMatEl6%sizeX = 7;  InMatEl6%sizeP = 6
+    InMatEl6%Eb = (InMatEl6%mt2 + InMatEl6%mb2 - InMatEl6%mW2)/2/InMatEl6%mt
+    InMatEl6%EW = (InMatEl6%mt2 + InMatEl6%mW2 - InMatEl6%mb2)/2/InMatEl6%mt
+    InMatEl6%pb = sqrt(InMatEl6%Eb**2 - InMatEl6%mb2)
+    InMatEl6%vT = sqrt(1 - 4 * InMatEl6%mt2)
 
   end function InMatEl6
 
@@ -231,52 +240,47 @@ module MatrixElementsClass
     real (dp), dimension(0:3)                    :: p1, q
     real (dp), dimension(self%sizeX/2 + 1)       :: Ctheta, Stheta
     real (dp), dimension(self%sizeX/2)           :: phi
-    real (dp)                                    :: gammaW, Eb, eW, pb, modp1, vW, qnw
+    real (dp)                                    :: gammaW, vW, qnw
 
-    Eb = (self%mt2 + self%mb2 - self%mW2)/2/self%mt
-    EW = (self%mt2 + self%mW2 - self%mb2)/2/self%mt
-    pb = sqrt(Eb**2 - self%mb2); phi = 2 * Pi * x(self%sizeX/2 + 2:)
+    phi = 2 * Pi * x(self%sizeX/2 + 2:)
     Ctheta = 2 * x(:self%sizeX/2 + 1) - 1;  Stheta = sqrt( 1 - Ctheta**2 )
 
-    p(1,0) = Eb ;  p(1,1:3:2) = - pb * [ Stheta(1), Ctheta(1) ]; p(1,2) = 0
+    p(1,0) = self%Eb ;  p(1,1:3:2) = - self%pb * [ Stheta(1), Ctheta(1) ]; p(1,2) = 0 ! bottom from top
 
     select type (self)
     type is (MatrixElements6)
 
-      p(4,0)   = Eb  ;  p(4,3) = - pb * Ctheta(3)
-      p(4,1:2) = - pb * Stheta(3) * [ Cos( phi(2) ), Sin( phi(2) ) ]
+      p(4,0)   =   self%Eb  ;  p(4,3) = - self%pb * Ctheta(3)                   ! bottom from top-bar
+      p(4,1:2) = - self%pb * Stheta(3) * [ Cos( phi(2) ), Sin( phi(2) ) ]
 
-      p1(0) = EW;  p1(1:) = - p(1,1:)
+      p1(0) = self%EW;  p1(1:) = - p(1,1:); vW = self%pb/self%EW;               ! W from top in top rest frame
+      gammaW = self%EW/self%mW
 
-      modp1 = pb;  vW = pb/EW;  gammaW = 1/sqrt(1 - vW**2)
+      q(0)   = self%mW/2; q(3) = q(0) * Ctheta(2)                               ! W from top decay products in W rest frame
+      q(1:2) = q(0) * Stheta(2) * [ Cos( phi(1) ), Sin( phi(1) ) ]
 
-      q(0) = self%mW/2; q(3) = self%mW * Ctheta(2)/2
-      q(1:2) = self%mW * Stheta(2)/2 * [ Cos( phi(1) ), Sin( phi(1) ) ]
+      qnw = VecProd3(q, p1)/self%pb
 
-      qnw = VecProd3(q, p1)/pb
+      p(2:3,0) = gammaW * ( q(0) + [1,-1] * vW * qnw )                          ! W decay products from top
+      p(2,1:)  = ( q(0) * vW * gammaW - (1 - gammaW) * qnw ) * p1(1:)/self%pb + q(1:)
+      p(3,1:)  = ( q(0) * vW * gammaW + (1 - gammaW) * qnw ) * p1(1:)/self%pb - q(1:)
 
-      p(2:3,0) = gammaW * ( q(0) + [1,-1] * vW * qnw )
-      p(2,1:)  = ( q(0) * vW * gammaW - (1 - gammaW) * qnw ) * p1(1:)/modp1 + q(1:)
-      p(3,1:)  = ( q(0) * vW * gammaW + (1 - gammaW) * qnw ) * p1(1:)/modp1 - q(1:)
+      p1(1:)   = - p(4,1:);  q(3) = q(0) * Ctheta(4)
 
-      p1(3)   = pb * Ctheta(3)
-      p1(1:2) = pb * Stheta(3) * [ Cos( phi(2) ), Sin( phi(2) ) ]
+      q(1:2) = q(0) * Stheta(4) * [ Cos( phi(3) ), Sin( phi(3) ) ]
 
-      q(3)   = self%mW * Ctheta(4)/2
-      q(1:2) = self%mW * Stheta(4)/2 * [ Cos( phi(3) ), Sin( phi(3) ) ]
-
-      qnw = VecProd3(q, p1)/modp1
+      qnw = VecProd3(q, p1)/self%pb
 
       p(5:6,0) = gammaW * ( q(0) + [1,-1] * vW * qnw )
-      p(5,1:)  = ( q(0) * vW * gammaW - (1 - gammaW) * qnw ) * p1(1:)/modp1 + q(1:)
-      p(6,1:)  = ( q(0) * vW * gammaW + (1 - gammaW) * qnw ) * p1(1:)/modp1 - q(1:)
+      p(5,1:)  = ( q(0) * vW * gammaW - (1 - gammaW) * qnw ) * p1(1:)/self%pb + q(1:)
+      p(6,1:)  = ( q(0) * vW * gammaW + (1 - gammaW) * qnw ) * p1(1:)/self%pb - q(1:)
 
     type is (MatrixElements4)
 
-       p(3,0)   =   EW   ;  p(3,1:) = - p(1,1:)
-       p(2,0)   =   Eb   ;  p(2,3) = - pb * Ctheta(2)
-       p(2,1:2) = - pb * Stheta(2) * [ Cos( phi(1) ), Sin( phi(1) ) ]
-       p(4,0)   =   EW   ;  p(4,1:) = - p(2,1:)
+       p(2,0)   =   self%EW   ;  p(2,1:) = - p(1,1:)
+       p(3,0)   =   self%Eb   ;  p(3,3) = - self%pb * Ctheta(2)
+       p(3,1:2) = - self%pb * Stheta(2) * [ Cos( phi(1) ), Sin( phi(1) ) ]
+       p(4,0)   =   self%EW   ;  p(4,1:) = - p(3,1:)
 
     end select
 
@@ -284,39 +288,35 @@ module MatrixElementsClass
 
 !ccccccccccccccc
 
-  function GenerateVectors(self, x) result(p)
+  function GenerateVectors2(self, x) result(p)
     class (MatrixElements)          , intent(in) :: self
     real (dp), dimension(self%sizeX), intent(in) :: x
     real (dp), dimension(self%sizeP,0:3)         :: p
     real (dp), dimension(0:3)                    :: p1, q
     real (dp), dimension(self%sizeX/2 + 1)       :: Ctheta, Stheta
     real (dp), dimension(self%sizeX/2)           :: phi
-    real (dp)                                    :: vT, gammaT, gammaW, Eb, eW, &
-                                                    vW, qnw, pb, modp1
+    real (dp)                                    :: gammaW, vW, qnw, modp1
 
-    Eb = (self%mt2 + self%mb2 - self%mW2)/2/self%mt
-    EW = (self%mt2 + self%mW2 - self%mb2)/2/self%mt
-    pb = sqrt(Eb**2 - self%mb2); phi = 2 * Pi * x(self%sizeX/2 + 2:)
-    vT = sqrt(1 - 4 * self%mt2); gammaT = 1/sqrt(1 - vT**2)
+    phi = 2 * Pi * x(self%sizeX/2 + 2:)
     Ctheta = 2 * x(:self%sizeX/2 + 1) - 1;  Stheta = sqrt( 1 - Ctheta**2 )
 
-    p(1,0) = gammaT * ( Eb - pb * vT * Ctheta(1) );  p(1,1) = - pb * Stheta(1) ! bottom from top
-    p(1,3) = gammaT * ( Eb * vT - pb * Ctheta(1) );  p(1,2) = 0
+    p(1,0) = ( self%Eb - self%pb * self%vT * Ctheta(1) )/2/self%mt;  p(1,1) = - self%pb * Stheta(1) ! bottom from top
+    p(1,3) = ( self%Eb * self%vT - self%pb * Ctheta(1) )/2/self%mt;  p(1,2) = 0
 
     select type (self)
     type is (MatrixElements6)
 
-      p(4,0)   = gammaT * ( Eb + pb * vT * Ctheta(3) )                         ! anti-bottom from anti-top
-      p(4,1:2) = - pb * Stheta(3) * [ Cos( phi(2) ), Sin( phi(2) ) ]
-      p(4,3)   = - gammaT * ( Eb * vT + pb * Ctheta(3) )
+      p(4,0)   = ( self%Eb + self%pb * self%vT * Ctheta(3) )/2/self%mt                         ! anti-bottom from anti-top
+      p(4,1:2) = - self%pb * Stheta(3) * [ Cos( phi(2) ), Sin( phi(2) ) ]
+      p(4,3)   = - ( self%Eb * self%vT + self%pb * Ctheta(3) )/2/self%mt
 
-      p1(0) = gammaT * ( EW + pb * vT * Ctheta(1) );  p1(1:2) = - p(1,1:2)     ! W from top
-      p1(3) = gammaT * ( pb * Ctheta(1) + EW * vT )
+      p1(0) = ( self%EW + self%pb * self%vT * Ctheta(1) )/2/self%mt;  p1(1:2) = - p(1,1:2)     ! W from top
+      p1(3) = ( self%pb * Ctheta(1) + self%EW * self%vT )/2/self%mt
 
-      modp1 = Abs3(p1);  vW = modp1/p1(0);  gammaW = 1/sqrt(1 - vW**2)
+      modp1 = Abs3(p1);  vW = modp1/p1(0);  gammaW = p1(0)/self%mW
 
-      q(0) = self%mW/2; q(3) = self%mW * Ctheta(2)/2
-      q(1:2) = self%mW * Stheta(2)/2 * [ Cos( phi(1) ), Sin( phi(1) ) ]
+      q(0) = self%mW/2; q(3) = q(0) * Ctheta(2)
+      q(1:2) = q(0) * Stheta(2) * [ Cos( phi(1) ), Sin( phi(1) ) ]
 
       qnw = VecProd3(q, p1)/modp1
 
@@ -324,14 +324,14 @@ module MatrixElementsClass
       p(2,1:)  = ( q(0) * vW * gammaW - (1 - gammaW) * qnw ) * p1(1:)/modp1 + q(1:)
       p(3,1:)  = ( q(0) * vW * gammaW + (1 - gammaW) * qnw ) * p1(1:)/modp1 - q(1:)
 
-      p1(0)   = gammaT * ( EW - pb * vT * Ctheta(3) )                          ! anti-W from anti-top
-      p1(1:2) = pb * Stheta(3) * [ Cos( phi(2) ), Sin( phi(2) ) ]
-      p1(3)   = gammaT * ( pb * Ctheta(3) - EW * vT )
+      p1(0)   = ( self%EW - self%pb * self%vT * Ctheta(3) )/2/self%mt                          ! anti-W from anti-top
+      p1(1:2) = self%pb * Stheta(3) * [ Cos( phi(2) ), Sin( phi(2) ) ]
+      p1(3)   = ( self%pb * Ctheta(3) - self%EW * self%vT )/2/self%mt
 
-      modp1 = Abs3(p1);  vW = modp1/p1(0);  gammaW = 1/sqrt(1 - vW**2)
+      modp1 = Abs3(p1);  vW = modp1/p1(0);  gammaW = p1(0)/self%mW
 
-      q(3) = self%mW * Ctheta(4)/2
-      q(1:2) = self%mW * Stheta(4)/2 * [ Cos( phi(3) ), Sin( phi(3) ) ]
+      q(3)   = q(0) * Ctheta(4)
+      q(1:2) = q(0) * Stheta(4) * [ Cos( phi(3) ), Sin( phi(3) ) ]
 
       qnw = VecProd3(q, p1)/modp1
 
@@ -341,18 +341,38 @@ module MatrixElementsClass
 
     type is (MatrixElements4)
 
-      p(3,0) = gammaT * ( EW + pb * vT * Ctheta(1) )   ;  p(3,1) = pb * Stheta(1) ! W from top
-      p(3,3) = gammaT * ( EW * vT + pb * Ctheta(1) )   ;  p(3,2) = 0
+      p(2,0) = ( self%EW + self%pb * self%vT * Ctheta(1) )/2/self%mt   ;  p(2,1) = self%pb * Stheta(1) ! W from top
+      p(2,3) = ( self%EW * self%vT + self%pb * Ctheta(1) )/2/self%mt   ;  p(2,2) = 0
 
-      p(2,0)   =   gammaT * ( Eb + pb * vT * Ctheta(2) )                          ! anti-bottom from anti-top
-      p(2,1:2) = - pb * Stheta(2) * [ Cos( phi(1) ), Sin( phi(1) ) ]
-      p(2,3)   = - gammaT * ( Eb * vT + pb * Ctheta(2) )
+      p(3,0)   =   ( self%Eb + self%pb * self%vT * Ctheta(2) )/2/self%mt        ! anti-bottom from anti-top
+      p(3,1:2) = - self%pb * Stheta(2) * [ Cos( phi(1) ), Sin( phi(1) ) ]
+      p(3,3)   = - ( self%Eb * self%vT + self%pb * Ctheta(2) )/2/self%mt
 
-      p(4,0) = gammaT * ( EW - pb * vT * Ctheta(2) )                              ! anti-W from anti-top
-      p(4,1:2) = pb * Stheta(2) * [ Cos( phi(1) ), Sin( phi(1) ) ]
-      p(4,3) = gammaT * ( pb * Ctheta(2) - EW * vT )
+      p(4,0)   = ( self%EW - self%pb * self%vT * Ctheta(2) )/2/self%mt            ! anti-W from anti-top
+      p(4,1:2) = self%pb * Stheta(2) * [ Cos( phi(1) ), Sin( phi(1) ) ]
+      p(4,3)   = ( self%pb * Ctheta(2) - self%EW * self%vT )/2/self%mt
 
     end select
+
+  end function GenerateVectors2
+
+!ccccccccccccccc
+
+  function GenerateVectors(self, x) result(p)
+    class (MatrixElements)          , intent(in) :: self
+    real (dp), dimension(self%sizeX), intent(in) :: x
+    real (dp), dimension(self%sizeP,0:3)         :: p
+    integer                                      :: i
+
+    p = self%GenerateRestVectors(x)
+
+    do i = 1, self%sizeP/2
+      p(i,0:3:3) = [ p(i,0) + self%vt * p(i,3), p(i,3) + self%vt * p(i,0)]/2/self%mt
+    end do
+
+    do i = self%sizeP/2 + 1, self%sizeP
+      p(i,0:3:3) = [ p(i,0) - self%vt * p(i,3), p(i,3) - self%vt * p(i,0)]/2/self%mt
+    end do
 
   end function GenerateVectors
 
@@ -502,11 +522,14 @@ module MatrixElementsClass
 
 !ccccccccccccccc
 
-  real (dp) function CparamBeta(self, p)
+  real (dp) function CparamBeta(self, x)
     class (MatrixElements)              , intent(in) :: self
-    real (dp), dimension(self%sizeP,0:3), intent(in) :: p ! cartesian coordinates, top and anti-top rest frame
+    real (dp), dimension(self%sizeX)    , intent(in) :: x ! cartesian coordinates, top and anti-top rest frame
+    real (dp), dimension(self%sizeP,0:3)             :: p ! cartesian coordinates, top and anti-top rest frame
     real (dp), dimension(self%sizeP,2)               :: q ! + and - light-cone coordinates
     integer                                          :: i, j
+
+    p = self%GenerateRestVectors(x)
 
     do i = 1, self%sizeP
       q(i,1) = p(i,0) + p(i,3);  q(i,2) = p(i,0) - p(i,3)
@@ -515,25 +538,25 @@ module MatrixElementsClass
     select type (self)
     type is (MatrixElements6)
 
-      CparamBeta = 4 * self%mt2 - self%mt2 * (   self%mW4 * &
-      ( 1/q(2,1)/q(3,1) + 1/q(5,2)/q(6,2) )  + 4 * (  FourProd( p(1,:), p(2,:) )**2/q(1,1)/q(2,1) &
+      CparamBeta = 4 - self%mW4 * &
+      ( 1/q(2,1)/q(3,1) + 1/q(5,2)/q(6,2) )  - 4 * (  FourProd( p(1,:), p(2,:) )**2/q(1,1)/q(2,1) &
       + FourProd( p(1,:), p(3,:) )**2/q(1,1)/q(3,1) + FourProd( p(4,:), p(5,:) )**2/q(4,2)/q(5,2) &
-      + FourProd( p(4,:), p(6,:) )**2/q(4,2)/q(6,2) )   )
+      + FourProd( p(4,:), p(6,:) )**2/q(4,2)/q(6,2)  )
 
     type is (MatrixElements4)
 
-      CparamBeta = 4 * self%mt2 - self%mt2 * &
-      (self%mt2 - self%mb2 - self%mW2)**2 * ( 1/q(1,1)/q(3,1) + 1/q(2,2)/q(4,2) )
+      CparamBeta = 4 - (self%mt2 - self%mb2 - self%mW2)**2 &
+       * ( 1/q(1,1)/q(2,1) + 1/q(3,2)/q(4,2) )
 
     end select
 
     do i = 1, self%sizeP/2
-      do j = self%sizeP/2 + 1, self%sizeP/2
-        CparamBeta = CparamBeta - FourProdPerp( p(i,:), p(j,:) )**2/q(i,1)**2/q(j,2)
+      do j = self%sizeP/2 + 1, self%sizeP
+        CparamBeta = CparamBeta - FourProdPerp( p(i,:), p(j,:) )**2/q(i,1)/q(j,2)
       end do
     end do
 
-    CparamBeta = 3 * CparamBeta
+    CparamBeta = 3 * self%mt2 * CparamBeta
 
   end function CparamBeta
 
@@ -581,7 +604,7 @@ module MatrixElementsClass
   real (dp) function Abs3(p)
     real (dp), dimension(0:3), intent(in) :: p
 
-    Abs3 = sqrt(  sum( p(1:)**2 )  )
+    Abs3 = sqrt(  VecProd3(p, p)  )
 
   end function Abs3
 
