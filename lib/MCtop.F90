@@ -192,6 +192,9 @@ module MCtopClass
       if ( dist2(j) <= tiny(1._dp) ) dist(j) = 0
     enddo
 
+    ! dist = dist/AVGI; dist2 = dist2/AVGI
+    dist = dist/sum(dist)/self%delta(5); dist2 = dist2/sum(dist)/self%delta(5)
+
   contains
 
 !ccccccccccccccc
