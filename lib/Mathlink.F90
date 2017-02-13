@@ -109,6 +109,37 @@ end subroutine f90CparamDistribution
 
 !ccccccccccccccc
 
+subroutine f90CparamLegendre(n, mt, mb, mW, Q, expand, method, spin, decay, current, &
+                                 Cmax, Nevent, Niter, list)
+  use constants, only: dp; use MatrixElementsClass; use MCtopClass; implicit none
+  real (dp)                  , intent(in)  :: mt, mW, mb, Q
+  integer                    , intent(in)  :: n, Nevent, Niter
+  character (len = *)        , intent(in)  :: spin, decay, current, method, expand
+  real (dp)                  , intent(in)  :: Cmax
+  real (dp), dimension(2,0:n), intent(out) :: list
+  type (MCtop)                             :: MC
+  class (MatrixElements), allocatable      :: MatEl
+
+  if ( decay(:6) == 'stable') then
+    allocate( MatrixElements4 :: MatEl )
+    select type (MatEl)
+    type is (MatrixElements4);  MatEl = MatrixElements4(mt, mb, mW, Q)
+    end select
+  else
+    allocate( MatrixElements6 :: MatEl )
+    select type (MatEl)
+    type is (MatrixElements6);  MatEl = MatrixElements6(mt, mb, mW, Q)
+    end select
+  end if
+
+  MC   = MCtop(MatEl, spin(:8), current(:8), [1,1,1,1,1,1,1,1] * 0._dp, &
+               [1,1,1,1,1,1,1,1] * Cmax, 100, Nevent, Niter)
+  list = MC%LegendreInt( n, expand(:6), method(:5) )
+
+end subroutine f90CparamLegendre
+
+!ccccccccccccccc
+
 subroutine f90CparamComputer(p, len, ES)
   use constants, only: dp; use MatrixElementsClass, only: Cparam; implicit none
   integer                     , intent(in)  :: len
