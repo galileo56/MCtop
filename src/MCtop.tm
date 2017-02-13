@@ -409,7 +409,7 @@ static void cparamlegendre(int n, double mt, double mb, double mW, double Q,
 
    MLPutFunction(stdlink, "Partition", 2);
    MLPutRealList(stdlink, res, 2 * (n + 1) );
-   MLPutInteger(stdlink, n + 1);
+   MLPutInteger(stdlink, 2);
    MLEndPacket(stdlink);
 
 }

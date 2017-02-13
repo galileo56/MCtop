@@ -213,7 +213,15 @@ module MCtopClass
     end do
 
     list(2,:) = 1/list(2,:);  list(1,:) = list(1,:) * list(2,:)
-    list(2,:) = sqrt(list(2,:))
+    list(2,:) = sqrt( list(2,:) )
+
+    list(:,0) = [1, 0]!self%Nevent
+
+    list = list/self%ESmax(5)
+
+    do i = 0, n
+      list(:,i) = (2 * i + 1) * list(:,i)      
+    end do
 
   contains
 
