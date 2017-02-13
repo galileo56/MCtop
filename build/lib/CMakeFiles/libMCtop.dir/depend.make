@@ -4,6 +4,8 @@
 
 lib/CMakeFiles/libMCtop.dir/MCtop.F90.o.requires: lib/CMakeFiles/libMCtop.dir/constants.mod.proxy
 lib/CMakeFiles/libMCtop.dir/MCtop.F90.o: lib/CMakeFiles/libMCtop.dir/constants.mod.stamp
+lib/CMakeFiles/libMCtop.dir/MCtop.F90.o.requires: lib/CMakeFiles/libMCtop.dir/legendre.mod.proxy
+lib/CMakeFiles/libMCtop.dir/MCtop.F90.o: lib/CMakeFiles/libMCtop.dir/legendre.mod.stamp
 lib/CMakeFiles/libMCtop.dir/MCtop.F90.o.requires: lib/CMakeFiles/libMCtop.dir/matrixelementsclass.mod.proxy
 lib/CMakeFiles/libMCtop.dir/MCtop.F90.o: lib/CMakeFiles/libMCtop.dir/matrixelementsclass.mod.stamp
 lib/CMakeFiles/libMCtop.dir/MCtop.F90.o.requires: lib/CMakeFiles/libMCtop.dir/mc_vegas.mod.proxy

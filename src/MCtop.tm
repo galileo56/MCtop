@@ -5,6 +5,7 @@
 :Evaluate:   Print["     Last modification: 08 - 01 - 2017        "]
 :Evaluate:   Print["     Version:           test 2                "]
 
+:Evaluate:  CparamLegendre::usage = "CparamLegendre[n, mt, mb, mW, Q, expand, method, Spin, decay, current, Cmax, Nevent, Niter] computes the integration against Legendre Polynomial"
 :Evaluate:  LegendreList::usage = "LegendreList[n, x] computes the of the first n + 1 Legendre Polynomial"
 :Evaluate:  Cparam4::usage = "Cparam4[x, mt, mb, mW, Q] computes the value of C-parameter for top decay into 2 particles"
 :Evaluate:  Cparam6::usage = "Cparam6[x, mt, mb, mW, Q] computes the value of C-parameter for top decay into 3 particles"
@@ -61,6 +62,17 @@
                  Nevent, Niter}
 :ArgumentTypes: {Real, Real, Real, Real, String, String, String, String, String, Real,
                  Real, Integer, Integer, Integer}
+:ReturnType:    Manual
+:End:
+
+:Begin:
+:Function:      cparamlegendre
+:Pattern:       CparamLegendre[n_, mt_, mb_, mW_, Q_, expand_, method_, spin_, decay_,
+                 current_, Cmax_, Nevent_, Niter_]
+:Arguments:     {n, mt, mb, mW, Q, expand, method, spin, decay, current, Cmax,
+                 Nevent, Niter}
+:ArgumentTypes: {Integer, Real, Real, Real, Real, String, String, String, String, String,
+                 Real, Integer, Integer}
 :ReturnType:    Manual
 :End:
 
@@ -379,6 +391,25 @@ static void cparamdistribution(double mt, double mb, double mW, double Q,
    MLPutFunction(stdlink, "Partition", 2);
    MLPutRealList(stdlink, res, 3*Nbins);
    MLPutInteger(stdlink, Nbins);
+   MLEndPacket(stdlink);
+
+}
+
+extern double f90cparamlegendre_(int* n, double* mt, double* mb, double* mW, double* Q,
+  char const* expand, char const* method, char const* spin, char const* decay,
+  char const* current, double* Cmax, int* Nevent, int* Niter, double* res);
+
+static void cparamlegendre(int n, double mt, double mb, double mW, double Q,
+  char const* expand, char const* method, char const* spin, char const* decay,
+  char const* current, double Cmax, int Nevent, int Niter){
+  double res[2 * (n + 1)];
+
+   f90cparamlegendre_(&n, &mt, &mb, &mW, &Q, expand, method, spin, decay, current,
+  &Cmax, &Nevent, &Niter, res);
+
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutRealList(stdlink, res, 2 * (n + 1) );
+   MLPutInteger(stdlink, 2);
    MLEndPacket(stdlink);
 
 }
