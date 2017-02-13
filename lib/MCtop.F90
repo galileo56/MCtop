@@ -159,13 +159,13 @@ module MCtopClass
 
 !ccccccccccccccc
 
-  subroutine callVegasCparam(self, expand, dist, dist2)
+  subroutine callVegasCparam(self, expand, method, dist, dist2)
     class (MCtop)                   , intent(in)  :: self
     character (len = *)             , intent(in)  :: expand
     real (dp), dimension(self%Nbins), intent(out) :: dist , dist2
     real (dp), dimension(self%Nbins, self%Niter)  :: distTot , distTot2
     real (dp)                                     :: AVGI, SD, CHI2A
-    integer                                       :: j, iter
+    integer                                       :: i, j, iter
 
     NPRN = - 1; ITMX = 1; NCall = self%Nevent; iter = 1
     if (self%dimX <= 3) iter = 0; distTot = 0; distTot2 = 0
@@ -173,7 +173,11 @@ module MCtopClass
     do j = 1, self%Niter
 
       dist = 0;  dist2 = 0; if (j > 1 .and. self%dimX > 3) iter = 2
-      call VEGAS(self%dimX, FunMatEl, AVGI, SD, CHI2A, iter)
+      if ( method(:5) = 'vegas' ) then
+        call VEGAS(self%dimX, FunMatEl, AVGI, SD, CHI2A, iter)
+      else
+
+      end if
 
       distTot(:,j) = dist(:)/self%Delta(5)
 
