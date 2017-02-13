@@ -82,20 +82,32 @@ module MCtopClass
 
 !ccccccccccccccc
 
-  subroutine callVegas(self, dist, dist2)
+  subroutine callVegas(self, method, dist, dist2)
     class (MCtop), intent(in)                        :: self
+    character (len = *)             , intent(in)     :: method
     real (dp), dimension(self%Nbins, 8), intent(out) :: dist , dist2
     real (dp), dimension(self%Nbins, 8, self%Niter)  :: distTot , distTot2
+    real (dp), dimension(self%dimX)                  :: y
     real (dp)                                        :: AVGI, SD, CHI2A
-    integer                                          :: i, j, iter
+    integer                                          :: i, j, n, iter
 
     NPRN = - 1; ITMX = 1; NCall = self%Nevent; iter = 1
     if (self%dimX <= 3) iter = 0; distTot = 0; distTot2 = 0
 
     do j = 1, self%Niter
 
-      dist = 0;  dist2 = 0; if (j > 1 .and. self%dimX > 3) iter = 2
-      call VEGAS(self%dimX, FunMatEl, AVGI, SD, CHI2A, iter)
+      dist = 0;  dist2 = 0
+
+      if ( method(:5) == 'vegas' ) then
+        if (j > 1 .and. self%dimX > 3) iter = 2
+        call VEGAS(self%dimX, FunMatEl, AVGI, SD, CHI2A, iter)
+      else
+        do n = 1, NCall
+          call Random_number(y)
+          AVGI = AVGI + FunMatEl(y, 1._dp)
+        end do
+        AVGI = AVGI/Ncall
+      end if
 
       do i = 1, 8
 
@@ -159,13 +171,14 @@ module MCtopClass
 
 !ccccccccccccccc
 
-  subroutine callVegasCparam(self, expand, dist, dist2)
+  subroutine callVegasCparam(self, expand, method, dist, dist2)
     class (MCtop)                   , intent(in)  :: self
-    character (len = *)             , intent(in)  :: expand
+    character (len = *)             , intent(in)  :: expand, method
     real (dp), dimension(self%Nbins), intent(out) :: dist , dist2
     real (dp), dimension(self%Nbins, self%Niter)  :: distTot , distTot2
+    real (dp), dimension(self%dimX)               :: y
     real (dp)                                     :: AVGI, SD, CHI2A
-    integer                                       :: j, iter
+    integer                                       :: i, j, iter
 
     NPRN = - 1; ITMX = 1; NCall = self%Nevent; iter = 1
     if (self%dimX <= 3) iter = 0; distTot = 0; distTot2 = 0
@@ -173,7 +186,16 @@ module MCtopClass
     do j = 1, self%Niter
 
       dist = 0;  dist2 = 0; if (j > 1 .and. self%dimX > 3) iter = 2
-      call VEGAS(self%dimX, FunMatEl, AVGI, SD, CHI2A, iter)
+      if ( method(:5) == 'vegas' ) then
+        call VEGAS(self%dimX, FunMatEl, AVGI, SD, CHI2A, iter)
+      else
+        do i = 1, self%Nevent
+          call Random_number(y)
+          AVGI = AVGI + FunMatEl(y, 1._dp)
+        end do
+
+        dist = dist/self%Nevent; dist2 = dist2/self%Nevent
+      end if
 
       distTot(:,j) = dist(:)/self%Delta(5)
 
@@ -193,9 +215,6 @@ module MCtopClass
     do j = 1, self%Nbins
       if ( dist2(j) <= tiny(1._dp) ) dist(j) = 0
     enddo
-
-    ! dist = dist/AVGI; dist2 = dist2/AVGI
-    ! dist = dist/sum(dist)/self%delta(5); dist2 = dist2/sum(dist)/self%delta(5)
 
   contains
 
@@ -253,24 +272,25 @@ module MCtopClass
 
 !ccccccccccccccc
 
-  function List(self) result(dist)
-    class (MCtop) , intent(in)             :: self
+  function List(self, method) result(dist)
+    class (MCtop)             , intent(in) :: self
+    character (len = *)       , intent(in) :: method
     real (dp), dimension(self%Nbins, 8, 3) :: dist
 
     dist(:,:,1  ) = self%ES
-    call self%callVegas( dist(:,:,2), dist(:,:,3)  )
+    call self%callVegas( method, dist(:,:,2), dist(:,:,3)  )
 
   end function List
 
 !ccccccccccccccc
 
-  function ListCparam(self, expand) result(dist)
+  function ListCparam(self, expand, method) result(dist)
     class (MCtop)          , intent(in) :: self
-    character (len = *)    , intent(in) :: expand
+    character (len = *)    , intent(in) :: expand, method
     real (dp), dimension(self%Nbins, 3) :: dist
 
     dist(:,1) = self%ES(:,5)
-    call self%callVegasCparam( expand, dist(:,2), dist(:,3)  )
+    call self%callVegasCparam( expand, method, dist(:,2), dist(:,3)  )
 
   end function ListCparam
 
