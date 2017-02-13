@@ -66,6 +66,17 @@
 :End:
 
 :Begin:
+:Function:      cparamlegendre
+:Pattern:       CparamLegendre[n_, mt_, mb_, mW_, Q_, expand_, method_, spin_, decay_,
+                 current_, Cmax_, Nevent_, Niter_]
+:Arguments:     {n, mt, mb, mW, Q, expand, method, spin, decay, current, Cmax,
+                 Nevent, Niter}
+:ArgumentTypes: {Integer, Real, Real, Real, Real, String, String, String, String, String,
+                 Real, Integer, Integer}
+:ReturnType:    Manual
+:End:
+
+:Begin:
 :Function:      esdistributions
 :Pattern:       ESDistributions[mt_, mb_, mW_, Q_, method_, spin_, decay_, current_,
                  Cmin_, Cmax_, Nbins_, Nevent_, Niter_]
@@ -380,6 +391,25 @@ static void cparamdistribution(double mt, double mb, double mW, double Q,
    MLPutFunction(stdlink, "Partition", 2);
    MLPutRealList(stdlink, res, 3*Nbins);
    MLPutInteger(stdlink, Nbins);
+   MLEndPacket(stdlink);
+
+}
+
+extern double f90cparamlegendre_(int* n, double* mt, double* mb, double* mW, double* Q,
+  char const* expand, char const* method, char const* spin, char const* decay,
+  char const* current, double* Cmax, int* Nevent, int* Niter, double* res);
+
+static void cparamlegendre(int n, double mt, double mb, double mW, double Q,
+  char const* expand, char const* method, char const* spin, char const* decay,
+  char const* current, double Cmax, int Nevent, int Niter){
+  double res[2 * (n + 1)];
+
+   f90cparamlegendre_(&n, &mt, &mb, &mW, &Q, expand, method, spin, decay, current,
+  &Cmax, &Nevent, &Niter, res);
+
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutRealList(stdlink, res, 2 * (n + 1) );
+   MLPutInteger(stdlink, n + 1);
    MLEndPacket(stdlink);
 
 }

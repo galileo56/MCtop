@@ -226,7 +226,7 @@ module MCtopClass
       real (dp), dimension(0:n)                   :: ESLeg
       real (dp), dimension(self%dimP,4)           :: p
 
-      if ( expand(:6) == 'expand') then
+      if ( expand(:6) == 'expand' ) then
         ES = self%MatEl%CparamBeta(x); FunMatEl = 1
       else
         p = self%MatEl%GenerateVectors(x); ES = Cparam(p)
@@ -300,7 +300,7 @@ module MCtopClass
       integer                                     :: k
       real (dp), dimension(self%dimP,4)           :: p
 
-      if ( expand(:6) == 'expand') then
+      if ( expand(:6) == 'expand' ) then
         ES = self%MatEl%CparamBeta(x); FunMatEl = 1
       else
         p = self%MatEl%GenerateVectors(x); ES = Cparam(p)
