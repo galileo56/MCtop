@@ -5,6 +5,7 @@
 :Evaluate:   Print["     Last modification: 08 - 01 - 2017        "]
 :Evaluate:   Print["     Version:           test 2                "]
 
+:Evaluate:  LegendreList::usage = "LegendreList[n, x] computes the of the first n + 1 Legendre Polynomial"
 :Evaluate:  Cparam4::usage = "Cparam4[x, mt, mb, mW, Q] computes the value of C-parameter for top decay into 2 particles"
 :Evaluate:  Cparam6::usage = "Cparam6[x, mt, mb, mW, Q] computes the value of C-parameter for top decay into 3 particles"
 :Evaluate:  CparamBeta4::usage = "CparamBeta4[x, mt, mb, mW, Q] computes the expanded value of C-parameter for top decay into 2 particles"
@@ -41,6 +42,14 @@
 :Pattern:       CparamList[mt_, mb_, mW_, Q_, Cmin_, Cmax_, Nbins_]
 :Arguments:     {mt, mb, mW, Q, Cmin, Cmax, Nbins}
 :ArgumentTypes: {Real, Real, Real, Real, Real, Real, Integer}
+:ReturnType:    Manual
+:End:
+
+:Begin:
+:Function:      legendrelist
+:Pattern:       LegendreList[n_, x_]
+:Arguments:     {n, x}
+:ArgumentTypes: {Integer, Real}
 :ReturnType:    Manual
 :End:
 
@@ -337,6 +346,18 @@ static void cparamlist(double mt, double mb, double mW, double Q, double Cmin,
    f90cparamlist_(&mt, &mb, &mW, &Q, &Cmin, &Cmax, &Nbins, res);
 
    MLPutRealList(stdlink, res, Nbins);
+   MLEndPacket(stdlink);
+
+}
+
+extern double f90legendrelist_(int* n, double* x, double* res);
+
+static void legendrelist(int n, double x){
+  double res[n + 1];
+
+   f90legendrelist_(&n, &x, res);
+
+   MLPutRealList(stdlink, res, n + 1);
    MLEndPacket(stdlink);
 
 }
