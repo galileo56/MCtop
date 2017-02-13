@@ -1,3 +1,6 @@
+
+!ccccccccccccccc
+
 module Constants
   use iso_fortran_env, only: error_unit, dp => real64
   implicit none
@@ -25,3 +28,26 @@ module Constants
            log10(real(radix(1.0_dp),dp)) ]
 
 end module Constants
+
+!ccccccccccccccc
+
+module Legendre
+  use Constants, only: dp
+contains
+  function LegendreList(n,x) result(list)
+    integer      , intent(in) :: n
+    real (dp)    , intent(in) :: x
+    real (dp), dimension(0:n) :: list
+    integer                   :: i
+
+    list (:1) = [ 1._dp, x ]
+
+    do i = 2, n
+      list(i) = ( (2 * i - 1) * x * list(i - 1) - (i - 1) * list(i - 2) )/i
+    end do
+
+  end function LegendreList
+
+end module Legendre
+
+!ccccccccccccccc

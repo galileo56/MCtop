@@ -1,6 +1,18 @@
 
 !ccccccccccccccc
 
+subroutine f90LegendreList(n, x, res)
+  use constants, only: dp; use Legendre
+  integer                  , intent(in)  :: n
+  real (dp)                , intent(in)  :: x
+  real (dp), dimension(0:n), intent(out) :: res
+
+  res = LegendreList(n,x)
+
+end subroutine f90LegendreList
+
+!ccccccccccccccc
+
 subroutine f90ESList(mt, mb, mW, Q, ESmin, ESmax, Nbins, list)
   use constants, only: dp; use MatrixElementsClass; use MCtopClass; implicit none
   real (dp)                     , intent(in)  :: mt, mW, mb, Q

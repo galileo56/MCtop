@@ -4,6 +4,10 @@ FILE(REMOVE
   "CONSTANTS.mod"
   "CMakeFiles/libMCtop.dir/constants.mod.stamp"
 
+  "legendre.mod"
+  "LEGENDRE.mod"
+  "CMakeFiles/libMCtop.dir/legendre.mod.stamp"
+
   "matrixelementsclass.mod"
   "MATRIXELEMENTSCLASS.mod"
   "CMakeFiles/libMCtop.dir/matrixelementsclass.mod.stamp"
