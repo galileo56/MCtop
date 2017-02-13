@@ -342,9 +342,9 @@ static void cparamlist(double mt, double mb, double mW, double Q, double Cmin,
 }
 
 extern double f90cparamdistribution_(double* mt, double* mb, double* mW, double* Q,
-char const* expand, char const* method, char const* spin, char const* decay,
-char const* current, double* Cmin, double* Cmax, int* Nbins, int* Nevent,
-int* Niter, double* res);
+  char const* expand, char const* method, char const* spin, char const* decay,
+  char const* current, double* Cmin, double* Cmax, int* Nbins, int* Nevent,
+  int* Niter, double* res);
 
 static void cparamdistribution(double mt, double mb, double mW, double Q,
   char const* expand, char const* method, char const* spin, char const* decay,

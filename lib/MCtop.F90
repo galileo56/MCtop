@@ -189,11 +189,12 @@ module MCtopClass
       if ( method(:5) == 'vegas' ) then
         call VEGAS(self%dimX, FunMatEl, AVGI, SD, CHI2A, iter)
       else
-        do i = 1, NCall
+        do i = 1, self%Nevent
           call Random_number(y)
           AVGI = AVGI + FunMatEl(y, 1._dp)
         end do
-        AVGI = AVGI/Ncall
+
+        dist = dist/self%Nevent; dist2 = dist2/self%Nevent
       end if
 
       distTot(:,j) = dist(:)/self%Delta(5)
@@ -214,9 +215,6 @@ module MCtopClass
     do j = 1, self%Nbins
       if ( dist2(j) <= tiny(1._dp) ) dist(j) = 0
     enddo
-
-    ! dist = dist/AVGI; dist2 = dist2/AVGI
-    ! dist = dist/sum(dist)/self%delta(5); dist2 = dist2/sum(dist)/self%delta(5)
 
   contains
 
