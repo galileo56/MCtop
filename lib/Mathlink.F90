@@ -36,12 +36,12 @@ end subroutine f90CparamList
 
 !ccccccccccccccc
 
-subroutine f90ESDistributions(mt, mb, mW, Q, Spin, decay, current, ESmin, ESmax, &
+subroutine f90ESDistributions(mt, mb, mW, Q, method, Spin, decay, current, ESmin, ESmax, &
                               Nbins, Nevent, Niter, list)
   use constants, only: dp; use MatrixElementsClass; use MCtopClass; implicit none
   real (dp)                        , intent(in)  :: mt, mW, mb, Q
   integer                          , intent(in)  :: Nbins, Nevent, Niter
-  character (len = *)              , intent(in)  :: Spin, decay, current
+  character (len = *)              , intent(in)  :: Spin, decay, method, current
   real (dp), dimension(8)          , intent(in)  :: ESmin, ESmax
   real (dp), dimension(Nbins, 8, 3), intent(out) :: list
   type (MCtop)                                   :: MC
@@ -60,18 +60,18 @@ subroutine f90ESDistributions(mt, mb, mW, Q, Spin, decay, current, ESmin, ESmax,
   end if
 
   MC   = MCtop(MatEl, Spin(:8), current(:8), ESmin, ESmax, Nbins, Nevent, Niter)
-  list = MC%list()
+  list = MC%list( method(:5) )
 
 end subroutine f90ESDistributions
 
 !ccccccccccccccc
 
-subroutine f90CparamDistribution(mt, mb, mW, Q, expand, spin, decay, current, &
+subroutine f90CparamDistribution(mt, mb, mW, Q, expand, method, spin, decay, current, &
                                  Cmin, Cmax, Nbins, Nevent, Niter, list)
   use constants, only: dp; use MatrixElementsClass; use MCtopClass; implicit none
   real (dp)                     , intent(in)  :: mt, mW, mb, Q
   integer                       , intent(in)  :: Nbins, Nevent, Niter
-  character (len = *)           , intent(in)  :: spin, decay, current, expand
+  character (len = *)           , intent(in)  :: spin, decay, current, method, expand
   real (dp)                     , intent(in)  :: Cmin, Cmax
   real (dp), dimension(Nbins, 3), intent(out) :: list
   type (MCtop)                                :: MC
@@ -91,7 +91,7 @@ subroutine f90CparamDistribution(mt, mb, mW, Q, expand, spin, decay, current, &
 
   MC   = MCtop(MatEl, spin(:8), current(:8), [1,1,1,1,1,1,1,1] * Cmin, &
                [1,1,1,1,1,1,1,1] * Cmax, Nbins, Nevent, Niter)
-  list = MC%ListCparam( expand(:6) )
+  list = MC%ListCparam( expand(:6), method(:5) )
 
 end subroutine f90CparamDistribution
 

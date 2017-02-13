@@ -9,8 +9,8 @@
 :Evaluate:  Cparam6::usage = "Cparam6[x, mt, mb, mW, Q] computes the value of C-parameter for top decay into 3 particles"
 :Evaluate:  CparamBeta4::usage = "CparamBeta4[x, mt, mb, mW, Q] computes the expanded value of C-parameter for top decay into 2 particles"
 :Evaluate:  CparamBeta6::usage = "CparamBeta6[x, mt, mb, mW, Q] computes the expanded value of C-parameter for top decay into 3 particles"
-:Evaluate:  ESDistributions::usage = "ESDistributions[mt, mb, mW, Q, Spin, decay, current, ESmin, ESmax, Nbins, Nevent, Niter] computes the distribution of the event-shape variables"
-:Evaluate:  CparamDistribution::usage = "CparamDistribution[mt, mb, mW, Q, expand, Spin, decay, current, Cmin, Cmax, Nbins, Nevent, Niter] computes the distribution of the C-parameter event shape"
+:Evaluate:  ESDistributions::usage = "ESDistributions[mt, mb, mW, Q, method, Spin, decay, current, ESmin, ESmax, Nbins, Nevent, Niter] computes the distribution of the event-shape variables"
+:Evaluate:  CparamDistribution::usage = "CparamDistribution[mt, mb, mW, Q, expand, method, Spin, decay, current, Cmin, Cmax, Nbins, Nevent, Niter] computes the distribution of the C-parameter event shape"
 :Evaluate:  CparamComputer::usage = "CparamComputer[p] computes the value of the C-parameter event shape"
 :Evaluate:  CparamList::usage = "CparamList[mt, mb, mW, Q, Cmin, Cmax, Nbins] computes the values of the C-parameter event shape"
 :Evaluate:  ESList::usage = "ESList[mt, mb, mW, Q, ESmin, ESmax, Nbins] computes the values of the event-shape variables"
@@ -46,21 +46,21 @@
 
 :Begin:
 :Function:      cparamdistribution
-:Pattern:       CparamDistribution[mt_, mb_, mW_, Q_, expand_, spin_, decay_,
+:Pattern:       CparamDistribution[mt_, mb_, mW_, Q_, expand_, method_, spin_, decay_,
                  current_, Cmin_, Cmax_, Nbins_, Nevent_, Niter_]
-:Arguments:     {mt, mb, mW, Q, expand, spin, decay, current, Cmin, Cmax, Nbins,
+:Arguments:     {mt, mb, mW, Q, expand, method, spin, decay, current, Cmin, Cmax, Nbins,
                  Nevent, Niter}
-:ArgumentTypes: {Real, Real, Real, Real, String, String, String, String, Real,
+:ArgumentTypes: {Real, Real, Real, Real, String, String, String, String, String, Real,
                  Real, Integer, Integer, Integer}
 :ReturnType:    Manual
 :End:
 
 :Begin:
 :Function:      esdistributions
-:Pattern:       ESDistributions[mt_, mb_, mW_, Q_, Spin_, decay_, current_,
+:Pattern:       ESDistributions[mt_, mb_, mW_, Q_, method_, spin_, decay_, current_,
                  Cmin_, Cmax_, Nbins_, Nevent_, Niter_]
-:Arguments:     {mt, mb, mW, Q, Spin, decay, current, Cmin, Cmax, Nbins, Nevent, Niter}
-:ArgumentTypes: {Real, Real, Real, Real, String, String, String, RealList, RealList,
+:Arguments:     {mt, mb, mW, Q, method, spin, decay, current, Cmin, Cmax, Nbins, Nevent, Niter}
+:ArgumentTypes: {Real, Real, Real, Real, String, String, String, String, RealList, RealList,
                  Integer, Integer, Integer}
 :ReturnType:    Manual
 :End:
@@ -342,16 +342,17 @@ static void cparamlist(double mt, double mb, double mW, double Q, double Cmin,
 }
 
 extern double f90cparamdistribution_(double* mt, double* mb, double* mW, double* Q,
-char const* expand, char const* spin, char const* decay, char const* current,
-double* Cmin, double* Cmax, int* Nbins, int* Nevent, int* Niter, double* res);
+char const* expand, char const* method, char const* spin, char const* decay,
+char const* current, double* Cmin, double* Cmax, int* Nbins, int* Nevent,
+int* Niter, double* res);
 
 static void cparamdistribution(double mt, double mb, double mW, double Q,
-  char const* expand, char const* spin, char const* decay, char const* current,
-  double Cmin, double Cmax, int Nbins, int Nevent, int Niter){
+  char const* expand, char const* method, char const* spin, char const* decay,
+  char const* current, double Cmin, double Cmax, int Nbins, int Nevent, int Niter){
   double res[3*Nbins];
 
-   f90cparamdistribution_(&mt, &mb, &mW, &Q, expand, spin, decay, current, &Cmin,
-   &Cmax, &Nbins, &Nevent, &Niter, res);
+   f90cparamdistribution_(&mt, &mb, &mW, &Q, expand, method, spin, decay, current,
+   &Cmin, &Cmax, &Nbins, &Nevent, &Niter, res);
 
    MLPutFunction(stdlink, "Transpose", 1);
    MLPutFunction(stdlink, "Partition", 2);
@@ -362,16 +363,17 @@ static void cparamdistribution(double mt, double mb, double mW, double Q,
 }
 
 extern double f90esdistributions_(double* mt, double* mb, double* mW, double* Q,
-char const* spin, char const* decay, char const* current, double* ESmin, double* ESmax,
-int* Nbins, int* Nevent, int* Niter, double* res);
+char const* method, char const* spin, char const* decay, char const* current,
+double* ESmin, double* ESmax, int* Nbins, int* Nevent, int* Niter, double* res);
 
-static void esdistributions(double mt, double mb, double mW, double Q, char const* spin,
-  char const* decay, char const* current, double ESmin[], long lenmin, double ESmax[],
-  long lenmax, int Nbins, int Nevent, int Niter){
+static void esdistributions(double mt, double mb, double mW, double Q,
+  char const* method, char const* spin, char const* decay, char const* current,
+  double ESmin[], long lenmin, double ESmax[], long lenmax, int Nbins, int Nevent,
+  int Niter){
   double res[24*Nbins];
 
-   f90esdistributions_(&mt, &mb, &mW, &Q, spin, decay, current, ESmin, ESmax, &Nbins,
-   &Nevent, &Niter, res);
+   f90esdistributions_(&mt, &mb, &mW, &Q, method, spin, decay, current, ESmin,
+     ESmax, &Nbins, &Nevent, &Niter, res);
 
    MLPutFunction(stdlink, "Partition", 2);
    MLPutFunction(stdlink, "Transpose", 1);
