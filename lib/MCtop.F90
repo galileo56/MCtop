@@ -222,15 +222,18 @@ module MCtopClass
     real (dp) function FunMatEl(x, wgt)
       real (dp), dimension(self%dimX), intent(in) :: x
       real (dp)                      , intent(in) :: wgt
+      real (dp)                                   :: ES
       real (dp), dimension(0:n)                   :: ESLeg
       real (dp), dimension(self%dimP,4)           :: p
 
       if ( expand(:6) == 'expand') then
-        ESLeg = LegendreList( n, self%MatEl%CparamBeta(x) ); FunMatEl = 1
+        ES = self%MatEl%CparamBeta(x); FunMatEl = 1
       else
-        p = self%MatEl%GenerateVectors(x); ESLeg = LegendreList( n, Cparam(p) )
+        p = self%MatEl%GenerateVectors(x); ES = Cparam(p)
         FunMatEl = self%MatEl%SpinWeight(self%spin, self%current, p)
       end if
+
+      ESLeg = LegendreList( n, 2 * Cparam(p)/self%ESmax(5) - 1 )
 
       list(1,:) = list(1,:) + wgt *  FunMatEl * ESLeg
       list(2,:) = list(2,:) + wgt * (FunMatEl * ESLeg)**2

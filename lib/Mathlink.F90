@@ -110,7 +110,7 @@ end subroutine f90CparamDistribution
 !ccccccccccccccc
 
 subroutine f90CparamLegendre(n, mt, mb, mW, Q, expand, method, spin, decay, current, &
-                                 Cmax, Nevent, Niter, list)
+                             Cmax, Nevent, Niter, list)
   use constants, only: dp; use MatrixElementsClass; use MCtopClass; implicit none
   real (dp)                  , intent(in)  :: mt, mW, mb, Q
   integer                    , intent(in)  :: n, Nevent, Niter
