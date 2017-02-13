@@ -4,6 +4,8 @@
 
 CMakeFiles/subdir_mods.dir/lib/MCtop.F90.o.requires: CMakeFiles/subdir_mods.dir/constants.mod.proxy
 CMakeFiles/subdir_mods.dir/lib/MCtop.F90.o: CMakeFiles/subdir_mods.dir/constants.mod.stamp
+CMakeFiles/subdir_mods.dir/lib/MCtop.F90.o.requires: CMakeFiles/subdir_mods.dir/legendre.mod.proxy
+CMakeFiles/subdir_mods.dir/lib/MCtop.F90.o: CMakeFiles/subdir_mods.dir/legendre.mod.stamp
 CMakeFiles/subdir_mods.dir/lib/MCtop.F90.o.requires: CMakeFiles/subdir_mods.dir/matrixelementsclass.mod.proxy
 CMakeFiles/subdir_mods.dir/lib/MCtop.F90.o: CMakeFiles/subdir_mods.dir/matrixelementsclass.mod.stamp
 CMakeFiles/subdir_mods.dir/lib/MCtop.F90.o.requires: CMakeFiles/subdir_mods.dir/mc_vegas.mod.proxy

@@ -1,7 +1,7 @@
 
 module MCtopClass
-  use MatrixElementsClass; use constants, only: dp; use MC_VEGAS; implicit none
-  private
+  use MatrixElementsClass; use constants, only: dp; use MC_VEGAS; use Legendre
+  implicit none;  private
 
   public                                     :: MCtop
   character (len = 11), dimension(8), public :: ESNames
@@ -21,7 +21,8 @@ module MCtopClass
 
     final                                             :: delete_object
     procedure, private                                :: callVegas, callVegasCparam
-    procedure, public                                 :: List, ListCparam, ESlist, CparamList
+    procedure, public                                 :: List, ListCparam, ESlist, CparamList, &
+                                                         LegendreInt
 
   end type MCtop
 
@@ -106,7 +107,7 @@ module MCtopClass
           call Random_number(y)
           AVGI = AVGI + FunMatEl(y, 1._dp)
         end do
-        AVGI = AVGI/Ncall
+        AVGI = AVGI/self%Nevent; dist = dist/self%Nevent; dist2 = dist2/self%Nevent
       end if
 
       do i = 1, 8
@@ -171,6 +172,75 @@ module MCtopClass
 
 !ccccccccccccccc
 
+ function LegendreInt(self, n, expand, method) result(list)
+    class (MCtop)            , intent(in) :: self
+    integer                  , intent(in) :: n
+    character (len = *)      , intent(in) :: expand, method
+    real (dp), dimension(0:n, self%Niter) :: distTot, distTot2
+    real (dp), dimension(2,0:n)           :: list
+    real (dp)                             :: AVGI, SD, CHI2A
+    integer                               :: i, j, iter
+    real (dp), dimension(self%dimX)       :: y
+
+    NPRN = - 1; ITMX = 1; NCall = self%Nevent; iter = 1; list = 0
+    if (self%dimX <= 3) iter = 0
+
+    do j = 1, self%Niter
+
+      list = 0
+
+      if ( method(:5) == 'vegas' ) then
+        if (j > 1 .and. self%dimX > 3) iter = 2
+        call VEGAS(self%dimX, FunMatEl, AVGI, SD, CHI2A, iter)
+      else
+        do i = 1, NCall
+          call Random_number(y)
+          AVGI = AVGI + FunMatEl(y, 1._dp)
+        end do
+        AVGI = AVGI/self%Nevent; list = list/self%Nevent
+      end if
+
+      distTot(:,j) = list(1,:)
+      distTot2(:,j) = sqrt(  ( list(2,:) - distTot(:,j)**2 )/self%Nevent  )
+
+    end do
+
+    list = 0;  distTot2 = 1/distTot2**2
+
+    do j = 1, self%Niter
+      list(1,:) = list(1,:) + distTot (:,j) * distTot2(:,j)
+      list(2,:) = list(2,:) + distTot2(:,j)
+    end do
+
+    list(2,:) = 1/list(2,:);  list(1,:) = list(1,:) * list(2,:)
+    list(2,:) = sqrt(list(2,:))
+
+  contains
+
+!ccccccccccccccc
+
+    real (dp) function FunMatEl(x, wgt)
+      real (dp), dimension(self%dimX), intent(in) :: x
+      real (dp)                      , intent(in) :: wgt
+      real (dp), dimension(0:n)                   :: ESLeg
+      real (dp), dimension(self%dimP,4)           :: p
+
+      if ( expand(:6) == 'expand') then
+        ESLeg = LegendreList( n, self%MatEl%CparamBeta(x) ); FunMatEl = 1
+      else
+        p = self%MatEl%GenerateVectors(x); ESLeg = LegendreList( n, Cparam(p) )
+        FunMatEl = self%MatEl%SpinWeight(self%spin, self%current, p)
+      end if
+
+      list(1,:) = list(1,:) + wgt *  FunMatEl * ESLeg
+      list(2,:) = list(2,:) + wgt * (FunMatEl * ESLeg)**2
+
+    end function FunMatEl
+
+ end function LegendreInt
+
+!ccccccccccccccc
+
   subroutine callVegasCparam(self, expand, method, dist, dist2)
     class (MCtop)                   , intent(in)  :: self
     character (len = *)             , intent(in)  :: expand, method
@@ -194,7 +264,7 @@ module MCtopClass
           AVGI = AVGI + FunMatEl(y, 1._dp)
         end do
 
-        dist = dist/self%Nevent; dist2 = dist2/self%Nevent
+        AVGI = AVGI/self%Nevent; dist = dist/self%Nevent; dist2 = dist2/self%Nevent
       end if
 
       distTot(:,j) = dist(:)/self%Delta(5)
