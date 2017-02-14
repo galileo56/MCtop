@@ -110,12 +110,12 @@ end subroutine f90CparamDistribution
 !ccccccccccccccc
 
 subroutine f90CparamLegendre(n, mt, mb, mW, Q, expand, method, spin, decay, current, &
-                             Cmax, Nevent, Niter, list)
+                             Cmin, Cmax, Nevent, Niter, list)
   use constants, only: dp; use MatrixElementsClass; use MCtopClass; implicit none
   real (dp)                  , intent(in)  :: mt, mW, mb, Q
   integer                    , intent(in)  :: n, Nevent, Niter
   character (len = *)        , intent(in)  :: spin, decay, current, method, expand
-  real (dp)                  , intent(in)  :: Cmax
+  real (dp)                  , intent(in)  :: Cmin, Cmax
   real (dp), dimension(2,0:n), intent(out) :: list
   type (MCtop)                             :: MC
   class (MatrixElements), allocatable      :: MatEl
@@ -132,7 +132,7 @@ subroutine f90CparamLegendre(n, mt, mb, mW, Q, expand, method, spin, decay, curr
     end select
   end if
 
-  MC   = MCtop(MatEl, spin(:8), current(:8), [1,1,1,1,1,1,1,1] * 0._dp, &
+  MC   = MCtop(MatEl, spin(:8), current(:8), [1,1,1,1,1,1,1,1] * Cmin, &
                [1,1,1,1,1,1,1,1] * Cmax, 100, Nevent, Niter)
   list = MC%LegendreInt( n, expand(:6), method(:5) )
 
