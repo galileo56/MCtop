@@ -18,7 +18,7 @@ module MatrixElementsClass
     procedure, pass (self), public       :: ESMinMax, CparamMinMax, GenerateVectors, &
                                             SpinWeight, dimX, dimP, CparamBeta,      &
                                             GenerateRestVectors, GenerateVectors2,   &
-                                            SetMasses, CparamMax
+                                            SetMasses, CparamMaxMin
   end type MatrixElements
 
 !ccccccccccccccc
@@ -376,28 +376,32 @@ module MatrixElementsClass
 
  !ccccccccccccccc
 
-  function CparamMax(self, eps) result(res)
+  function CparamMaxMin(self, eps) result(res)
     class (MatrixElements)  , intent(in) :: self
     real (dp)               , intent(in) :: eps
-    real (dp), dimension(0:self%sizeX)   :: res
+    real (dp), dimension(0:self%sizeX,2) :: res
     real (dp), dimension(self%sizeX)     :: x
     real (dp)                            :: delta_init
-    integer                              :: ktot, kmax
+    integer                              :: ktot, kmax, signo
 
-    DELTA_INIT = 1.d-2;  KMAX = 100000000; x = 0
+    DELTA_INIT = 1.d-2;  KMAX = 100000000; x = 0.1_dp; signo = 1
 
-    call f90compass_search( fun, self%sizeX, x, eps, delta_init, kmax, res(1:), &
-                            res(0), ktot ); res(0) = - res(0)
+    call f90compass_search( fun, self%sizeX, x, eps, delta_init, kmax, res(1:,1), &
+                            res(0,1), ktot )
+    x = 0.1_dp; signo = - 1
+
+    call f90compass_search( fun, self%sizeX, x, eps, delta_init, kmax, res(1:,2), &
+                        res(0,2), ktot ); res(0,2) = - res(0,2)
 
   contains
 
     real (dp) function fun(n, x)
       integer                         , intent(in) :: n
       real (dp), dimension(self%sizeX), intent(in) :: x
-      fun = - Cparam( self%GenerateVectors(x) )
+      fun = signo * Cparam( self%GenerateVectors(x) )
     end function fun
 
-  end function CparamMax
+  end function CparamMaxMin
 
  !ccccccccccccccc
 

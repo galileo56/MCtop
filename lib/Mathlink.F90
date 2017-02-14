@@ -238,29 +238,29 @@ end subroutine f90CparamMinMax4
 
 !ccccccccccccccc
 
-subroutine f90CparamMax4(eps, mt, mb, mW, Q, res)
+subroutine f90CparamMaxMin4(eps, mt, mb, mW, Q, res)
   use constants, only: dp; use MatrixElementsClass; implicit none
   real (dp)              , intent(in)  :: mt, mW, mb, Q, eps
-  real (dp), dimension(4), intent(out) :: res
+  real (dp), dimension(4,2), intent(out) :: res
   type (MatrixElements4)               :: MatEl
 
   MatEl = MatrixElements4(mt, mb, mW, Q)
-  res   = MatEl%CparamMax(eps)
+  res   = MatEl%CparamMaxMin(eps)
 
-end subroutine f90CparamMax4
+end subroutine f90CparamMaxMin4
 
 !ccccccccccccccc
 
-subroutine f90CparamMax6(eps, mt, mb, mW, Q, res)
+subroutine f90CparamMaxMin6(eps, mt, mb, mW, Q, res)
   use constants, only: dp; use MatrixElementsClass; implicit none
   real (dp)              , intent(in)  :: mt, mW, mb, Q, eps
-  real (dp), dimension(8), intent(out) :: res
+  real (dp), dimension(8,2), intent(out) :: res
   type (MatrixElements6)               :: MatEl
 
   MatEl = MatrixElements6(mt, mb, mW, Q)
-  res   = MatEl%CparamMax(eps)
+  res   = MatEl%CparamMaxMin(eps)
 
-end subroutine f90CparamMax6
+end subroutine f90CparamMaxMin6
 
 !ccccccccccccccc
 

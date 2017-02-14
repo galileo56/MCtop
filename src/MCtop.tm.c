@@ -438,25 +438,29 @@ static void cparamminmax6(int n, double mt, double mb, double mW, double Q){
    MLEndPacket(stdlink);
 }
 
-extern double f90cparammax6_(double* eps, double* mt, double* mb, double* mW, double* Q, double* res);
+extern double f90cparammaxmin6_(double* eps, double* mt, double* mb, double* mW, double* Q, double* res);
 
-static void cparammax6(double eps, double mt, double mb, double mW, double Q){
-  double res[8];
+static void cparammaxmin6(double eps, double mt, double mb, double mW, double Q){
+  double res[16];
 
-   f90cparammax6_(&eps, &mt, &mb, &mW, &Q, res);
+   f90cparammaxmin6_(&eps, &mt, &mb, &mW, &Q, res);
 
-   MLPutRealList(stdlink, res, 8);
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutRealList(stdlink, res, 16);
+   MLPutInteger(stdlink, 8);
    MLEndPacket(stdlink);
 }
 
-extern double f90cparammax4_(double* eps, double* mt, double* mb, double* mW, double* Q, double* res);
+extern double f90cparammaxmin4_(double* eps, double* mt, double* mb, double* mW, double* Q, double* res);
 
-static void cparammax4(double eps, double mt, double mb, double mW, double Q){
-  double res[4];
+static void cparammaxmin4(double eps, double mt, double mb, double mW, double Q){
+  double res[8];
 
-   f90cparammax4_(&eps, &mt, &mb, &mW, &Q, res);
+   f90cparammaxmin4_(&eps, &mt, &mb, &mW, &Q, res);
 
-   MLPutRealList(stdlink, res, 4);
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutRealList(stdlink, res, 8);
+   MLPutInteger(stdlink, 4);
    MLEndPacket(stdlink);
 }
 
@@ -595,7 +599,7 @@ static void vectors6(double x[], long clen, double mt, double mb, double mW, dou
 int main(int argc, char *argv[]){
     return MLMain(argc, argv);
 }
-# line 599 "/Users/vicent/GitHubProjects/MCtop/src/MCtop.tm.c"
+# line 603 "/Users/vicent/GitHubProjects/MCtop/src/MCtop.tm.c"
 
 
 double cparamcomputer P(( double * _tp1, long _tpl1));
@@ -925,7 +929,7 @@ L0:	return res;
 } /* _tr8 */
 
 
-void cparammax4 P(( double _tp1, double _tp2, double _tp3, double _tp4, double _tp5));
+void cparammaxmin4 P(( double _tp1, double _tp2, double _tp3, double _tp4, double _tp5));
 
 #if MLPROTOTYPES
 static int _tr9( MLINK mlp)
@@ -946,7 +950,7 @@ static int _tr9(mlp) MLINK mlp;
 	if ( ! MLGetReal( mlp, &_tp5) ) goto L4;
 	if ( ! MLNewPacket(mlp) ) goto L5;
 
-	cparammax4(_tp1, _tp2, _tp3, _tp4, _tp5);
+	cparammaxmin4(_tp1, _tp2, _tp3, _tp4, _tp5);
 
 	res = 1;
 L5: L4: L3: L2: L1: 
@@ -954,7 +958,7 @@ L0:	return res;
 } /* _tr9 */
 
 
-void cparammax6 P(( double _tp1, double _tp2, double _tp3, double _tp4, double _tp5));
+void cparammaxmin6 P(( double _tp1, double _tp2, double _tp3, double _tp4, double _tp5));
 
 #if MLPROTOTYPES
 static int _tr10( MLINK mlp)
@@ -975,7 +979,7 @@ static int _tr10(mlp) MLINK mlp;
 	if ( ! MLGetReal( mlp, &_tp5) ) goto L4;
 	if ( ! MLNewPacket(mlp) ) goto L5;
 
-	cparammax6(_tp1, _tp2, _tp3, _tp4, _tp5);
+	cparammaxmin6(_tp1, _tp2, _tp3, _tp4, _tp5);
 
 	res = 1;
 L5: L4: L3: L2: L1: 
@@ -1341,8 +1345,8 @@ static struct func {
 		{ 7, 0, _tr6, "eslist" },
 		{ 1, 0, _tr7, "escomputer" },
 		{ 5, 0, _tr8, "esminmax4" },
-		{ 5, 0, _tr9, "cparammax4" },
-		{ 5, 0, _tr10, "cparammax6" },
+		{ 5, 0, _tr9, "cparammaxmin4" },
+		{ 5, 0, _tr10, "cparammaxmin6" },
 		{ 5, 0, _tr11, "cparamminmax4" },
 		{ 5, 0, _tr12, "cparamminmax6" },
 		{ 5, 0, _tr13, "esminmax6" },
@@ -1435,13 +1439,13 @@ static const char* evalstrs[] = {
 	" the maximum and minimum value for the C-parameter Event shape w",
 	"ith 3-particle final state\"",
 	(const char*)0,
-	"CparamMax4::usage = \"CparamMax4[eps, mt, mb, mW, Q] computes the",
-	" maximum value for the C-parameter Event shape with 2-particle f",
-	"inal state\"",
+	"CparamMaxMin4::usage = \"CparamMaxMin4[eps, mt, mb, mW, Q] comput",
+	"es the maximum and minimim values and locations for the C-parame",
+	"ter Event shape with 2-particle final state\"",
 	(const char*)0,
-	"CparamMax6::usage = \"CparamMax6[eps, mt, mb, mW, Q] computes the",
-	" maximum value for the C-parameter Event shape with 3-particle f",
-	"inal state\"",
+	"CparamMaxMin6::usage = \"CparamMaxMin6[eps, mt, mb, mW, Q] comput",
+	"es the maximum and minimim values and locations for the C-parame",
+	"ter Event shape with 3-particle final state\"",
 	(const char*)0,
 	"Begin[\"`Private`\"]",
 	(const char*)0,
@@ -1511,8 +1515,8 @@ int MLInstall(mlp) MLINK mlp;
 	if (_res) _res = _definepattern(mlp, (char *)"ESList[mt_, mb_, mW_, Q_, ESmin_, ESmax_, Nbins_]", (char *)"{mt, mb, mW, Q, ESmin, ESmax, Nbins}", 6);
 	if (_res) _res = _definepattern(mlp, (char *)"EScomputer[p_]", (char *)"{Flatten[Transpose[p]]}", 7);
 	if (_res) _res = _definepattern(mlp, (char *)"ESMinMax4[n_, mt_, mb_, mW_, Q_]", (char *)"{n, mt, mb, mW, Q}", 8);
-	if (_res) _res = _definepattern(mlp, (char *)"CparamMax4[eps_, mt_, mb_, mW_, Q_]", (char *)"{eps, mt, mb, mW, Q}", 9);
-	if (_res) _res = _definepattern(mlp, (char *)"CparamMax6[eps_, mt_, mb_, mW_, Q_]", (char *)"{eps, mt, mb, mW, Q}", 10);
+	if (_res) _res = _definepattern(mlp, (char *)"CparamMaxMin4[eps_, mt_, mb_, mW_, Q_]", (char *)"{eps, mt, mb, mW, Q}", 9);
+	if (_res) _res = _definepattern(mlp, (char *)"CparamMaxMin6[eps_, mt_, mb_, mW_, Q_]", (char *)"{eps, mt, mb, mW, Q}", 10);
 	if (_res) _res = _definepattern(mlp, (char *)"CparamMinMax4[n_, mt_, mb_, mW_, Q_]", (char *)"{n, mt, mb, mW, Q}", 11);
 	if (_res) _res = _definepattern(mlp, (char *)"CparamMinMax6[n_, mt_, mb_, mW_, Q_]", (char *)"{n, mt, mb, mW, Q}", 12);
 	if (_res) _res = _definepattern(mlp, (char *)"ESMinMax6[n_, mt_, mb_, mW_, Q_]", (char *)"{n, mt, mb, mW, Q}", 13);
