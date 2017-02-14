@@ -215,12 +215,12 @@ module MCtopClass
     list(2,:) = 1/list(2,:);  list(1,:) = list(1,:) * list(2,:)
     list(2,:) = sqrt( list(2,:) )
 
-    list(:,0) = [1, 0]!self%Nevent
+    list(:,0) = [1, 0]
 
-    list = list/self%ESmax(5)
+    list = list/(self%ESmax(5) - self%ESmin(5) )
 
     do i = 0, n
-      list(:,i) = (2 * i + 1) * list(:,i)      
+      list(:,i) = (2 * i + 1) * list(:,i)
     end do
 
   contains
@@ -241,7 +241,8 @@ module MCtopClass
         FunMatEl = self%MatEl%SpinWeight(self%spin, self%current, p)
       end if
 
-      ESLeg = LegendreList( n, 2 * Cparam(p)/self%ESmax(5) - 1 )
+      ESLeg = LegendreList(  n, 2 * ( Cparam(p) - self%ESmin(5) )/&
+                                ( self%ESmax(5) - self%ESmin(5) ) - 1  )
 
       list(1,:) = list(1,:) + wgt *  FunMatEl * ESLeg
       list(2,:) = list(2,:) + wgt * (FunMatEl * ESLeg)**2

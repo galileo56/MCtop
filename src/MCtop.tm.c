@@ -487,15 +487,15 @@ static void cparamdistribution(double mt, double mb, double mW, double Q,
 
 extern double f90cparamlegendre_(int* n, double* mt, double* mb, double* mW, double* Q,
   char const* expand, char const* method, char const* spin, char const* decay,
-  char const* current, double* Cmax, int* Nevent, int* Niter, double* res);
+  char const* current, double* Cmin, double* Cmax, int* Nevent, int* Niter, double* res);
 
 static void cparamlegendre(int n, double mt, double mb, double mW, double Q,
   char const* expand, char const* method, char const* spin, char const* decay,
-  char const* current, double Cmax, int Nevent, int Niter){
+  char const* current, double Cmin, double Cmax, int Nevent, int Niter){
   double res[2 * (n + 1)];
 
    f90cparamlegendre_(&n, &mt, &mb, &mW, &Q, expand, method, spin, decay, current,
-  &Cmax, &Nevent, &Niter, res);
+   &Cmin, &Cmax, &Nevent, &Niter, res);
 
    MLPutFunction(stdlink, "Partition", 2);
    MLPutRealList(stdlink, res, 2 * (n + 1) );
@@ -709,7 +709,7 @@ L0:	return res;
 } /* _tr3 */
 
 
-void cparamlegendre P(( int _tp1, double _tp2, double _tp3, double _tp4, double _tp5, const char * _tp6, const char * _tp7, const char * _tp8, const char * _tp9, const char * _tp10, double _tp11, int _tp12, int _tp13));
+void cparamlegendre P(( int _tp1, double _tp2, double _tp3, double _tp4, double _tp5, const char * _tp6, const char * _tp7, const char * _tp8, const char * _tp9, const char * _tp10, double _tp11, double _tp12, int _tp13, int _tp14));
 
 #if MLPROTOTYPES
 static int _tr4( MLINK mlp)
@@ -729,8 +729,9 @@ static int _tr4(mlp) MLINK mlp;
 	const char * _tp9;
 	const char * _tp10;
 	double _tp11;
-	int _tp12;
+	double _tp12;
 	int _tp13;
+	int _tp14;
 	if ( ! MLGetInteger( mlp, &_tp1) ) goto L0;
 	if ( ! MLGetReal( mlp, &_tp2) ) goto L1;
 	if ( ! MLGetReal( mlp, &_tp3) ) goto L2;
@@ -742,14 +743,15 @@ static int _tr4(mlp) MLINK mlp;
 	if ( ! MLGetString( mlp, &_tp9) ) goto L8;
 	if ( ! MLGetString( mlp, &_tp10) ) goto L9;
 	if ( ! MLGetReal( mlp, &_tp11) ) goto L10;
-	if ( ! MLGetInteger( mlp, &_tp12) ) goto L11;
+	if ( ! MLGetReal( mlp, &_tp12) ) goto L11;
 	if ( ! MLGetInteger( mlp, &_tp13) ) goto L12;
-	if ( ! MLNewPacket(mlp) ) goto L13;
+	if ( ! MLGetInteger( mlp, &_tp14) ) goto L13;
+	if ( ! MLNewPacket(mlp) ) goto L14;
 
-	cparamlegendre(_tp1, _tp2, _tp3, _tp4, _tp5, _tp6, _tp7, _tp8, _tp9, _tp10, _tp11, _tp12, _tp13);
+	cparamlegendre(_tp1, _tp2, _tp3, _tp4, _tp5, _tp6, _tp7, _tp8, _tp9, _tp10, _tp11, _tp12, _tp13, _tp14);
 
 	res = 1;
-L13: L12: L11: L10:	MLReleaseString(mlp, _tp10);
+L14: L13: L12: L11: L10:	MLReleaseString(mlp, _tp10);
 L9:	MLReleaseString(mlp, _tp9);
 L8:	MLReleaseString(mlp, _tp8);
 L7:	MLReleaseString(mlp, _tp7);
@@ -1254,7 +1256,7 @@ static struct func {
 		{ 7, 0, _tr1, "cparamlist" },
 		{ 2, 0, _tr2, "legendrelist" },
 		{14, 0, _tr3, "cparamdistribution" },
-		{13, 0, _tr4, "cparamlegendre" },
+		{14, 0, _tr4, "cparamlegendre" },
 		{13, 0, _tr5, "esdistributions" },
 		{ 7, 0, _tr6, "eslist" },
 		{ 1, 0, _tr7, "escomputer" },
@@ -1285,8 +1287,8 @@ static const char* evalstrs[] = {
 	"Print[\"     Version:           test 2                \"]",
 	(const char*)0,
 	"CparamLegendre::usage = \"CparamLegendre[n, mt, mb, mW, Q, expand",
-	", method, Spin, decay, current, Cmax, Nevent, Niter] computes th",
-	"e integration against Legendre Polynomial\"",
+	", method, Spin, decay, current, Cmin, Cmax, Nevent, Niter] compu",
+	"tes the integration against Legendre Polynomial\"",
 	(const char*)0,
 	"LegendreList::usage = \"LegendreList[n, x] computes the of the fi",
 	"rst n + 1 Legendre Polynomial\"",
@@ -1412,7 +1414,7 @@ int MLInstall(mlp) MLINK mlp;
 	if (_res) _res = _definepattern(mlp, (char *)"CparamList[mt_, mb_, mW_, Q_, Cmin_, Cmax_, Nbins_]", (char *)"{mt, mb, mW, Q, Cmin, Cmax, Nbins}", 1);
 	if (_res) _res = _definepattern(mlp, (char *)"LegendreList[n_, x_]", (char *)"{n, x}", 2);
 	if (_res) _res = _definepattern(mlp, (char *)"CparamDistribution[mt_, mb_, mW_, Q_, expand_, method_, spin_, decay_,                  current_, Cmin_, Cmax_, Nbins_, Nevent_, Niter_]", (char *)"{mt, mb, mW, Q, expand, method, spin, decay, current, Cmin, Cmax, Nbins,                  Nevent, Niter}", 3);
-	if (_res) _res = _definepattern(mlp, (char *)"CparamLegendre[n_, mt_, mb_, mW_, Q_, expand_, method_, spin_, decay_,                  current_, Cmax_, Nevent_, Niter_]", (char *)"{n, mt, mb, mW, Q, expand, method, spin, decay, current, Cmax,                  Nevent, Niter}", 4);
+	if (_res) _res = _definepattern(mlp, (char *)"CparamLegendre[n_, mt_, mb_, mW_, Q_, expand_, method_, spin_, decay_,                  current_, Cmin_, Cmax_, Nevent_, Niter_]", (char *)"{n, mt, mb, mW, Q, expand, method, spin, decay, current, Cmin, Cmax,                  Nevent, Niter}", 4);
 	if (_res) _res = _definepattern(mlp, (char *)"ESDistributions[mt_, mb_, mW_, Q_, method_, spin_, decay_, current_,                  Cmin_, Cmax_, Nbins_, Nevent_, Niter_]", (char *)"{mt, mb, mW, Q, method, spin, decay, current, Cmin, Cmax, Nbins, Nevent, Niter}", 5);
 	if (_res) _res = _definepattern(mlp, (char *)"ESList[mt_, mb_, mW_, Q_, ESmin_, ESmax_, Nbins_]", (char *)"{mt, mb, mW, Q, ESmin, ESmax, Nbins}", 6);
 	if (_res) _res = _definepattern(mlp, (char *)"EScomputer[p_]", (char *)"{Flatten[Transpose[p]]}", 7);
