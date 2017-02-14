@@ -238,6 +238,32 @@ end subroutine f90CparamMinMax4
 
 !ccccccccccccccc
 
+subroutine f90CparamMax4(eps, mt, mb, mW, Q, res)
+  use constants, only: dp; use MatrixElementsClass; implicit none
+  real (dp)              , intent(in)  :: mt, mW, mb, Q, eps
+  real (dp), dimension(4), intent(out) :: res
+  type (MatrixElements4)               :: MatEl
+
+  MatEl = MatrixElements4(mt, mb, mW, Q)
+  res   = MatEl%CparamMax(eps)
+
+end subroutine f90CparamMax4
+
+!ccccccccccccccc
+
+subroutine f90CparamMax6(eps, mt, mb, mW, Q, res)
+  use constants, only: dp; use MatrixElementsClass; implicit none
+  real (dp)              , intent(in)  :: mt, mW, mb, Q, eps
+  real (dp), dimension(8), intent(out) :: res
+  type (MatrixElements6)               :: MatEl
+
+  MatEl = MatrixElements6(mt, mb, mW, Q)
+  res   = MatEl%CparamMax(eps)
+
+end subroutine f90CparamMax6
+
+!ccccccccccccccc
+
 subroutine f90CparamMinMax6(n, mt, mb, mW, Q, res)
   use constants, only: dp; use MatrixElementsClass; implicit none
   integer                  , intent(in)  :: n
