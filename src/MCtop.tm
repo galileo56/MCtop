@@ -25,6 +25,8 @@
 :Evaluate:  ESMinMax6::usage = "ESMinMax6[n, mt, mb, mW, Q] computes the maximum and minimum value for Event shapes with 3-particle final state"
 :Evaluate:  CparamMinMax4::usage = "CparamMinMax4[n, mt, mb, mW, Q] computes the maximum and minimum value for the C-parameter Event shape with 2-particle final state"
 :Evaluate:  CparamMinMax6::usage = "CparamMinMax6[n, mt, mb, mW, Q] computes the maximum and minimum value for the C-parameter Event shape with 3-particle final state"
+:Evaluate:  CparamMax4::usage = "CparamMax4[eps, mt, mb, mW, Q] computes the maximum value for the C-parameter Event shape with 2-particle final state"
+:Evaluate:  CparamMax6::usage = "CparamMax6[eps, mt, mb, mW, Q] computes the maximum value for the C-parameter Event shape with 3-particle final state"
 
 :Evaluate:  Begin["`Private`"]
 
@@ -107,6 +109,22 @@
 :Pattern:       ESMinMax4[n_, mt_, mb_, mW_, Q_]
 :Arguments:     {n, mt, mb, mW, Q}
 :ArgumentTypes: {Integer, Real, Real, Real, Real}
+:ReturnType:    Manual
+:End:
+
+:Begin:
+:Function:      cparammax4
+:Pattern:       CparamMax4[eps_, mt_, mb_, mW_, Q_]
+:Arguments:     {eps, mt, mb, mW, Q}
+:ArgumentTypes: {Real, Real, Real, Real, Real}
+:ReturnType:    Manual
+:End:
+
+:Begin:
+:Function:      cparammax6
+:Pattern:       CparamMax6[eps_, mt_, mb_, mW_, Q_]
+:Arguments:     {eps, mt, mb, mW, Q}
+:ArgumentTypes: {Real, Real, Real, Real, Real}
 :ReturnType:    Manual
 :End:
 
@@ -349,6 +367,28 @@ static void cparamminmax6(int n, double mt, double mb, double mW, double Q){
    MLPutFunction(stdlink, "Partition", 2);
    MLPutRealList(stdlink, res, 16);
    MLPutInteger(stdlink, 8);
+   MLEndPacket(stdlink);
+}
+
+extern double f90cparammax6_(double* eps, double* mt, double* mb, double* mW, double* Q, double* res);
+
+static void cparammax6(double eps, double mt, double mb, double mW, double Q){
+  double res[8];
+
+   f90cparammax6_(&eps, &mt, &mb, &mW, &Q, res);
+
+   MLPutRealList(stdlink, res, 8);
+   MLEndPacket(stdlink);
+}
+
+extern double f90cparammax4_(double* eps, double* mt, double* mb, double* mW, double* Q, double* res);
+
+static void cparammax4(double eps, double mt, double mb, double mW, double Q){
+  double res[4];
+
+   f90cparammax4_(&eps, &mt, &mb, &mW, &Q, res);
+
+   MLPutRealList(stdlink, res, 4);
    MLEndPacket(stdlink);
 }
 
