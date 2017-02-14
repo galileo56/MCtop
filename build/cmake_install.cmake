@@ -1,4 +1,4 @@
-# Install script for directory: /Users/vmateu/GitHub/MCtop
+# Install script for directory: /Users/vicent/GitHubProjects/MCtop
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -29,33 +29,33 @@ endif()
 
 if("${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "/Users/vmateu/GitHub/MCtop/bin/MCtop")
+   "/Users/vicent/GitHubProjects/MCtop/bin/MCtop")
   if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-file(INSTALL DESTINATION "/Users/vmateu/GitHub/MCtop/bin" TYPE EXECUTABLE FILES "/Users/vmateu/GitHub/MCtop/build/MCtop")
-  if(EXISTS "$ENV{DESTDIR}/Users/vmateu/GitHub/MCtop/bin/MCtop" AND
-     NOT IS_SYMLINK "$ENV{DESTDIR}/Users/vmateu/GitHub/MCtop/bin/MCtop")
+file(INSTALL DESTINATION "/Users/vicent/GitHubProjects/MCtop/bin" TYPE EXECUTABLE FILES "/Users/vicent/GitHubProjects/MCtop/build/MCtop")
+  if(EXISTS "$ENV{DESTDIR}/Users/vicent/GitHubProjects/MCtop/bin/MCtop" AND
+     NOT IS_SYMLINK "$ENV{DESTDIR}/Users/vicent/GitHubProjects/MCtop/bin/MCtop")
     if(CMAKE_INSTALL_DO_STRIP)
-      execute_process(COMMAND "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip" "$ENV{DESTDIR}/Users/vmateu/GitHub/MCtop/bin/MCtop")
+      execute_process(COMMAND "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip" "$ENV{DESTDIR}/Users/vicent/GitHubProjects/MCtop/bin/MCtop")
     endif()
   endif()
 endif()
 
 if("${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  execute_process(COMMAND install_name_tool -change @executable_path/../Frameworks/mathlink.framework/Versions/4.25/mathlink /Applications/Mathematica.app/SystemFiles/Links/MathLink/DeveloperKit/MacOSX-x86-64/CompilerAdditions/mathlink.framework/mathlink /Users/vmateu/GitHub/MCtop/bin/MCtop OUTPUT_QUIET)
+  execute_process(COMMAND install_name_tool -change @executable_path/../Frameworks/mathlink.framework/Versions/4.38/mathlink /Applications/Mathematica.app/Contents/SystemFiles/Links/MathLink/DeveloperKit/MacOSX-x86-64/CompilerAdditions/mathlink.framework/mathlink /Users/vicent/GitHubProjects/MCtop/bin/MCtop OUTPUT_QUIET)
 endif()
 
 if("${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  execute_process(COMMAND install_name_tool -change @executable_path/../Frameworks/mathlink.framework/Versions/4.36/mathlink /Applications/Mathematica.app/SystemFiles/Links/MathLink/DeveloperKit/MacOSX-x86-64/CompilerAdditions/mathlink.framework/mathlink /Users/vmateu/GitHub/MCtop/bin/MCtop OUTPUT_QUIET)
+  execute_process(COMMAND install_name_tool -change @executable_path/../Frameworks/mathlink.framework/Versions/4.36/mathlink /Applications/Mathematica.app/Contents/SystemFiles/Links/MathLink/DeveloperKit/MacOSX-x86-64/CompilerAdditions/mathlink.framework/mathlink /Users/vicent/GitHubProjects/MCtop/bin/MCtop OUTPUT_QUIET)
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/Users/vmateu/GitHub/MCtop/build/lib/cmake_install.cmake")
+  include("/Users/vicent/GitHubProjects/MCtop/build/lib/cmake_install.cmake")
 
 endif()
 
@@ -67,5 +67,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/Users/vmateu/GitHub/MCtop/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/Users/vicent/GitHubProjects/MCtop/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

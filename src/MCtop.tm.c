@@ -1,6 +1,6 @@
 /*
- * This file automatically produced by /Applications/Mathematica.app/SystemFiles/Links/MathLink/DeveloperKit/MacOSX-x86-64/CompilerAdditions/mprep from:
- *	/Users/vmateu/GitHub/MCtop/src/MCtop.tm
+ * This file automatically produced by /Applications/Mathematica.app/Contents/SystemFiles/Links/MathLink/DeveloperKit/MacOSX-x86-64/CompilerAdditions/mprep from:
+ *	/Users/vicent/GitHubProjects/MCtop/src/MCtop.tm
  * mprep Revision 18 Copyright (c) Wolfram Research, Inc. 1990-2013
  */
 
@@ -289,7 +289,7 @@ MLYDEFN( devyield_result, MLDefaultYielder, ( MLINK mlp, MLYieldParameters yp))
 /********************************* end header *********************************/
 
 
-# line 207 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm"
+# line 207 "/Users/vicent/GitHubProjects/MCtop/src/MCtop.tm"
 #include "mathlink.h"
 #include "ftypes.h"
 #include <stdio.h>
@@ -415,22 +415,26 @@ static void esminmax4(int n, double mt, double mb, double mW, double Q){
 extern double f90cparamminmax4_(int* n, double* mt, double* mb, double* mW, double* Q, double* res);
 
 static void cparamminmax4(int n, double mt, double mb, double mW, double Q){
-  double res[2];
+  double res[8];
 
    f90cparamminmax4_(&n, &mt, &mb, &mW, &Q, res);
 
-   MLPutRealList(stdlink, res, 2);
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutRealList(stdlink, res, 8);
+   MLPutInteger(stdlink, 4);
    MLEndPacket(stdlink);
 }
 
 extern double f90cparamminmax6_(int* n, double* mt, double* mb, double* mW, double* Q, double* res);
 
 static void cparamminmax6(int n, double mt, double mb, double mW, double Q){
-  double res[2];
+  double res[16];
 
    f90cparamminmax6_(&n, &mt, &mb, &mW, &Q, res);
 
-   MLPutRealList(stdlink, res, 2);
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutRealList(stdlink, res, 16);
+   MLPutInteger(stdlink, 8);
    MLEndPacket(stdlink);
 }
 
@@ -569,7 +573,7 @@ static void vectors6(double x[], long clen, double mt, double mb, double mW, dou
 int main(int argc, char *argv[]){
     return MLMain(argc, argv);
 }
-# line 573 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm.c"
+# line 577 "/Users/vicent/GitHubProjects/MCtop/src/MCtop.tm.c"
 
 
 double cparamcomputer P(( double * _tp1, long _tpl1));

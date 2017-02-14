@@ -377,25 +377,22 @@ module MatrixElementsClass
  !ccccccccccccccc
 
   function CparamMinMax(self, n) result(res)
-    class (MatrixElements), intent(in)   :: self
-    integer               , intent(in)   :: n
-    real (dp), dimension(2)              :: res
-    real (dp), allocatable, dimension(:) :: x
+    class (MatrixElements)  , intent(in) :: self
+    integer                 , intent(in) :: n
+    real (dp), dimension(0:self%sizeX,2) :: res
+    real (dp), dimension(self%sizeX)     :: x
     real (dp)                            :: ES
     integer                              :: i
 
-    res(1) = 10; res(2) = 0
-
-    select type (self)
-    type is (MatrixElements4)
-      allocate( x(3) )
-    type is (MatrixElements6)
-      allocate( x(7) )
-    end select
+    res(0,1) = 10; res(0,2) = 0
 
     do i = 1, n
       call Random_number(x); ES = Cparam( self%GenerateVectors(x) )
-      if ( ES > res(2) ) res(2) = ES;  if ( ES < res(1) ) res(1) = ES
+      if ( ES > res(0,2) ) then
+        res(0,2) = ES; res(1:,2) = x
+      else if ( ES < res(0,1) ) then
+        res(0,1) = ES; res(1:,1) = x
+      end if
     end do
 
   end function CparamMinMax

@@ -329,22 +329,26 @@ static void esminmax4(int n, double mt, double mb, double mW, double Q){
 extern double f90cparamminmax4_(int* n, double* mt, double* mb, double* mW, double* Q, double* res);
 
 static void cparamminmax4(int n, double mt, double mb, double mW, double Q){
-  double res[2];
+  double res[8];
 
    f90cparamminmax4_(&n, &mt, &mb, &mW, &Q, res);
 
-   MLPutRealList(stdlink, res, 2);
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutRealList(stdlink, res, 8);
+   MLPutInteger(stdlink, 4);
    MLEndPacket(stdlink);
 }
 
 extern double f90cparamminmax6_(int* n, double* mt, double* mb, double* mW, double* Q, double* res);
 
 static void cparamminmax6(int n, double mt, double mb, double mW, double Q){
-  double res[2];
+  double res[16];
 
    f90cparamminmax6_(&n, &mt, &mb, &mW, &Q, res);
 
-   MLPutRealList(stdlink, res, 2);
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutRealList(stdlink, res, 16);
+   MLPutInteger(stdlink, 8);
    MLEndPacket(stdlink);
 }
 
