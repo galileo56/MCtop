@@ -217,7 +217,7 @@ module MCtopClass
 
     list(:,0) = [1, 0]
 
-    list = list/self%ESmax(5)
+    list = list/(self%ESmax(5) - self%ESmin(5) )
 
     do i = 0, n
       list(:,i) = (2 * i + 1) * list(:,i)
