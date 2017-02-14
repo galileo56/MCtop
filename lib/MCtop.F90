@@ -3,9 +3,14 @@ module MCtopClass
   use MatrixElementsClass; use constants, only: dp; use MC_VEGAS; use Legendre
   implicit none;  private
 
-  public                                     :: MCtop
-  character (len = 11), dimension(8), public :: ESNames
+  public                                      :: MCtop
+  real (dp), parameter                        :: mth = 0.39307568887871164_dp
+  character (len = 11), dimension(8) , public :: ESNames
+  character (len = 11), dimension(16), public :: StableNames
+
   data ESNames /'tau', 'HJM', 'LJM', 'SJM', 'C-parameter', 'B', 'B-wide', 'B-narrow'/
+  data StableNames / 'tau'  , 'tauQ', 'tauE', 'tauJ', 'CJ', 'CE', 'CQ', 'CP', &
+  'rho', 'rhoE', 'rhoQ', 'rhoP', 'rhoSum', 'Broadening ', 'BroadeningQ', 'BroadeningE' /
 
 !ccccccccccccccc
 
