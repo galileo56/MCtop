@@ -253,7 +253,7 @@ module MCtopClass
       ESLeg = LegendreList(  n, 2 * ( Cparam(p) - self%ESmin(5) )/&
                                 ( self%ESmax(5) - self%ESmin(5) ) - 1  )
 
-      if ( ES < self%ESmin(5) ) return
+      if ( ES < self%ESmin(5) .or. ES > self%ESmax(5) ) return
 
       list(1,:) = list(1,:) + wgt *  FunMatEl * ESLeg
       list(2,:) = list(2,:) + wgt * (FunMatEl * ESLeg)**2
