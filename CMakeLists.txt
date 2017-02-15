@@ -28,15 +28,16 @@ FIND_PACKAGE(OpenMP_Fortran REQUIRED)
 
 ## additional flags for c++ compiler - for c++ and clang++ (should also take effect for the C compiler)
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    set(addition_cxx "-std=c++11")
-## elseif ("" ... "") ## additional flags for other compilers
+    # set(addition_cxx "-std=c++11" ${OpenMP_CXX_FLAGS})
+    set(addition_cxx "-std=c++11 -fopenmp")
+# elseif ("" ... "") ## additional flags for other compilers
 endif()
 
 ## additional flags for the fortran compiler - for gfortran
 if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU")
 
-    set(addition_fortran "-Waliasing -Wampersand -Wconversion -Wc-binding-type -Wintrinsics-std -Wtabs -Wintrinsic-shadow -Wline-truncation -Wtarget-lifetime -Winteger-division -Wreal-q-constant -Wunused")
-##      set(addition_fortran "-Waliasing -Wampersand -Wconversion -Wc-binding-type -Wintrinsics-std -Wtabs -Wintrinsic-shadow -Wline-truncation -Wtarget-lifetime -Winteger-division -Wreal-q-constant -Wunused -ffixed-line-length-none ${OpenMP_Fortran_FLAGS} ")
+##    set(addition_fortran "-Waliasing -Wampersand -Wconversion -Wc-binding-type -Wintrinsics-std -Wtabs -Wintrinsic-shadow -Wline-truncation -Wtarget-lifetime -Winteger-division -Wreal-q-constant -Wunused")
+      set(addition_fortran "-Waliasing -Wampersand -Wconversion -Wc-binding-type -Wintrinsics-std -Wtabs -Wintrinsic-shadow -Wline-truncation -Wtarget-lifetime -Winteger-division -Wreal-q-constant -Wunused -ffixed-line-length-none ${OpenMP_Fortran_FLAGS} ")
 
 endif()
 

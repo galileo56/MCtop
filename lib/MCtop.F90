@@ -195,10 +195,16 @@ module MCtopClass
         if (j > 1 .and. self%dimX > 3) iter = 2
         call VEGAS(self%dimX, FunMatEl, AVGI, SD, CHI2A, iter)
       else
+
+  !##$OMP PARALLEL DO
+
         do i = 1, NCall
           call Random_number(y)
           AVGI = AVGI + FunMatEl(y, 1._dp)
         end do
+
+  !##$OMP END PARALLEL DO
+
         AVGI = AVGI/self%Nevent; list = list/self%Nevent
       end if
 
