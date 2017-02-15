@@ -109,6 +109,38 @@ end subroutine f90CparamDistribution
 
 !ccccccccccccccc
 
+subroutine f90CparamLegendreDistro(mt, mb, mW, Q, expand, method, spin, decay, current, &
+                                 Cmin, Cmax, n, Nbins, Nevent, Niter, list, list2)
+  use constants, only: dp; use MatrixElementsClass; use MCtopClass; implicit none
+  real (dp)                     , intent(in)  :: mt, mW, mb, Q
+  integer                       , intent(in)  :: Nbins, Nevent, Niter, n
+  character (len = *)           , intent(in)  :: spin, decay, current, method, expand
+  real (dp)                     , intent(in)  :: Cmin, Cmax
+  real (dp), dimension(Nbins, 3), intent(out) :: list
+  real (dp), dimension(0:n  , 2), intent(out) :: list2
+  type (MCtop)                                :: MC
+  class (MatrixElements), allocatable         :: MatEl
+
+  if ( decay(:6) == 'stable') then
+    allocate( MatrixElements4 :: MatEl )
+    select type (MatEl)
+    type is (MatrixElements4);  MatEl = MatrixElements4(mt, mb, mW, Q)
+    end select
+  else
+    allocate( MatrixElements6 :: MatEl )
+    select type (MatEl)
+    type is (MatrixElements6);  MatEl = MatrixElements6(mt, mb, mW, Q)
+    end select
+  end if
+
+  MC   = MCtop(MatEl, spin(:8), current(:8), [1,1,1,1,1,1,1,1] * Cmin, &
+               [1,1,1,1,1,1,1,1] * Cmax, Nbins, Nevent, Niter)
+  call MC%LegendreDistro( n, expand(:6), method(:5), list, list2 )
+
+end subroutine f90CparamLegendreDistro
+
+!ccccccccccccccc
+
 subroutine f90CparamLegendre(n, mt, mb, mW, Q, expand, method, spin, decay, current, &
                              Cmin, Cmax, Nevent, Niter, list)
   use constants, only: dp; use MatrixElementsClass; use MCtopClass; implicit none

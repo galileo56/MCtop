@@ -1,43 +1,43 @@
 Determining if the Fortran compiler supports OpenMP failed with the following output:
-Change Dir: /Users/vicent/GitHubProjects/MCtop/build/CMakeFiles/CMakeTmp
+Change Dir: /Users/vmateu/GitHub/MCtop/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_81d2d/fast"
-/Applications/Xcode.app/Contents/Developer/usr/bin/make -f CMakeFiles/cmTC_81d2d.dir/build.make CMakeFiles/cmTC_81d2d.dir/build
-Building Fortran object CMakeFiles/cmTC_81d2d.dir/testFortranOpenMP.f90.o
-/usr/local/bin/gfortran    -DOpenMP_FLAG_DETECTED /openmp   -c /Users/vicent/GitHubProjects/MCtop/build/CMakeFiles/CMakeTmp/testFortranOpenMP.f90 -o CMakeFiles/cmTC_81d2d.dir/testFortranOpenMP.f90.o
+Run Build Command:"/usr/bin/make" "cmTC_6364d/fast"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make -f CMakeFiles/cmTC_6364d.dir/build.make CMakeFiles/cmTC_6364d.dir/build
+Building Fortran object CMakeFiles/cmTC_6364d.dir/testFortranOpenMP.f90.o
+/usr/local/bin/gfortran    -DOpenMP_FLAG_DETECTED /openmp -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk   -c /Users/vmateu/GitHub/MCtop/build/CMakeFiles/CMakeTmp/testFortranOpenMP.f90 -o CMakeFiles/cmTC_6364d.dir/testFortranOpenMP.f90.o
 gfortran: error: /openmp: No such file or directory
-make[1]: *** [CMakeFiles/cmTC_81d2d.dir/testFortranOpenMP.f90.o] Error 1
-make: *** [cmTC_81d2d/fast] Error 2
+make[1]: *** [CMakeFiles/cmTC_6364d.dir/testFortranOpenMP.f90.o] Error 1
+make: *** [cmTC_6364d/fast] Error 2
 
 
 Determining if the Fortran compiler supports OpenMP failed with the following output:
-Change Dir: /Users/vicent/GitHubProjects/MCtop/build/CMakeFiles/CMakeTmp
+Change Dir: /Users/vmateu/GitHub/MCtop/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_5cb67/fast"
-/Applications/Xcode.app/Contents/Developer/usr/bin/make -f CMakeFiles/cmTC_5cb67.dir/build.make CMakeFiles/cmTC_5cb67.dir/build
-Building Fortran object CMakeFiles/cmTC_5cb67.dir/testFortranOpenMP.f90.o
-/usr/local/bin/gfortran    -DOpenMP_FLAG_DETECTED /Qopenmp   -c /Users/vicent/GitHubProjects/MCtop/build/CMakeFiles/CMakeTmp/testFortranOpenMP.f90 -o CMakeFiles/cmTC_5cb67.dir/testFortranOpenMP.f90.o
+Run Build Command:"/usr/bin/make" "cmTC_4c430/fast"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make -f CMakeFiles/cmTC_4c430.dir/build.make CMakeFiles/cmTC_4c430.dir/build
+Building Fortran object CMakeFiles/cmTC_4c430.dir/testFortranOpenMP.f90.o
+/usr/local/bin/gfortran    -DOpenMP_FLAG_DETECTED /Qopenmp -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk   -c /Users/vmateu/GitHub/MCtop/build/CMakeFiles/CMakeTmp/testFortranOpenMP.f90 -o CMakeFiles/cmTC_4c430.dir/testFortranOpenMP.f90.o
 gfortran: error: /Qopenmp: No such file or directory
-make[1]: *** [CMakeFiles/cmTC_5cb67.dir/testFortranOpenMP.f90.o] Error 1
-make: *** [cmTC_5cb67/fast] Error 2
+make[1]: *** [CMakeFiles/cmTC_4c430.dir/testFortranOpenMP.f90.o] Error 1
+make: *** [cmTC_4c430/fast] Error 2
 
 
 Determining if the Fortran compiler supports OpenMP failed with the following output:
-Change Dir: /Users/vicent/GitHubProjects/MCtop/build/CMakeFiles/CMakeTmp
+Change Dir: /Users/vmateu/GitHub/MCtop/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_278af/fast"
-/Applications/Xcode.app/Contents/Developer/usr/bin/make -f CMakeFiles/cmTC_278af.dir/build.make CMakeFiles/cmTC_278af.dir/build
-Building Fortran object CMakeFiles/cmTC_278af.dir/testFortranOpenMP.f90.o
-/usr/local/bin/gfortran    -DOpenMP_FLAG_DETECTED -openmp   -c /Users/vicent/GitHubProjects/MCtop/build/CMakeFiles/CMakeTmp/testFortranOpenMP.f90 -o CMakeFiles/cmTC_278af.dir/testFortranOpenMP.f90.o
-Linking Fortran executable cmTC_278af
-/opt/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_278af.dir/link.txt --verbose=1
-/usr/local/bin/gfortran      -DOpenMP_FLAG_DETECTED -openmp CMakeFiles/cmTC_278af.dir/testFortranOpenMP.f90.o  -o cmTC_278af  
+Run Build Command:"/usr/bin/make" "cmTC_f6613/fast"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make -f CMakeFiles/cmTC_f6613.dir/build.make CMakeFiles/cmTC_f6613.dir/build
+Building Fortran object CMakeFiles/cmTC_f6613.dir/testFortranOpenMP.f90.o
+/usr/local/bin/gfortran    -DOpenMP_FLAG_DETECTED -openmp -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk   -c /Users/vmateu/GitHub/MCtop/build/CMakeFiles/CMakeTmp/testFortranOpenMP.f90 -o CMakeFiles/cmTC_f6613.dir/testFortranOpenMP.f90.o
+Linking Fortran executable cmTC_f6613
+/opt/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f6613.dir/link.txt --verbose=1
+/usr/local/bin/gfortran      -DOpenMP_FLAG_DETECTED -openmp -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk CMakeFiles/cmTC_f6613.dir/testFortranOpenMP.f90.o  -o cmTC_f6613  
 Undefined symbols for architecture x86_64:
   "_omp_get_num_procs_", referenced from:
       _MAIN__ in testFortranOpenMP.f90.o
 ld: symbol(s) not found for architecture x86_64
 collect2: error: ld returned 1 exit status
-make[1]: *** [cmTC_278af] Error 1
-make: *** [cmTC_278af/fast] Error 2
+make[1]: *** [cmTC_f6613] Error 1
+make: *** [cmTC_f6613/fast] Error 2
 
 
