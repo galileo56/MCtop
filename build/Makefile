@@ -155,19 +155,6 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named Distributions
-
-# Build rule for target.
-Distributions: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 Distributions
-.PHONY : Distributions
-
-# fast build rule for target.
-Distributions/fast:
-	$(MAKE) -f CMakeFiles/Distributions.dir/build.make CMakeFiles/Distributions.dir/build
-.PHONY : Distributions/fast
-
-#=============================================================================
 # Target rules for targets named Legendre
 
 # Build rule for target.
@@ -181,17 +168,17 @@ Legendre/fast:
 .PHONY : Legendre/fast
 
 #=============================================================================
-# Target rules for targets named MCtop
+# Target rules for targets named Distributions
 
 # Build rule for target.
-MCtop: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 MCtop
-.PHONY : MCtop
+Distributions: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 Distributions
+.PHONY : Distributions
 
 # fast build rule for target.
-MCtop/fast:
-	$(MAKE) -f CMakeFiles/MCtop.dir/build.make CMakeFiles/MCtop.dir/build
-.PHONY : MCtop/fast
+Distributions/fast:
+	$(MAKE) -f CMakeFiles/Distributions.dir/build.make CMakeFiles/Distributions.dir/build
+.PHONY : Distributions/fast
 
 #=============================================================================
 # Target rules for targets named subdir_mods
@@ -205,6 +192,32 @@ subdir_mods: cmake_check_build_system
 subdir_mods/fast:
 	$(MAKE) -f CMakeFiles/subdir_mods.dir/build.make CMakeFiles/subdir_mods.dir/build
 .PHONY : subdir_mods/fast
+
+#=============================================================================
+# Target rules for targets named LegendreDistro
+
+# Build rule for target.
+LegendreDistro: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 LegendreDistro
+.PHONY : LegendreDistro
+
+# fast build rule for target.
+LegendreDistro/fast:
+	$(MAKE) -f CMakeFiles/LegendreDistro.dir/build.make CMakeFiles/LegendreDistro.dir/build
+.PHONY : LegendreDistro/fast
+
+#=============================================================================
+# Target rules for targets named MCtop
+
+# Build rule for target.
+MCtop: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 MCtop
+.PHONY : MCtop
+
+# fast build rule for target.
+MCtop/fast:
+	$(MAKE) -f CMakeFiles/MCtop.dir/build.make CMakeFiles/MCtop.dir/build
+.PHONY : MCtop/fast
 
 #=============================================================================
 # Target rules for targets named libMCtop
@@ -408,6 +421,33 @@ src/Legendre.F90.s:
 	$(MAKE) -f CMakeFiles/Legendre.dir/build.make CMakeFiles/Legendre.dir/src/Legendre.F90.s
 .PHONY : src/Legendre.F90.s
 
+src/LegendreDistro.o: src/LegendreDistro.F90.o
+
+.PHONY : src/LegendreDistro.o
+
+# target to build an object file
+src/LegendreDistro.F90.o:
+	$(MAKE) -f CMakeFiles/LegendreDistro.dir/build.make CMakeFiles/LegendreDistro.dir/src/LegendreDistro.F90.o
+.PHONY : src/LegendreDistro.F90.o
+
+src/LegendreDistro.i: src/LegendreDistro.F90.i
+
+.PHONY : src/LegendreDistro.i
+
+# target to preprocess a source file
+src/LegendreDistro.F90.i:
+	$(MAKE) -f CMakeFiles/LegendreDistro.dir/build.make CMakeFiles/LegendreDistro.dir/src/LegendreDistro.F90.i
+.PHONY : src/LegendreDistro.F90.i
+
+src/LegendreDistro.s: src/LegendreDistro.F90.s
+
+.PHONY : src/LegendreDistro.s
+
+# target to generate assembly for a file
+src/LegendreDistro.F90.s:
+	$(MAKE) -f CMakeFiles/LegendreDistro.dir/build.make CMakeFiles/LegendreDistro.dir/src/LegendreDistro.F90.s
+.PHONY : src/LegendreDistro.F90.s
+
 src/MCtop.tm.o: src/MCtop.tm.c.o
 
 .PHONY : src/MCtop.tm.o
@@ -446,11 +486,12 @@ help:
 	@echo "... install"
 	@echo "... install/strip"
 	@echo "... install/local"
-	@echo "... Distributions"
 	@echo "... Legendre"
+	@echo "... Distributions"
+	@echo "... subdir_mods"
+	@echo "... LegendreDistro"
 	@echo "... rebuild_cache"
 	@echo "... MCtop"
-	@echo "... subdir_mods"
 	@echo "... libMCtop"
 	@echo "... lib/MCtop.o"
 	@echo "... lib/MCtop.i"
@@ -473,6 +514,9 @@ help:
 	@echo "... src/Legendre.o"
 	@echo "... src/Legendre.i"
 	@echo "... src/Legendre.s"
+	@echo "... src/LegendreDistro.o"
+	@echo "... src/LegendreDistro.i"
+	@echo "... src/LegendreDistro.s"
 	@echo "... src/MCtop.tm.o"
 	@echo "... src/MCtop.tm.i"
 	@echo "... src/MCtop.tm.s"
