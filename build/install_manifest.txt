@@ -1,2 +1,3 @@
 /Users/vicent/GitHubProjects/MCtop/bin/MCtop
+/Users/vicent/GitHubProjects/MCtop/bin/Legendre
 /Users/vicent/GitHubProjects/MCtop/lib/../lib/liblibMCtop.a

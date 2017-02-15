@@ -75,8 +75,8 @@ if(Mathematica_MathLink_LIBRARY)
 	add_executable(MCtop src/MCtop.tm.c)
 	target_link_libraries(MCtop libMCtop ${Mathematica_MathLink_LIBRARY} ${M_LIB} ${DL_LIB} ${UUID_LIB} ${RT_LIB})
 
-	##add_executable(Event1 src/Event1.F90)
-	##target_link_libraries(Event1 libMCtop subdir_mods)
+	add_executable(Legendre src/Legendre.F90)
+	target_link_libraries(Legendre libMCtop subdir_mods)
 
 	else(Mathematica_MathLink_LIBRARY)
 	message(STATUS "Checking for mathlink library -- not found, proceeding without mathlink")
@@ -94,4 +94,4 @@ if(Mathematica_MathLink_LIBRARY)
 	endif()
 endif()
 
-## install(TARGETS Event1 DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+ install(TARGETS Legendre DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/bin)

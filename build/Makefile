@@ -155,6 +155,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named Legendre
+
+# Build rule for target.
+Legendre: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 Legendre
+.PHONY : Legendre
+
+# fast build rule for target.
+Legendre/fast:
+	$(MAKE) -f CMakeFiles/Legendre.dir/build.make CMakeFiles/Legendre.dir/build
+.PHONY : Legendre/fast
+
+#=============================================================================
 # Target rules for targets named MCtop
 
 # Build rule for target.
@@ -328,6 +341,33 @@ lib/Vegas.F90.s:
 	$(MAKE) -f CMakeFiles/subdir_mods.dir/build.make CMakeFiles/subdir_mods.dir/lib/Vegas.F90.s
 .PHONY : lib/Vegas.F90.s
 
+src/Legendre.o: src/Legendre.F90.o
+
+.PHONY : src/Legendre.o
+
+# target to build an object file
+src/Legendre.F90.o:
+	$(MAKE) -f CMakeFiles/Legendre.dir/build.make CMakeFiles/Legendre.dir/src/Legendre.F90.o
+.PHONY : src/Legendre.F90.o
+
+src/Legendre.i: src/Legendre.F90.i
+
+.PHONY : src/Legendre.i
+
+# target to preprocess a source file
+src/Legendre.F90.i:
+	$(MAKE) -f CMakeFiles/Legendre.dir/build.make CMakeFiles/Legendre.dir/src/Legendre.F90.i
+.PHONY : src/Legendre.F90.i
+
+src/Legendre.s: src/Legendre.F90.s
+
+.PHONY : src/Legendre.s
+
+# target to generate assembly for a file
+src/Legendre.F90.s:
+	$(MAKE) -f CMakeFiles/Legendre.dir/build.make CMakeFiles/Legendre.dir/src/Legendre.F90.s
+.PHONY : src/Legendre.F90.s
+
 src/MCtop.tm.o: src/MCtop.tm.c.o
 
 .PHONY : src/MCtop.tm.o
@@ -364,6 +404,7 @@ help:
 	@echo "... edit_cache"
 	@echo "... list_install_components"
 	@echo "... install/local"
+	@echo "... Legendre"
 	@echo "... rebuild_cache"
 	@echo "... MCtop"
 	@echo "... install"
@@ -385,6 +426,9 @@ help:
 	@echo "... lib/Vegas.o"
 	@echo "... lib/Vegas.i"
 	@echo "... lib/Vegas.s"
+	@echo "... src/Legendre.o"
+	@echo "... src/Legendre.i"
+	@echo "... src/Legendre.s"
 	@echo "... src/MCtop.tm.o"
 	@echo "... src/MCtop.tm.i"
 	@echo "... src/MCtop.tm.s"
