@@ -282,10 +282,13 @@ module MCtopClass
       if ( method(:5) == 'vegas' ) then
         call VEGAS(self%dimX, FunMatEl, AVGI, SD, CHI2A, iter)
       else
+
+        !$OMP PARALLEL DO
         do i = 1, self%Nevent
           call Random_number(y)
           AVGI = AVGI + FunMatEl(y, 1._dp)
         end do
+       !$OMP END PARALLEL DO
 
         AVGI = AVGI/self%Nevent; dist = dist/self%Nevent; dist2 = dist2/self%Nevent
       end if

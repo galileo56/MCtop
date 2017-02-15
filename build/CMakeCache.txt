@@ -291,6 +291,12 @@ Mathematica_WolframLibrary_INCLUDE_DIR:PATH=/Applications/Mathematica.app/Conten
 //Mathematica Wolfram Runtime Library.
 Mathematica_WolframLibrary_LIBRARY:FILEPATH=/Applications/Mathematica.app/Contents/SystemFiles/Libraries/MacOSX-x86-64/libWolframRTL.dylib
 
+//Number of processors OpenMP may use
+OMP_NUM_PROCS:STRING= 8
+
+//Fortran compiler flags for OpenMP parallization
+OpenMP_Fortran_FLAGS:STRING=-fopenmp
+
 //Dependencies for target
 libMCtop_LIB_DEPENDS:STATIC=
 
@@ -443,6 +449,8 @@ FIND_PACKAGE_MESSAGE_DETAILS_Mathematica_MathLink:INTERNAL=[/Applications/Mathem
 FIND_PACKAGE_MESSAGE_DETAILS_Mathematica_WSTP:INTERNAL=[/Applications/Mathematica.app/Contents/SystemFiles/Links/WSTP/DeveloperKit/MacOSX-x86-64/CompilerAdditions/wstp.framework][/Applications/Mathematica.app/Contents/SystemFiles/Links/WSTP/DeveloperKit/MacOSX-x86-64/CompilerAdditions/wstp.framework/Headers][v4.25()]
 //Details about finding Mathematica_WolframLibrary
 FIND_PACKAGE_MESSAGE_DETAILS_Mathematica_WolframLibrary:INTERNAL=[/Applications/Mathematica.app/Contents/SystemFiles/Libraries/MacOSX-x86-64/libWolframRTL.dylib][/Applications/Mathematica.app/Contents/SystemFiles/IncludeFiles/C][v3()]
+//Details about finding OpenMP_Fortran
+FIND_PACKAGE_MESSAGE_DETAILS_OpenMP_Fortran:INTERNAL=[-fopenmp][v()]
 //Result of TRY_COMPILE
 HAVE_CMAKE_SIZEOF_UNSIGNED_SHORT:INTERNAL=TRUE
 //Have include stddef.h
@@ -535,6 +543,12 @@ Mathematica_WolframLibrary_INCLUDE_DIR-ADVANCED:INTERNAL=1
 Mathematica_WolframLibrary_LIBRARY-ADVANCED:INTERNAL=1
 //WolframLibrary version.
 Mathematica_WolframLibrary_VERSION:INTERNAL=3
+//Result of TRY_COMPILE
+OpenMP_FLAG_DETECTED:INTERNAL=TRUE
+//ADVANCED property for variable: OpenMP_Fortran_FLAGS
+OpenMP_Fortran_FLAGS-ADVANCED:INTERNAL=1
+//Result of TRY_RUN
+OpenMP_RUN_FAILED:INTERNAL=0
 //Result of TEST_BIG_ENDIAN
 _isBigEndian:INTERNAL=0
 

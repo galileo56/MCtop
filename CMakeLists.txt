@@ -21,6 +21,8 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH true)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/tools")
 find_package(Mathematica REQUIRED)
 
+FIND_PACKAGE(OpenMP_Fortran REQUIRED)
+
 ###############
 ## COMPILER FLAGS
 
@@ -32,7 +34,10 @@ endif()
 
 ## additional flags for the fortran compiler - for gfortran
 if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU")
+
     set(addition_fortran "-Waliasing -Wampersand -Wconversion -Wc-binding-type -Wintrinsics-std -Wtabs -Wintrinsic-shadow -Wline-truncation -Wtarget-lifetime -Winteger-division -Wreal-q-constant -Wunused")
+##      set(addition_fortran "-Waliasing -Wampersand -Wconversion -Wc-binding-type -Wintrinsics-std -Wtabs -Wintrinsic-shadow -Wline-truncation -Wtarget-lifetime -Winteger-division -Wreal-q-constant -Wunused -ffixed-line-length-none ${OpenMP_Fortran_FLAGS} ")
+
 endif()
 
 ## let the flag changes take effect
