@@ -19,7 +19,7 @@ program Legendre
   call f90CparamDistribution(mt, 0._dp, mW, Q, 'noexpand', method, spin, 'unstable',  &
                                 current, 0._dp, Cmax, Nbins, Nevent, Niter, list)
   do i = 1, Nbins
-    print*, list(i,:)
+    write( *, '(3F18.6)' ) list(i,:)
   end do
 
   deallocate(list)

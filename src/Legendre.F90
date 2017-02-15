@@ -19,7 +19,7 @@ program Legendre
   call f90CparamLegendre(n, mt, 0._dp, mW, Q, 'noexpand', method, spin, 'unstable', &
                          current, 0._dp, Cmax, Nevent, Niter, list)
   do i = 0, n
-    write( *, '(I2,5F18.6)' ) i, list(:,i)
+    write( *, '(I2,2F18.6)' ) i, list(:,i)
   end do
 
   deallocate(list)

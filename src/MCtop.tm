@@ -475,9 +475,10 @@ static void cparamlegendredistro(double mt, double mb, double mW, double Q,
    MLPutFunction(stdlink, "Partition", 2);
    MLPutRealList(stdlink, res1, 3*Nbins);
    MLPutInteger(stdlink, Nbins);
+   MLPutFunction(stdlink, "Transpose", 1);
    MLPutFunction(stdlink, "Partition", 2);
    MLPutRealList(stdlink, res2, 2 * (n + 1) );
-   MLPutInteger(stdlink, 2);
+   MLPutInteger(stdlink, n + 1);
    MLEndPacket(stdlink);
 
 }

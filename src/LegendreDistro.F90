@@ -12,22 +12,22 @@ program LegendreDistro
   read*, n, Nbins, Nevent, Niter
   read*, spin, current, method
 
-  allocate( list(Nbins,3), list2(0:n, 2) )
+  allocate( list(Nbins,3), list2(0:n,2) )
   moQ = (mt/Q)**2; Cmax = 12 * moQ * (1 - 3 * moQ)
 
-  print*, mt, mW, Q; print*,; print*, 'Distribution'
+  print*, mt, mW, Q; print*,; print*, 'Distribution'; print*,
 
   call f90CparamLegendreDistro(mt, 0._dp, mW, Q, 'noexpand', method, spin, 'unstable',  &
                         current, 0._dp, Cmax, n, Nbins, Nevent, Niter, list, list2)
 
   do i = 1, Nbins
-    print*, list(i,:)
+    write( *, '(3F18.6)' ) list(i,:)
   end do
 
-  print*, 'Legendre Coefficients'
+  print*, ; print*, 'Legendre Coefficients'; print*,
 
   do i = 0, n
-    write( *, '(I2,5F18.6)' ) i, list2(:,i)
+    write( *, '(I2,2F18.6)' ) i, list2(i,:)
   end do
 
   deallocate(list, list2)

@@ -531,9 +531,10 @@ static void cparamlegendredistro(double mt, double mb, double mW, double Q,
    MLPutFunction(stdlink, "Partition", 2);
    MLPutRealList(stdlink, res1, 3*Nbins);
    MLPutInteger(stdlink, Nbins);
+   MLPutFunction(stdlink, "Transpose", 1);
    MLPutFunction(stdlink, "Partition", 2);
    MLPutRealList(stdlink, res2, 2 * (n + 1) );
-   MLPutInteger(stdlink, 2);
+   MLPutInteger(stdlink, n + 1);
    MLEndPacket(stdlink);
 
 }
@@ -626,7 +627,7 @@ static void vectors6(double x[], long clen, double mt, double mb, double mW, dou
 int main(int argc, char *argv[]){
     return MLMain(argc, argv);
 }
-# line 630 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm.c"
+# line 631 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm.c"
 
 
 double cparamcomputer P(( double * _tp1, long _tpl1));

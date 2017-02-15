@@ -268,7 +268,7 @@ module MCtopClass
     integer                           , intent(in)  :: n
     character (len = *)               , intent(in)  :: expand, method
     real (dp), dimension(self%Nbins,3), intent(out) :: dist
-    real (dp), dimension(2,0:n)       , intent(out) :: list
+    real (dp), dimension(0:n,2)       , intent(out) :: list
     real (dp), dimension(self%Nbins, self%Niter)    :: distTot , distTot2
     real (dp), dimension(0:n, self%Niter)           :: listTot, listTot2
     real (dp), dimension(self%dimX)                 :: y
@@ -295,35 +295,39 @@ module MCtopClass
         dist(:,2:) = dist(:,2:)/self%Nevent
       end if
 
-      listTot(:,j) = list(1,:);  distTot(:,j) = dist(:,2)/self%Delta(5)
+      listTot(:,j) = list(:,1);  distTot(:,j) = dist(:,2)/self%Delta(5)
 
       distTot2(:,j) = sqrt(  ( dist(:,3)/self%Delta(5)**2 - &
                                            distTot(:,j)**2 )/self%Nevent  )
-      listTot2(:,j) = sqrt(  ( list(2,:) - listTot(:,j)**2 )/self%Nevent  )
+      listTot2(:,j) = sqrt(  ( list(:,2) - listTot(:,j)**2 )/self%Nevent  )
 
     end do
 
-    list = 0;  listTot2 = 1/listTot2**2
+    list       = 0;  listTot2 = 1/listTot2**2
     dist(:,2:) = 0;  distTot2 = 1/distTot2**2
 
     do j = 1, self%Niter
-      list(1,1:) = list(1,1:) + listTot (1:,j) * listTot2(1:,j)
-      list(2,1:) = list(2,1:) + listTot2(1:,j)
+      list(1:,1) = list(1:,1) + listTot (1:,j) * listTot2(1:,j)
+      list(1:,2) = list(1:,2) + listTot2(1:,j)
       dist(:,2)  = dist(:,2)  + distTot (:,j)  * distTot2(:,j)
       dist(:,3)  = dist(:,3)  + distTot2(:,j)
     end do
 
     dist(:,3)  = 1/dist(:,3) ;  dist(:,2)  = dist(:,2) * dist(:,3)
-    list(2,1:) = 1/list(2,1:);  list(1,1:) = list(1,1:) * list(2,1:)
-    list(2,1:) = sqrt( list(2,1:) );  dist(:,3) = sqrt( dist(:,3) )
+    list(1:,2) = 1/list(1:,2);  list(1:,1) = list(1:,1) * list(1:,2)
+    list(1:,2) = sqrt( list(1:,2) );  dist(:,3) = sqrt( dist(:,3) )
 
-    list(:,0) = [ sum( listTot(0,:) )/self%Niter, 1/sqrt( sum( listTot2(0,:) ) ) ]
+    list(0,:) = [ sum( listTot(0,:) )/self%Niter, 1/sqrt( sum( listTot2(0,:) ) ) ]
+
+    if ( method(:5) == 'vegas' ) list(0,1) = AVGI
 
     list = list/(self%ESmax(5) - self%ESmin(5) )
 
     do i = 0, n
-      list(:,i) = (2 * i + 1) * list(:,i)
+      list(i,:) = (2 * i + 1) * list(i,:)
     end do
+
+    if (  ISNAN( list(0,2) )  ) list(0,2) = 0
 
     do j = 1, self%Nbins
       if ( dist(j,3) <= d1mach(1) ) dist(j,2) = 0
@@ -353,8 +357,8 @@ module MCtopClass
 
       if ( ES < self%ESmin(5) .or. ES > self%ESmax(5) ) return
 
-      list(1,:) = list(1,:) + wgt *  FunMatEl * ESLeg
-      list(2,:) = list(2,:) + wgt * (FunMatEl * ESLeg)**2
+      list(:,1) = list(:,1) + wgt *  FunMatEl * ESLeg
+      list(:,2) = list(:,2) + wgt * (FunMatEl * ESLeg)**2
 
       k = Ceiling( self%Nbins * (ES - self%ESmin(5) )/(self%ESmax(5) - self%ESmin(5) ) )
 
