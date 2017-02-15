@@ -325,6 +325,10 @@ module MCtopClass
       list(:,i) = (2 * i + 1) * list(:,i)
     end do
 
+    do j = 1, self%Nbins
+      if ( dist(j,3) <= d1mach(1) ) dist(j,2) = 0
+    enddo
+
   contains
 
 !ccccccccccccccc
@@ -411,7 +415,7 @@ module MCtopClass
     dist2 = 1/dist2;  dist = dist * dist2;  dist2 = sqrt(dist2)
 
     do j = 1, self%Nbins
-      if ( dist2(j) <= tiny(1._dp) ) dist(j) = 0
+      if ( dist2(j) <= d1mach(1) ) dist(j) = 0
     enddo
 
   contains
