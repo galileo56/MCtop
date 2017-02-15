@@ -21,29 +21,32 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH true)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/tools")
 find_package(Mathematica REQUIRED)
 
-FIND_PACKAGE(OpenMP_Fortran REQUIRED)
+# FIND_PACKAGE(OpenMP REQUIRED)
 
 ###############
 ## COMPILER FLAGS
 
 ## additional flags for c++ compiler - for c++ and clang++ (should also take effect for the C compiler)
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    # set(addition_cxx "-std=c++11" ${OpenMP_CXX_FLAGS})
-    set(addition_cxx "-std=c++11 -fopenmp")
+    set(addition_cxx "-std=c++11")
+    # set(addition_cxx "-std=c++11  ${OpenMP_CXX_FLAGS} -fopenmp")
 # elseif ("" ... "") ## additional flags for other compilers
 endif()
 
 ## additional flags for the fortran compiler - for gfortran
 if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU")
 
-##    set(addition_fortran "-Waliasing -Wampersand -Wconversion -Wc-binding-type -Wintrinsics-std -Wtabs -Wintrinsic-shadow -Wline-truncation -Wtarget-lifetime -Winteger-division -Wreal-q-constant -Wunused")
-      set(addition_fortran "-Waliasing -Wampersand -Wconversion -Wc-binding-type -Wintrinsics-std -Wtabs -Wintrinsic-shadow -Wline-truncation -Wtarget-lifetime -Winteger-division -Wreal-q-constant -Wunused -ffixed-line-length-none ${OpenMP_Fortran_FLAGS} ")
+#    set(addition_fortran "-Waliasing -Wampersand -Wconversion -Wc-binding-type -Wintrinsics-std -Wtabs -Wintrinsic-shadow -Wline-truncation -Wtarget-lifetime -Winteger-division -Wreal-q-constant -Wunused")
+# set(addition_fortran "-Waliasing -Wampersand -Wconversion -Wc-binding-type -Wintrinsics-std -Wtabs -Wintrinsic-shadow -Wline-truncation -Wtarget-lifetime -Winteger-division -Wreal-q-constant -Wunused -ffixed-line-length-none ${OpenMP_Fortran_FLAGS} ")
 
 endif()
+
+## message("cxx ${CMAKE_CXX_COMPILER_ID} c ${CMAKE_C_COMPILER_ID} OpenMP ${OpenMP_C_FLAGS}")
 
 ## let the flag changes take effect
 set(CMAKE_CXX_FLAGS "${addition_cxx}" CACHE STRING "Flags used by the compiler during all build types." FORCE)
 set(CMAKE_Fortran_FLAGS "${addition_fortran}" CACHE STRING "Flags used by the compiler during all build types." FORCE)
+# set(CMAKE_C_FLAGS "-fopenmp" CACHE STRING "Flags used by the compiler during all build types." FORCE)
 
 ###############
 ## LIBS
