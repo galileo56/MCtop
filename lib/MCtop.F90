@@ -1,7 +1,7 @@
 
 module MCtopClass
-  use MatrixElementsClass; use constants, only: dp; use MC_VEGAS; use Legendre
-  implicit none;  private
+  use MatrixElementsClass; use constants, only: dp, d1mach; use MC_VEGAS
+  use Legendre;  implicit none;  private
 
   public                                      :: MCtop
   real (dp), parameter                        :: mth = 0.39307568887871164_dp
@@ -213,14 +213,18 @@ module MCtopClass
     list = 0;  distTot2 = 1/distTot2**2
 
     do j = 1, self%Niter
-      list(1,:) = list(1,:) + distTot (:,j) * distTot2(:,j)
-      list(2,:) = list(2,:) + distTot2(:,j)
+      list(1,1:) = list(1,1:) + distTot (1:,j) * distTot2(1:,j)
+      list(2,1:) = list(2,1:) + distTot2(1:,j)
     end do
 
-    list(2,:) = 1/list(2,:);  list(1,:) = list(1,:) * list(2,:)
-    list(2,:) = sqrt( list(2,:) )
+    list(2,1:) = 1/list(2,1:);  list(1,1:) = list(1,1:) * list(2,1:)
+    list(2,1:) = sqrt( list(2,1:) )
 
-    list(:,0) = [1, 0]
+    if ( abs(self%ESmin(5)) < d1mach(1) ) then
+      list(:,0) = [1, 0]
+    else
+      list(:,0) = [ sum( distTot(0,:) ), 1/sqrt( sum( distTot2(0,:) ) ) ]
+    end if
 
     list = list/(self%ESmax(5) - self%ESmin(5) )
 
@@ -248,6 +252,8 @@ module MCtopClass
 
       ESLeg = LegendreList(  n, 2 * ( Cparam(p) - self%ESmin(5) )/&
                                 ( self%ESmax(5) - self%ESmin(5) ) - 1  )
+
+      if ( ES < self%ESmin(5) ) return
 
       list(1,:) = list(1,:) + wgt *  FunMatEl * ESLeg
       list(2,:) = list(2,:) + wgt * (FunMatEl * ESLeg)**2

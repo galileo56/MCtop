@@ -1,2 +1,2 @@
-/Users/vmateu/GitHub/MCtop/bin/MCtop
-/Users/vmateu/GitHub/MCtop/lib/../lib/liblibMCtop.a
+/Users/vicent/GitHubProjects/MCtop/bin/MCtop
+/Users/vicent/GitHubProjects/MCtop/lib/../lib/liblibMCtop.a
