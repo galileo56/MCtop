@@ -5,6 +5,7 @@
 :Evaluate:   Print["     Last modification: 08 - 01 - 2017        "]
 :Evaluate:   Print["     Version:           test 2                "]
 
+:Evaluate:  CparamLegendreDistro::usage = "CparamLegendreDistro[mt, mb, mW, Q, expand, method, Spin, decay, current, Cmin, Cmax, n, Nbins, Nevent, Niter] computes the Legendre expansion and distribution for the C-parameter event shape"
 :Evaluate:  CparamLegendre::usage = "CparamLegendre[n, mt, mb, mW, Q, expand, method, Spin, decay, current, Cmin, Cmax, Nevent, Niter] computes the integration against Legendre Polynomial"
 :Evaluate:  LegendreList::usage = "LegendreList[n, x] computes the of the first n + 1 Legendre Polynomial"
 :Evaluate:  Cparam4::usage = "Cparam4[x, mt, mb, mW, Q] computes the value of C-parameter for top decay into 2 particles"
@@ -64,6 +65,17 @@
                  Nevent, Niter}
 :ArgumentTypes: {Real, Real, Real, Real, String, String, String, String, String, Real,
                  Real, Integer, Integer, Integer}
+:ReturnType:    Manual
+:End:
+
+:Begin:
+:Function:      cparamlegendredistro
+:Pattern:       CparamLegendreDistro[mt_, mb_, mW_, Q_, expand_, method_, spin_,
+                 decay_, current_, Cmin_, Cmax_, n_, Nbins_, Nevent_, Niter_]
+:Arguments:     {mt, mb, mW, Q, expand, method, spin, decay, current, Cmin, Cmax,
+                 n, Nbins, Nevent, Niter}
+:ArgumentTypes: {Real, Real, Real, Real, String, String, String, String, String,
+                 Real, Real, Integer, Integer, Integer, Integer}
 :ReturnType:    Manual
 :End:
 
@@ -439,6 +451,33 @@ static void cparamdistribution(double mt, double mb, double mW, double Q,
    MLPutFunction(stdlink, "Partition", 2);
    MLPutRealList(stdlink, res, 3*Nbins);
    MLPutInteger(stdlink, Nbins);
+   MLEndPacket(stdlink);
+
+}
+
+extern double f90cparamlegendredistro_(double* mt, double* mb, double* mW, double* Q,
+  char const* expand, char const* method, char const* spin, char const* decay,
+  char const* current, double* Cmin, double* Cmax, int* n, int* Nbins, int* Nevent,
+  int* Niter, double* res1,  double* res2);
+
+static void cparamlegendredistro(double mt, double mb, double mW, double Q,
+  char const* expand, char const* method, char const* spin, char const* decay,
+  char const* current, double Cmin, double Cmax, int n, int Nbins, int Nevent,
+  int Niter){
+  double res1[3 * Nbins];
+  double res2[2 * (n + 1)];
+
+   f90cparamlegendredistro_(&mt, &mb, &mW, &Q, expand, method, spin, decay, current,
+   &Cmin, &Cmax, &n, &Nbins, &Nevent, &Niter, res1, res2);
+
+   MLPutFunction(stdlink, "List", 2);
+   MLPutFunction(stdlink, "Transpose", 1);
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutRealList(stdlink, res1, 3*Nbins);
+   MLPutInteger(stdlink, Nbins);
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutRealList(stdlink, res2, 2 * (n + 1) );
+   MLPutInteger(stdlink, 2);
    MLEndPacket(stdlink);
 
 }
