@@ -220,11 +220,7 @@ module MCtopClass
     list(2,1:) = 1/list(2,1:);  list(1,1:) = list(1,1:) * list(2,1:)
     list(2,1:) = sqrt( list(2,1:) )
 
-    if ( abs(self%ESmin(5)) < d1mach(1) ) then
-      list(:,0) = [1, 0]
-    else
-      list(:,0) = [ sum( distTot(0,:) )/self%Niter, 1/sqrt( sum( distTot2(0,:) ) ) ]
-    end if
+    list(:,0) = [ sum( distTot(0,:) )/self%Niter, 1/sqrt( sum( distTot2(0,:) ) ) ]
 
     list = list/(self%ESmax(5) - self%ESmin(5) )
 
