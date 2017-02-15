@@ -77,28 +77,6 @@ list_install_components/fast: list_install_components
 
 .PHONY : list_install_components/fast
 
-# Special rule for the target install/local
-install/local: preinstall
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
-	/opt/local/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
-.PHONY : install/local
-
-# Special rule for the target install/local
-install/local/fast: install/local
-
-.PHONY : install/local/fast
-
-# Special rule for the target rebuild_cache
-rebuild_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	/opt/local/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
-.PHONY : rebuild_cache
-
-# Special rule for the target rebuild_cache
-rebuild_cache/fast: rebuild_cache
-
-.PHONY : rebuild_cache/fast
-
 # Special rule for the target install
 install: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
@@ -121,6 +99,28 @@ install/strip: preinstall
 install/strip/fast: install/strip
 
 .PHONY : install/strip/fast
+
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/opt/local/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
+
+# Special rule for the target install/local
+install/local/fast: install/local
+
+.PHONY : install/local/fast
+
+# Special rule for the target rebuild_cache
+rebuild_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
+	/opt/local/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+.PHONY : rebuild_cache
+
+# Special rule for the target rebuild_cache
+rebuild_cache/fast: rebuild_cache
+
+.PHONY : rebuild_cache/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -153,6 +153,19 @@ preinstall/fast:
 depend:
 	$(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
+
+#=============================================================================
+# Target rules for targets named Distributions
+
+# Build rule for target.
+Distributions: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 Distributions
+.PHONY : Distributions
+
+# fast build rule for target.
+Distributions/fast:
+	$(MAKE) -f CMakeFiles/Distributions.dir/build.make CMakeFiles/Distributions.dir/build
+.PHONY : Distributions/fast
 
 #=============================================================================
 # Target rules for targets named Legendre
@@ -341,6 +354,33 @@ lib/Vegas.F90.s:
 	$(MAKE) -f CMakeFiles/subdir_mods.dir/build.make CMakeFiles/subdir_mods.dir/lib/Vegas.F90.s
 .PHONY : lib/Vegas.F90.s
 
+src/Distributions.o: src/Distributions.F90.o
+
+.PHONY : src/Distributions.o
+
+# target to build an object file
+src/Distributions.F90.o:
+	$(MAKE) -f CMakeFiles/Distributions.dir/build.make CMakeFiles/Distributions.dir/src/Distributions.F90.o
+.PHONY : src/Distributions.F90.o
+
+src/Distributions.i: src/Distributions.F90.i
+
+.PHONY : src/Distributions.i
+
+# target to preprocess a source file
+src/Distributions.F90.i:
+	$(MAKE) -f CMakeFiles/Distributions.dir/build.make CMakeFiles/Distributions.dir/src/Distributions.F90.i
+.PHONY : src/Distributions.F90.i
+
+src/Distributions.s: src/Distributions.F90.s
+
+.PHONY : src/Distributions.s
+
+# target to generate assembly for a file
+src/Distributions.F90.s:
+	$(MAKE) -f CMakeFiles/Distributions.dir/build.make CMakeFiles/Distributions.dir/src/Distributions.F90.s
+.PHONY : src/Distributions.F90.s
+
 src/Legendre.o: src/Legendre.F90.o
 
 .PHONY : src/Legendre.o
@@ -403,12 +443,13 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... list_install_components"
+	@echo "... install"
+	@echo "... install/strip"
 	@echo "... install/local"
+	@echo "... Distributions"
 	@echo "... Legendre"
 	@echo "... rebuild_cache"
 	@echo "... MCtop"
-	@echo "... install"
-	@echo "... install/strip"
 	@echo "... subdir_mods"
 	@echo "... libMCtop"
 	@echo "... lib/MCtop.o"
@@ -426,6 +467,9 @@ help:
 	@echo "... lib/Vegas.o"
 	@echo "... lib/Vegas.i"
 	@echo "... lib/Vegas.s"
+	@echo "... src/Distributions.o"
+	@echo "... src/Distributions.i"
+	@echo "... src/Distributions.s"
 	@echo "... src/Legendre.o"
 	@echo "... src/Legendre.i"
 	@echo "... src/Legendre.s"
