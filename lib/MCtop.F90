@@ -294,6 +294,7 @@ module MCtopClass
       distTot2(:,j) = sqrt(  ( dist(:,3)/self%Delta(5)**2 - &
                                            distTot(:,j)**2 )/self%Nevent  )
       listTot2(:,j) = sqrt(  ( list(2,:) - listTot(:,j)**2 )/self%Nevent  )
+
     end do
 
     list = 0;  listTot2 = 1/listTot2**2
