@@ -1,0 +1,1 @@
+/usr/local/bin/gfortran     CMakeFiles/Legendre.dir/src/Legendre.F90.o  -o Legendre  lib/liblibMCtop.a libsubdir_mods.a 
