@@ -13,30 +13,31 @@ module MCtopClass
 
 !ccccccccccccccc
 
-  type, abstract, public :: MCtop
-    integer                    , private              :: Nbins, Nevent, Niter
-    class (MatrixElements)     , private, allocatable :: MatEl
-    real (dp), dimension(:,:  ), private, allocatable :: ES
-    real (dp), dimension(:)    , private, allocatable :: ESmax, ESmin, delta
-    integer                    , private              :: dimX, dimP, dimES
+  type, abstract, public                            :: MCtop
+    private
+    integer                  , private              :: Nbins, Nevent, Niter
+    class (MatrixElements)   , private, allocatable :: MatEl
+    real (dp), dimension(:,:), private, allocatable :: ES
+    real (dp), dimension(:)  , private, allocatable :: ESmax, ESmin, delta
+    integer                  , private              :: dimX, dimP, dimES
 
   contains
 
-    procedure, private                                :: callVegas
-    procedure, public                                 :: List, ESlist
+    procedure, private                              :: callVegas
+    procedure, public                               :: List, ESlist
 
   end type MCtop
 
 !ccccccccccccccc
 
-  type, extends (MCtop), public :: MCtopUnstable
+  type, extends (MCtop), public                     :: MCtopUnstable
     private
-    character (len = 8)        , private              :: spin, current
+    character (len = 8), private                    :: spin, current
 
   contains
 
-    final                                             :: delete_object
-    procedure, public                                 :: callVegasCparam, CparamList, ListCparam
+    final                                           :: delete_object
+    procedure, public                               :: callVegasCparam, CparamList, ListCparam
 
   end type MCtopUnstable
 
@@ -44,7 +45,7 @@ module MCtopClass
 
   type, extends (MCtop), public :: MCStable
     private
-    integer                            , private    :: Nlog
+    integer                  , private              :: Nlog
     real (dp), dimension(:,:), private, allocatable :: ESlog
     real (dp), dimension(16 ), private              :: logMin, DeltaLog, logMax
 
