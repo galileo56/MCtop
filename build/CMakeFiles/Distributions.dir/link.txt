@@ -1,1 +1,1 @@
-/usr/local/bin/gfortran     -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk CMakeFiles/Distributions.dir/src/Distributions.F90.o  -o Distributions  lib/liblibMCtop.a libsubdir_mods.a 
+/usr/local/bin/gfortran     CMakeFiles/Distributions.dir/src/Distributions.F90.o  -o Distributions  lib/liblibMCtop.a libsubdir_mods.a 

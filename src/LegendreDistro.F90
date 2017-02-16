@@ -15,7 +15,7 @@ program LegendreDistro
   allocate( list(Nbins,3), list2(0:n,2) )
   moQ = (mt/Q)**2; Cmax = 12 * moQ * (1 - 3 * moQ)
 
-  print*, mt, mW, Q; print*,; print*, 'Distribution'; print*,
+  write( *, '(4F18.6)' ) mt, mW, Q, mt/Q; print*,; print*, 'Distribution'; print*,
 
   call f90CparamLegendreDistro(mt, 0._dp, mW, Q, 'noexpand', method, spin, 'unstable',  &
                         current, 0._dp, Cmax, n, Nbins, Nevent, Niter, list, list2)

@@ -14,7 +14,7 @@ program Legendre
 
   allocate( list(Nbins,3) ); moQ = (mt/Q)**2; Cmax = 12 * moQ * (1 - 3 * moQ)
 
-  print*, mt, mW, Q; print*,
+  write( *, '(4F18.6)' ) mt, mW, Q, mt/Q; print*,
 
   call f90CparamDistribution(mt, 0._dp, mW, Q, 'noexpand', method, spin, 'unstable',  &
                                 current, 0._dp, Cmax, Nbins, Nevent, Niter, list)
