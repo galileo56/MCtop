@@ -88,15 +88,15 @@ end subroutine f90CparamList
 
 !ccccccccccccccc
 
-subroutine f90ESDistributions(mt, mb, mW, Q, method, Spin, decay, current, ESmin, ESmax, &
-                              Nbins, Nevent, Niter, list)
+subroutine f90ESDistributions(mt, mb, mW, Q, method, Spin, decay, current, ESmin, &
+                              ESmax, Nbins, Nevent, Niter, list)
   use constants, only: dp; use MatrixElementsClass; use MCtopClass; implicit none
   real (dp)                        , intent(in)  :: mt, mW, mb, Q
   integer                          , intent(in)  :: Nbins, Nevent, Niter
   character (len = *)              , intent(in)  :: Spin, decay, method, current
   real (dp), dimension(8)          , intent(in)  :: ESmin, ESmax
   real (dp), dimension(Nbins, 8, 3), intent(out) :: list
-  type (MCtopUnstable)                                   :: MC
+  type (MCtopUnstable)                           :: MC
   class (MatrixElements), allocatable            :: MatEl
 
   if ( decay(:6) == 'stable') then
@@ -344,9 +344,9 @@ end subroutine f90CparamMinMax4
 
 subroutine f90CparamMaxMin4(eps, mt, mb, mW, Q, res)
   use constants, only: dp; use MatrixElementsClass; implicit none
-  real (dp)              , intent(in)  :: mt, mW, mb, Q, eps
+  real (dp)                , intent(in)  :: mt, mW, mb, Q, eps
   real (dp), dimension(4,2), intent(out) :: res
-  type (MatrixElements4)               :: MatEl
+  type (MatrixElements4)                 :: MatEl
 
   MatEl = MatrixElements4(mt, mb, mW, Q)
   res   = MatEl%CparamMaxMin(eps)
@@ -355,11 +355,37 @@ end subroutine f90CparamMaxMin4
 
 !ccccccccccccccc
 
+subroutine f90ESMaxMin4(eps, mt, mb, mW, Q, res)
+  use constants, only: dp; use MatrixElementsClass; implicit none
+  real (dp)                  , intent(in)  :: mt, mW, mb, Q, eps
+  real (dp), dimension(4,8,2), intent(out) :: res
+  type (MatrixElements4)                   :: MatEl
+
+  MatEl = MatrixElements4(mt, mb, mW, Q)
+  res   = MatEl%ESMaxMin(eps)
+
+end subroutine f90ESMaxMin4
+
+!ccccccccccccccc
+
+subroutine f90ESMaxMin6(eps, mt, mb, mW, Q, res)
+  use constants, only: dp; use MatrixElementsClass; implicit none
+  real (dp)                  , intent(in)  :: mt, mW, mb, Q, eps
+  real (dp), dimension(8,8,2), intent(out) :: res
+  type (MatrixElements6)                   :: MatEl
+
+  MatEl = MatrixElements6(mt, mb, mW, Q)
+  res   = MatEl%ESMaxMin(eps)
+
+end subroutine f90ESMaxMin6
+
+!ccccccccccccccc
+
 subroutine f90CparamMaxMin6(eps, mt, mb, mW, Q, res)
   use constants, only: dp; use MatrixElementsClass; implicit none
-  real (dp)              , intent(in)  :: mt, mW, mb, Q, eps
+  real (dp)                , intent(in)  :: mt, mW, mb, Q, eps
   real (dp), dimension(8,2), intent(out) :: res
-  type (MatrixElements6)               :: MatEl
+  type (MatrixElements6)                 :: MatEl
 
   MatEl = MatrixElements6(mt, mb, mW, Q)
   res   = MatEl%CparamMaxMin(eps)
