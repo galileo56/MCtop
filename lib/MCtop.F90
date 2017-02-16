@@ -58,7 +58,7 @@ module MCtopClass
      integer                             :: i
 
      InMCtop%Nbins = Nbins ; InMCtop%Nevent  = Nevent ; InMCtop%Niter = Niter
-     InMCtop%Spin  = Spin  ; InMCtop%current = current;  InMCtop%ESmin = ESmin
+     InMCtop%Spin  = Spin  ; InMCtop%current = current; InMCtop%ESmin = ESmin
 
      allocate( InMCtop%ES(Nbins, 8) )
 
