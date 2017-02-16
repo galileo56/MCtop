@@ -100,8 +100,8 @@ module MCtopClass
 !ccccccccccccccc
 
    type (MCStable) function InitEvent1(MatEl, Nbins, Nlog, Nevent, Niter)
-     integer            , intent(in) ::  Nbins, Nlog, Nevent, Niter
-     type (MatrixStable), intent(in) ::  MatEl
+     integer            , intent(in) :: Nbins, Nlog, Nevent, Niter
+     type (MatrixStable), intent(in) :: MatEl
      real (dp)       , dimension(16) :: DeltaES, DeltaLog, ESMin, ESMax, LogMin, LogMax, delta
      integer                         :: i
 
@@ -116,13 +116,13 @@ module MCtopClass
      allocate( InitEvent1%ES(Nbins, 16), InitEvent1%ESlog(Nlog, 16) )
      allocate( InitEvent1%ESMin(16), InitEvent1%ESMax(16), InitEvent1%delta(16) )
 
-     ESMin  = MatEl%ESMin();  ESmax  = MatEl%ESMax();  Delta    = (ESmax  - ESmin )/Nevent
+     ESMin  = MatEl%ESMin();  ESmax  = MatEl%ESMax();  Delta    = (ESmax  - ESmin )/Nbins
      LogMin = - 5          ;  LogMax = 1            ;  DeltaLog = (LogMax - LogMin)/Nlog
 
      InitEvent1%Delta = Delta;  InitEvent1%DeltaLog = DeltaLog
 
-     do i = 1, Nevent
-       InitEvent1%ES(i,:) = ESMin  + Delta * (2 * i - 1)/2
+     do i = 1, Nbins
+       InitEvent1%ES(i,:) = ESMin + Delta * (2 * i - 1)/2
      end do
 
      do i = 1, Nlog
