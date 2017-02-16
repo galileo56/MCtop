@@ -573,9 +573,10 @@ static void cparamlegendre(int n, double mt, double mb, double mW, double Q,
    f90cparamlegendre_(&n, &mt, &mb, &mW, &Q, expand, method, spin, decay, current,
    &Cmin, &Cmax, &Nevent, &Niter, res);
 
+   MLPutFunction(stdlink, "Transpose", 1);
    MLPutFunction(stdlink, "Partition", 2);
    MLPutRealList(stdlink, res, 2 * (n + 1) );
-   MLPutInteger(stdlink, 2);
+   MLPutInteger(stdlink, (n + 1));
    MLEndPacket(stdlink);
 
 }
@@ -663,7 +664,7 @@ static void vectors6(double x[], long clen, double mt, double mb, double mW, dou
 int main(int argc, char *argv[]){
     return MLMain(argc, argv);
 }
-# line 667 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm.c"
+# line 668 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm.c"
 
 
 void esmin P(( double _tp1, double _tp2));

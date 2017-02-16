@@ -158,7 +158,7 @@ subroutine f90CparamLegendreDistro(mt, mb, mW, Q, expand, method, spin, decay, c
   real (dp)                     , intent(in)  :: Cmin, Cmax
   real (dp), dimension(Nbins, 3), intent(out) :: list
   real (dp), dimension(0:n  , 2), intent(out) :: list2
-  type (MCtopUnstable)                                :: MC
+  type (MCtopUnstable)                        :: MC
   class (MatrixElements), allocatable         :: MatEl
 
   if ( decay(:6) == 'stable') then
@@ -189,7 +189,8 @@ subroutine f90CparamLegendre(n, mt, mb, mW, Q, expand, method, spin, decay, curr
   character (len = *)        , intent(in)  :: spin, decay, current, method, expand
   real (dp)                  , intent(in)  :: Cmin, Cmax
   real (dp), dimension(2,0:n), intent(out) :: list
-  type (MCtopUnstable)                             :: MC
+  real (dp), dimension(1,3)                :: list2
+  type (MCtopUnstable)                     :: MC
   class (MatrixElements), allocatable      :: MatEl
 
   if ( decay(:6) == 'stable') then
@@ -205,8 +206,8 @@ subroutine f90CparamLegendre(n, mt, mb, mW, Q, expand, method, spin, decay, curr
   end if
 
   MC   = MCtopUnstable(MatEl, spin(:8), current(:8), [1,1,1,1,1,1,1,1] * Cmin, &
-               [1,1,1,1,1,1,1,1] * Cmax, 100, Nevent, Niter)
-  list = MC%LegendreInt( n, expand(:6), method(:5) )
+               [1,1,1,1,1,1,1,1] * Cmax, 1, Nevent, Niter)
+  call MC%LegendreDistro( n, expand(:6), method(:5), list2, list )
 
 end subroutine f90CparamLegendre
 
