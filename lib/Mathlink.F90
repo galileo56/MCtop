@@ -175,7 +175,7 @@ subroutine f90CparamLegendreDistro(mt, mb, mW, Q, expand, method, spin, decay, c
 
   MC   = MCtopUnstable(MatEl, spin(:8), current(:8), [1,1,1,1,1,1,1,1] * Cmin, &
                [1,1,1,1,1,1,1,1] * Cmax, Nbins, Nevent, Niter)
-  call MC%LegendreDistro( n, expand(:6), method(:5), list, list2 )
+  call MC%callVegasCparam( n, expand(:6), method(:5), list, list2 )
 
 end subroutine f90CparamLegendreDistro
 
@@ -207,7 +207,7 @@ subroutine f90CparamLegendre(n, mt, mb, mW, Q, expand, method, spin, decay, curr
 
   MC   = MCtopUnstable(MatEl, spin(:8), current(:8), [1,1,1,1,1,1,1,1] * Cmin, &
                [1,1,1,1,1,1,1,1] * Cmax, 1, Nevent, Niter)
-  call MC%LegendreDistro( n, expand(:6), method(:5), list2, list )
+  call MC%callVegasCparam( n, expand(:6), method(:5), list2, list )
 
 end subroutine f90CparamLegendre
 
