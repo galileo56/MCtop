@@ -553,7 +553,7 @@ module MCtopClass
 !ccccccccccccccc
 
   function ESList(self) result(dist)
-    class (MCtop) , intent(in)          :: self
+    class (MCtop)                  , intent(in)  :: self
     real (dp), dimension(self%Nbins, self%dimES) :: dist
 
     dist = self%ES
@@ -573,8 +573,8 @@ module MCtopClass
 !ccccccccccccccc
 
   function List(self, method) result(dist)
-    class (MCtop)             , intent(in) :: self
-    character (len = *)       , intent(in) :: method
+    class (MCtop)                      , intent(in) :: self
+    character (len = *)                , intent(in) :: method
     real (dp), dimension(self%Nbins, self%dimES, 3) :: dist
 
     dist(:,:,1  ) = self%ES
