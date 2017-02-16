@@ -4,11 +4,10 @@ module MCtopClass
   use Legendre;  implicit none;  private
 
   public                                      :: MCtop
-  real (dp), parameter                        :: mth = 0.39307568887871164_dp
   character (len = 11), dimension(8) , public :: ESNames
   character (len = 11), dimension(16), public :: StableNames
 
-  data ESNames      /'tau', 'HJM', 'LJM', 'SJM', 'C-parameter', 'B', 'B-wide', 'B-narrow'/
+  data ESNames     /'tau', 'HJM', 'LJM', 'SJM', 'C-parameter', 'B', 'B-wide', 'B-narrow'/
   data StableNames / 'tau', 'tauQ', 'tauE', 'tauJ', 'CJ', 'CE', 'CQ', 'CP', &
   'rho', 'rhoE', 'rhoQ', 'rhoP', 'rhoSum', 'Broadening ', 'BroadeningQ', 'BroadeningE' /
 
@@ -58,8 +57,8 @@ module MCtopClass
      real (dp), dimension(8)             :: delta
      integer                             :: i
 
-     InMCtop%Nbins = Nbins ; InMCtop%Nevent = Nevent; InMCtop%Niter = Niter
-     InMCtop%Spin  = Spin  ; InMCtop%current  = current;  InMCtop%ESmin = ESmin
+     InMCtop%Nbins = Nbins ; InMCtop%Nevent  = Nevent ; InMCtop%Niter = Niter
+     InMCtop%Spin  = Spin  ; InMCtop%current = current;  InMCtop%ESmin = ESmin
 
      allocate( InMCtop%ES(Nbins, 8) )
 
