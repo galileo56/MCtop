@@ -271,9 +271,9 @@ module MCtopClass
     integer                           , intent(in)  :: n
     character (len = *)               , intent(in)  :: expand, method
     real (dp), dimension(self%Nbins,3), intent(out) :: dist
-    real (dp), dimension(0:n,2)       , intent(out) :: list
+    real (dp), dimension(0:n       ,2), intent(out) :: list
     real (dp), dimension(self%Nbins, self%Niter,2)  :: distTot
-    real (dp), dimension(0:n, self%Niter,2)         :: listTot
+    real (dp), dimension(0:n       , self%Niter,2)  :: listTot
     real (dp), dimension(self%dimX)                 :: y
     real (dp)                                       :: AVGI, SD, CHI2A
     integer                                         :: i, j, iter
