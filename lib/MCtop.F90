@@ -36,7 +36,6 @@ module MCtopClass
   contains
 
     final                                             :: delete_object
-    procedure, private                                :: callVegasCparam
     procedure, public                                 :: LegendreInt, LegendreDistro, CparamList, ListCparam
 
   end type MCtopUnstable
@@ -92,8 +91,8 @@ module MCtopClass
      if ( allocated(this%ESMin) ) deallocate(this%ESMin  )
      if ( allocated(this%ESMax) ) deallocate(this%ESMax  )
      if ( allocated(this%MatEl) ) deallocate(this%MatEl  )
-     if ( allocated(this%ESlog) ) deallocate(this%ESlog  )
      if ( allocated(this%delta) ) deallocate(this%delta  )
+     if ( allocated(this%ESlog) ) deallocate(this%ESlog  )
 
    end subroutine delete_stable
 
@@ -469,89 +468,6 @@ module MCtopClass
 
 !ccccccccccccccc
 
-  subroutine callVegasCparam(self, expand, method, dist)
-    class (MCtopUnstable)              , intent(in)  :: self
-    character (len = *)                , intent(in)  :: expand, method
-    real (dp), dimension(self%Nbins, 2), intent(out) :: dist
-    real (dp), dimension(self%Nbins, self%Niter)     :: distTot , distTot2
-    real (dp), dimension(self%dimX)                  :: y
-    real (dp)                                        :: AVGI, SD, CHI2A
-    integer                                          :: i, j, iter
-
-    NPRN = - 1; ITMX = 1; NCall = self%Nevent; iter = 1
-    if (self%dimX <= 3) iter = 0; distTot = 0; distTot2 = 0
-
-    do j = 1, self%Niter
-
-      dist = 0;  if (j > 1 .and. self%dimX > 3) iter = 2
-      if ( method(:5) == 'vegas' ) then
-        call VEGAS(self%dimX, FunMatEl, AVGI, SD, CHI2A, iter)
-      else
-
-        do i = 1, self%Nevent
-          call Random_number(y)
-          AVGI = AVGI + FunMatEl(y, 1._dp)
-        end do
-
-        AVGI = AVGI/self%Nevent; dist = dist/self%Nevent
-      end if
-
-      distTot(:,j) = dist(:,1)/self%Delta(5)
-
-      distTot2(:,j) = sqrt(  ( dist(:,2)/self%Delta(5)**2 - &
-                              distTot(:,j)**2 )/self%Nevent  )
-    end do
-
-    dist = 0;  distTot2 = 1/distTot2**2
-
-    do j = 1, self%Niter
-      dist(:,1) = dist(:,1) + distTot (:,j) * distTot2(:,j)
-      dist(:,2) = dist(:,2) + distTot2(:,j)
-    end do
-
-    dist(:,2) = 1/dist(:,2);  dist(:,1) = dist(:,1) * dist(:,2)
-    dist(:,2) = sqrt( dist(:,2) )
-
-    do j = 1, self%Nbins
-      if ( dist(j,2) <= d1mach(1) ) dist(j,1) = 0
-    enddo
-
-  contains
-
-!ccccccccccccccc
-
-    real (dp) function FunMatEl(x, wgt)
-      real (dp), dimension(self%dimX), intent(in) :: x
-      real (dp)                      , intent(in) :: wgt
-      real (dp)                                   :: ES
-      integer                                     :: k
-      real (dp), dimension(self%dimP,4)           :: p
-
-      if ( expand(:6) == 'expand' ) then
-        ES = self%MatEl%CparamBeta(x); FunMatEl = 1
-      else
-        p = self%MatEl%GenerateVectors(x); ES = Cparam(p)
-        FunMatEl = self%MatEl%SpinWeight(self%spin, self%current, p)
-      end if
-
-      k = Ceiling( self%Nbins * (ES - self%ESmin(5) )/(self%ESmax(5) - self%ESmin(5) ) )
-
-      if ( k <= 0          ) k = 1
-      if ( k >  self%Nbins ) k = self%Nbins
-
-      if ( k > 0 ) then
-        dist(k,1) = dist(k,1) + wgt * FunMatEl
-        dist(k,2) = dist(k,2) + wgt * FunMatEl**2
-      end if
-
-    end function FunMatEl
-
-!ccccccccccccccc
-
-  end subroutine callVegasCparam
-
-!ccccccccccccccc
-
   function ESList(self) result(dist)
     class (MCtop)                  , intent(in)  :: self
     real (dp), dimension(self%Nbins, self%dimES) :: dist
@@ -588,9 +504,9 @@ module MCtopClass
     class (MCtopUnstable)  , intent(in) :: self
     character (len = *)    , intent(in) :: expand, method
     real (dp), dimension(self%Nbins, 3) :: dist
+    real (dp), dimension(1,2)           :: list
 
-    dist(:,1) = self%ES(:,5)
-    call self%callVegasCparam( expand, method, dist(:,2:3)  )
+    call self%LegendreDistro( 0, expand, method, dist, list  )
 
   end function ListCparam
 
