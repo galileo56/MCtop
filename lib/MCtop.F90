@@ -202,7 +202,7 @@ module MCtopClass
           AVGI = AVGI + FunMatEl(y, 1._dp)
         end do
         AVGI = AVGI/self%Nevent; dist(:,:,2:) = dist(:,:,2:)/self%Nevent
-        list  = list/self%Nevent
+        list = list/self%Nevent
       end if
 
       listTot(:,:,j,1) = list(:,:,1)
@@ -218,6 +218,7 @@ module MCtopClass
     end do
 
     dist(:,:,2:) = 0;  distTot(:,:,:,2) = 1/distTot(:,:,:,2)**2
+    list         = 0;  listTot(:,:,:,2) = 1/listTot(:,:,:,2)**2
 
     do j = 1, self%Niter
       list(1:,:,1) = list(1:,:,1) + listTot(1:,:,j,1) * listTot(1:,:,j,2)
@@ -242,7 +243,7 @@ module MCtopClass
 
     do i = 1, 8
       list(:,i,:) = list(:,i,:)/(self%ESmax(i) - self%ESmin(i) )
-      if (  ISNAN( list(0,i,2) )  ) list(0,i,2) = 0
+      if (  ISNAN( list(0,i,2) ) .or. list(0,i,2) + 1 == list(0,i,2)  ) list(0,i,2) = 0
     end do
 
     do i = 1, 8
