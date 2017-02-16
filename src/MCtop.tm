@@ -13,6 +13,7 @@
 :Evaluate:  CparamBeta4::usage = "CparamBeta4[x, mt, mb, mW, Q] computes the expanded value of C-parameter for top decay into 2 particles"
 :Evaluate:  CparamBeta6::usage = "CparamBeta6[x, mt, mb, mW, Q] computes the expanded value of C-parameter for top decay into 3 particles"
 :Evaluate:  ESDistributions::usage = "ESDistributions[mt, mb, mW, Q, method, Spin, decay, current, ESmin, ESmax, Nbins, Nevent, Niter] computes the distribution of the event-shape variables"
+:Evaluate:  ESLegendre::usage = "ESLegendre[mt, mb, mW, Q, method, Spin, decay, current, ESmin, ESmax, Nbins, Nevent, Niter] computes the Legendre coefficients of the event-shape variables"
 :Evaluate:  CparamDistribution::usage = "CparamDistribution[mt, mb, mW, Q, expand, method, Spin, decay, current, Cmin, Cmax, Nbins, Nevent, Niter] computes the distribution of the C-parameter event shape"
 :Evaluate:  CparamComputer::usage = "CparamComputer[p] computes the value of the C-parameter event shape"
 :Evaluate:  CparamList::usage = "CparamList[mt, mb, mW, Q, Cmin, Cmax, Nbins] computes the values of the C-parameter event shape"
@@ -114,6 +115,16 @@
 :Pattern:       ESDistributions[mt_, mb_, mW_, Q_, method_, spin_, decay_, current_,
                  Cmin_, Cmax_, Nbins_, Nevent_, Niter_]
 :Arguments:     {mt, mb, mW, Q, method, spin, decay, current, Cmin, Cmax, Nbins, Nevent, Niter}
+:ArgumentTypes: {Real, Real, Real, Real, String, String, String, String, RealList, RealList,
+                 Integer, Integer, Integer}
+:ReturnType:    Manual
+:End:
+
+:Begin:
+:Function:      eslegendre
+:Pattern:       ESLegendre[mt_, mb_, mW_, Q_, method_, spin_, decay_, current_,
+                 Cmin_, Cmax_, n_, Nevent_, Niter_]
+:Arguments:     {mt, mb, mW, Q, method, spin, decay, current, Cmin, Cmax, n, Nevent, Niter}
 :ArgumentTypes: {Real, Real, Real, Real, String, String, String, String, RealList, RealList,
                  Integer, Integer, Integer}
 :ReturnType:    Manual
@@ -571,6 +582,29 @@ static void esdistributions(double mt, double mb, double mW, double Q,
    MLPutRealList(stdlink, res, 24*Nbins);
    MLPutInteger(stdlink, 8*Nbins);
    MLPutInteger(stdlink,   Nbins);
+   MLEndPacket(stdlink);
+
+}
+
+extern double f90eslegendre_(double* mt, double* mb, double* mW, double* Q,
+char const* method, char const* spin, char const* decay, char const* current,
+double* ESmin, double* ESmax, int* n, int* Nevent, int* Niter, double* res);
+
+static void eslegendre(double mt, double mb, double mW, double Q,
+  char const* method, char const* spin, char const* decay, char const* current,
+  double ESmin[], long lenmin, double ESmax[], long lenmax, int n, int Nevent,
+  int Niter){
+  double res[16 * (n + 1) ];
+
+   f90eslegendre_(&mt, &mb, &mW, &Q, method, spin, decay, current, ESmin,
+     ESmax, &n, &Nevent, &Niter, res);
+
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutFunction(stdlink, "Transpose", 1);
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutRealList(stdlink, res, 16 * (n + 1) );
+   MLPutInteger(stdlink ,       8 * (n + 1) );
+   MLPutInteger(stdlink ,           (n + 1) );
    MLEndPacket(stdlink);
 
 }

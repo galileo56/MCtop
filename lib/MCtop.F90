@@ -23,8 +23,7 @@ module MCtopClass
 
   contains
 
-    procedure, private                              :: callVegas
-    procedure, public                               :: List, ESlist
+    procedure, public                               :: List, ESlist, callVegas
 
   end type MCtop
 
