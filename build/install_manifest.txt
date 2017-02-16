@@ -1,5 +1,0 @@
-/Users/vmateu/GitHub/MCtop/bin/MCtop
-/Users/vmateu/GitHub/MCtop/bin/Legendre
-/Users/vmateu/GitHub/MCtop/bin/LegendreDistro
-/Users/vmateu/GitHub/MCtop/bin/Distributions
-/Users/vmateu/GitHub/MCtop/lib/../lib/liblibMCtop.a
