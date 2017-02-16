@@ -36,7 +36,7 @@ module MCtopClass
   contains
 
     final                                             :: delete_object
-    procedure, public                                 :: LegendreDistro, CparamList, ListCparam
+    procedure, public                                 :: callVegasCparam, CparamList, ListCparam
 
   end type MCtopUnstable
 
@@ -301,7 +301,7 @@ module MCtopClass
 
 !ccccccccccccccc
 
- subroutine LegendreDistro(self, n, expand, method, dist, list)
+ subroutine callVegasCparam(self, n, expand, method, dist, list)
     class (MCtopUnstable)             , intent(in)  :: self
     integer                           , intent(in)  :: n
     character (len = *)               , intent(in)  :: expand, method
@@ -409,7 +409,7 @@ module MCtopClass
 
     end function FunMatEl
 
- end subroutine LegendreDistro
+ end subroutine callVegasCparam
 
 !ccccccccccccccc
 
@@ -451,7 +451,7 @@ module MCtopClass
     real (dp), dimension(self%Nbins, 3) :: dist
     real (dp), dimension(1,2)           :: list
 
-    call self%LegendreDistro( 0, expand, method, dist, list  )
+    call self%callVegasCparam( 0, expand, method, dist, list  )
 
   end function ListCparam
 
