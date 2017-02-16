@@ -2,7 +2,8 @@
 ! TODO: include non-zero width for top and W
 
 module MatrixElementsClass
-  use Constants, only: dp, Pi; implicit none;  private
+  use Constants, only: dp, Pi, sqrt3; implicit none;  private
+  real (dp), parameter                        :: mth = 0.39307568887871164_dp
 
   public :: FourProd, EScomputer, VecProd3, Abs3, MatrixElements, Cparam
 
@@ -37,6 +38,21 @@ module MatrixElementsClass
 
 !ccccccccccccccc
 
+  type, extends (MatrixElements), public ::  MatrixStable
+    private
+
+    real     (dp), private :: Jacob
+    character (len = 6), private :: oriented
+
+  contains
+
+    procedure                  :: MatElComputer, ESmin, ESmax, ZY
+    procedure, private         :: modulus, zPlusMinus
+
+  end type MatrixStable
+
+!ccccccccccccccc
+
   interface MatrixElements4
     module procedure InMatEl4
   end interface MatrixElements4
@@ -47,7 +63,26 @@ module MatrixElementsClass
     module procedure InMatEl6
   end interface MatrixElements6
 
+!ccccccccccccccc
+
+  interface MatrixStable
+    module procedure InitStable
+  end interface MatrixStable
+
   contains
+
+!ccccccccccccccc
+
+   type (MatrixStable) function InitStable(oriented, mt, Q)
+     real (dp)          , intent(in) :: mt, Q
+     character (len = *), intent(in) :: oriented
+
+    InitStable%mt = mt/Q; InitStable%mt2 = InitStable%mt**2
+    InitStable%mt4 = InitStable%mt2**2 ; InitStable%sizeX = 2
+    InitStable%oriented = oriented     ; InitStable%sizeP = 0
+    InitStable%Jacob = (1 - 4 * InitStable%mt2)
+
+   end function InitStable
 
 !ccccccccccccccc
 
@@ -583,6 +618,197 @@ module MatrixElementsClass
     CparamBeta = 3 * self%mt2 * CparamBeta
 
   end function CparamBeta
+
+!ccccccccccccccc
+
+  subroutine MatElComputer(self, h1, h2, MatEl, ES)
+    class(MatrixStable), intent(in) :: self
+    real (dp)          , intent(in) :: h1, h2
+
+    real (dp), dimension(2)         :: zPlusMinus
+    real (dp)                       :: y, z, z2, y3, y1, y2, mod1, mod2, DeltaZ, &
+    tauQ, tauE, tauJ, CJ, CE, CQ, CP, rho, rhoE , rhoQ, rhoP, rhoSum, Broadening, &
+    BroadeningE, PNorm, z3, tau, BroadeningQ
+
+    real (dp), dimension( 2), intent(out)     :: MatEl
+    real (dp), dimension(16), intent(out)     :: ES
+
+    y = self%Jacob * h1; zPlusMinus = self%zPlusMinus(y)
+    DeltaZ = zPlusMinus(1) - zPlusMinus(2); z = zPlusMinus(2) + DeltaZ * h2
+
+    z2 = 1 - z; z3 = z * z2;  y3 = 1 - y; MatEl = 0
+
+    mod1 = self%modulus(z, y); mod2 = self%modulus(z2, y); PNorm = (y + mod1 + mod2)/2
+
+    y1 = (  sqrt( 1 - 4 * self%mt2 * (1 - z2**2) ) - z2  )/(1 - z2**2)
+    y2 = (  sqrt( 1 - 4 * self%mt2 * (1 - z**2 ) ) - z   )/(1 - z**2 )
+
+    if ( self%oriented(:2) == 'no' ) then
+
+      MatEl = ( z3 * ( 2 * y3 + y**2 * (1 - 2 * z3) ) + [-4,8] * self%mt4 &
+      - 2 * self%mt2 * (1 + [ - 2 * y3, 4 * y3 - y**2 ] * z3) )/y/z3**2
+
+    else if ( self%oriented(:3) == 'yes' ) then
+
+      if (z >= 0.5_dp .and. y < y1) then
+
+        MatEl = 3 * ( z - 2 * self%mt2 * [z2, 1+z] ) * (z * z2 * y - self%mt2)/z2/z**2/mod2**2/4
+        ! MatEl = 3 * ( z - 2 * self%mt2 * [z2, 1+z] ) * (z * z2 * y - self%mt2)/z2/z**2/[mod2,mod1]**2/4
+
+      else if (z <= 0.5_dp .and. y < y2) then
+
+        MatEl = 3 * ( z2 - 2 * self%mt2 * [z,1+z2] ) * (z * z2 * y - self%mt2)/z/z2**2/[mod2,mod1]**2/4
+
+
+      else
+
+        MatEl = 3 * ( 1 - self%mt2 * (1 + y)/z/z2/y + self%mt4/z**2/z2**2/y )/y/2
+
+      end if
+
+        MatEl =  MatEl + 3 * self%mt2/z/z2 * [(y3 - self%mt2/z/z2)/2/y**2, 0.25_dp]
+
+    end if
+
+! (1 - 4 * m**2) jacobian factor included in matrix elements
+
+    MatEl = DeltaZ * self%Jacob * MatEl
+
+    if (z >= 0.5_dp .and. y < y1) then
+
+      tauJ = 1 - mod2;  tauQ = (y + mod1 - mod2)/2
+
+      tauE = (  1 + y * z2 + y * (1 - 2 * z - y * z2)/mod2 - (1 - y * z) * &
+      (y3 - 4 * self%mt2 - y**2 * z3)/mod1/mod2  )/2
+
+      BroadeningQ = y * sqrt(y3 * z3 - self%mt2)/mod2
+      BroadeningE = BroadeningQ * (1 - y * z + mod1)/mod1/2
+
+      rho  = self%mt2 + y * z2;  rhoSum = self%mt2 + rho
+      rhoQ = y * ( 1 - z * (2 - y) + mod1 )/2
+      rhoE = y * (1 - y * z) * (  ( 1 - z * (2 - y) )/mod1 + 1  )/2
+
+    else if (z <= 0.5 .and. y < y2) then
+
+      tauJ = 1 - mod1;  tauQ = (y + mod2 - mod1)/2
+
+      tauE = (  1 + y * z + y * (1 - 2 * z2 - y * z)/mod1 - (1 - y * z2) * &
+      (y3 - 4 * self%mt2 - y**2 * z3)/mod1/mod2  )/2
+
+      BroadeningQ = y * sqrt(y3 * z3 - self%mt2)/mod1
+      BroadeningE = BroadeningQ * (1 - y * z2 + mod2)/mod2/2
+
+      rho = self%mt2 + y * z;  rhoSum = self%mt2 + rho
+      rhoQ = y * ( 1 - z2 * (2 - y) + mod2 )/2
+      rhoE = y * (1 - y * z2) * ( (1 - z2 * (2 - y) )/mod2 + 1 )/2
+
+    else
+
+      tauJ = y3; rho = y3;  rhoSum = rho
+      rhoQ = (1 - 4 * self%mt2 - y * (1 + y * z3) + mod1 * mod2)/2
+
+      rhoE = (1 - y * z) * (1 - y * z2) * ( 1 + (1 - 4 * self%mt2 - y - y**2 * z3)/mod1/mod2 )/2
+
+      tauQ = (mod1 + mod2 - y)/2
+
+      tauE = (  2 - y - ( 1 -  z * (2 - y) ) * mod1/(1 - y * z )    &
+                      - ( 1 - z2 * (2 - y) ) * mod2/(1 - y * z2)  )/2
+
+      BroadeningQ = sqrt(y3 * z3 - self%mt2)
+      BroadeningE = BroadeningQ * ( (1 - y * z)/mod1 + (1 - y * z2)/mod2 )/2
+
+    end if
+
+    tau = tauQ/PNorm;  Broadening = BroadeningQ/PNorm
+
+    CE = y * (y3 * z3 - self%mt2)/mod1**2/mod2**2 * &
+         ( 1 - 2 * self%mt2 * (2 - y) - y + y**2 *z3 )
+
+    CJ = (z3 * y * y3 + 2 * self%mt2 * y3 - 2 * self%mt4)/(y3 + z3 * y**2)
+    CQ = y * (y3 * z3 - self%mt2) * (mod1 + mod2 + y)/mod1/mod2/2
+    CP = CQ/PNorm**2; rhoP = rhoQ/PNorm**2
+
+    ES = [ tau, tauQ, tauE, tauJ, CJ, CE, CQ, CP, rho, rhoE, rhoQ, &
+           rhoP, rhoSum, Broadening, BroadeningQ, BroadeningE ]
+
+  end subroutine MatElComputer
+
+!ccccccccccccccc
+
+  function zPlusMinus(self, y) result(z)
+    class(MatrixStable), intent(in) :: self
+    real (dp)          , intent(in) :: y
+    real (dp), dimension(2)         :: z
+    real (dp)                       :: root
+
+    root = sqrt( 1 - 4 * self%mt2/(1 - y) );   z = [1 + root, 1 - root]/2
+
+  end function zPlusMinus
+
+!ccccccccccccccc
+
+  subroutine ZY(self, h1, h2, res)
+    class(MatrixStable)    , intent(in)  :: self
+    real (dp)              , intent(in)  :: h1, h2
+    real (dp), dimension(2), intent(out) :: res
+    real (dp), dimension(2)              :: zPlusMinus
+
+    res(1) = self%Jacob * h1; zPlusMinus = self%zPlusMinus( res(1) )
+    res(2) = zPlusMinus(2) + ( zPlusMinus(1) - zPlusMinus(2) ) * h2
+
+  end subroutine ZY
+
+!ccccccccccccccc
+
+  real (dp) function modulus(self, z, y)
+    class(MatrixStable), intent(in) :: self
+    real (dp)          , intent(in) :: y, z
+
+      modulus = sqrt( (1 - y * z)**2 - 4 * self%mt2 )
+
+  end function modulus
+
+!ccccccccccccccc
+
+  function ESmax(self) result(ES)
+    class(MatrixStable), intent(in) :: self
+    real (dp), dimension(16)        :: ES
+    real (dp)                       :: root1, root2
+
+    root1 = Sqrt(1 - 3 * self%mt2); root2 = Sqrt(5 - 12 * self%mt2 - 4 * root1)
+
+    ES(:4) = [ 1._dp, 2 * root1 - 1, (10 - 6 * self%mt2 - 8 * root1 + root2 - &
+               2 * root1 * root2)/(2 - root1), 5 - 4 * sqrt(1 - 3 * self%mt2) ]/3
+
+    if (self%mt < mth) then
+
+      ES(5) = (1 + 16 * self%mt2 + 32 * self%mt4)/(1 + 2 * self%mt2)**2/8
+
+    else
+
+      ES(5) = 4 * self%mt2 * (1 + 2 * self%mt2)/(1 + 4 * self%mt2)**2
+
+    end if
+
+    ES(6:14) = [ 0.125_dp, (5 - 12 * self%mt2 - 4 * root1 * (1 - root2) - 2 * root2)/24,  &
+               0.125_dp, ES(4), (root1 - 2)**2/3, (1 - 2 * root1) * (1 - 2 * root1 - 2 * &
+               root2)/9, 1._dp/3, ES(4), 1/sqrt3/2 ]
+
+    ES(15:) = [ 2 * root1 - 1, 2 - root1 ] * ES(14)
+
+  end function ESmax
+
+!ccccccccccccccc
+
+  function ESmin(self) result(ES)
+    class(MatrixStable), intent(in) :: self
+
+    real (dp), dimension(16)        :: ES
+
+    ES      =   0; ES(9) = self%mt2; ES(13)  = 2 * self%mt2
+    ES(4:5) = [ 1 - sqrt(self%Jacob), 12 * self%mt2 * (1 - self%mt2)/6 ]
+
+  end function ESmin
 
 !ccccccccccccccc
 
