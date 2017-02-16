@@ -24,12 +24,14 @@
 :Evaluate:  Vectors6::usage = "Vectors6[x, mt, mb, mW, Q] computes the value 6 four-vectors for top decay"
 :Evaluate:  RestVectors4::usage = "Vectors4[x, mt, mb, mW, Q] computes the value 4 four-vectors for top decay, in the top rest frame"
 :Evaluate:  RestVectors6::usage = "Vectors6[x, mt, mb, mW, Q] computes the value 6 four-vectors for top decay, in the top rest frame"
-:Evaluate:  ESMinMax4::usage = "ESMinMax4[n, mt, mb, mW, Q] computes the maximum and minimum value for Event shapes with 2-particle final state"
-:Evaluate:  ESMinMax6::usage = "ESMinMax6[n, mt, mb, mW, Q] computes the maximum and minimum value for Event shapes with 3-particle final state"
-:Evaluate:  CparamMinMax4::usage = "CparamMinMax4[n, mt, mb, mW, Q] computes the maximum and minimum value for the C-parameter Event shape with 2-particle final state"
-:Evaluate:  CparamMinMax6::usage = "CparamMinMax6[n, mt, mb, mW, Q] computes the maximum and minimum value for the C-parameter Event shape with 3-particle final state"
-:Evaluate:  CparamMaxMin4::usage = "CparamMaxMin4[eps, mt, mb, mW, Q] computes the maximum and minimim values and locations for the C-parameter Event shape with 2-particle final state"
-:Evaluate:  CparamMaxMin6::usage = "CparamMaxMin6[eps, mt, mb, mW, Q] computes the maximum and minimim values and locations for the C-parameter Event shape with 3-particle final state"
+:Evaluate:  ESMinMax4::usage = "ESMinMax4[n, mt, mb, mW, Q] computes the maximum and minimum value for Event shapes with 4-particle final state"
+:Evaluate:  ESMinMax6::usage = "ESMinMax6[n, mt, mb, mW, Q] computes the maximum and minimum value for Event shapes with 6-particle final state"
+:Evaluate:  CparamMinMax4::usage = "CparamMinMax4[n, mt, mb, mW, Q] computes the maximum and minimum value for the C-parameter Event shape with 4-particle final state"
+:Evaluate:  CparamMinMax6::usage = "CparamMinMax6[n, mt, mb, mW, Q] computes the maximum and minimum value for the C-parameter Event shape with 6-particle final state"
+:Evaluate:  CparamMaxMin4::usage = "CparamMaxMin4[eps, mt, mb, mW, Q] computes the maximum and minimim values and locations for the C-parameter Event shape with 4-particle final state"
+:Evaluate:  CparamMaxMin6::usage = "CparamMaxMin6[eps, mt, mb, mW, Q] computes the maximum and minimim values and locations for the C-parameter Event shape with 6-particle final state"
+:Evaluate:  ESMaxMin6::usage = "ESMaxMin6[eps, mt, mb, mW, Q] computes the maximum and minimim values and locations for Event shapes with 4-particle final state"
+:Evaluate:  ESMaxMin4::usage = "ESMaxMin4[eps, mt, mb, mW, Q] computes the maximum and minimim values and locations for Event shapes with 6-particle final state"
 :Evaluate:  ESMax::usage = "ESMax[m,Q] computes the maximal value of the event shape"
 :Evaluate:  ESMin::usage = "ESMin[m,Q] computes the minimal value of the event shape"
 
@@ -165,6 +167,22 @@
 :Begin:
 :Function:      cparammaxmin4
 :Pattern:       CparamMaxMin4[eps_, mt_, mb_, mW_, Q_]
+:Arguments:     {eps, mt, mb, mW, Q}
+:ArgumentTypes: {Real, Real, Real, Real, Real}
+:ReturnType:    Manual
+:End:
+
+:Begin:
+:Function:      esmaxmin4
+:Pattern:       ESMaxMin4[eps_, mt_, mb_, mW_, Q_]
+:Arguments:     {eps, mt, mb, mW, Q}
+:ArgumentTypes: {Real, Real, Real, Real, Real}
+:ReturnType:    Manual
+:End:
+
+:Begin:
+:Function:      esmaxmin6
+:Pattern:       ESMaxMin6[eps_, mt_, mb_, mW_, Q_]
 :Arguments:     {eps, mt, mb, mW, Q}
 :ArgumentTypes: {Real, Real, Real, Real, Real}
 :ReturnType:    Manual
@@ -455,6 +473,21 @@ static void cparammaxmin6(double eps, double mt, double mb, double mW, double Q)
    MLEndPacket(stdlink);
 }
 
+extern double f90esmaxmin6_(double* eps, double* mt, double* mb, double* mW, double* Q, double* res);
+
+static void esmaxmin6(double eps, double mt, double mb, double mW, double Q){
+  double res[128];
+
+   f90esmaxmin6_(&eps, &mt, &mb, &mW, &Q, res);
+
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutRealList(stdlink, res, 128);
+   MLPutInteger(stdlink, 64);
+   MLPutInteger(stdlink, 8);
+   MLEndPacket(stdlink);
+}
+
 extern double f90cparammaxmin4_(double* eps, double* mt, double* mb, double* mW, double* Q, double* res);
 
 static void cparammaxmin4(double eps, double mt, double mb, double mW, double Q){
@@ -464,6 +497,21 @@ static void cparammaxmin4(double eps, double mt, double mb, double mW, double Q)
 
    MLPutFunction(stdlink, "Partition", 2);
    MLPutRealList(stdlink, res, 8);
+   MLPutInteger(stdlink, 4);
+   MLEndPacket(stdlink);
+}
+
+extern double f90esmaxmin4_(double* eps, double* mt, double* mb, double* mW, double* Q, double* res);
+
+static void esmaxmin4(double eps, double mt, double mb, double mW, double Q){
+  double res[64];
+
+   f90esmaxmin4_(&eps, &mt, &mb, &mW, &Q, res);
+
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutRealList(stdlink, res, 64);
+   MLPutInteger(stdlink, 32);
    MLPutInteger(stdlink, 4);
    MLEndPacket(stdlink);
 }
