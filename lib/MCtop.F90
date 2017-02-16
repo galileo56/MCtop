@@ -13,43 +13,130 @@ module MCtopClass
 
 !ccccccccccccccc
 
-  type MCtop
+  type, abstract, public :: MCtop
     integer                    , private              :: Nbins, Nevent, Niter
     class (MatrixElements)     , private, allocatable :: MatEl
     real (dp), dimension(:,:  ), private, allocatable :: ES
-    real (dp), dimension(8    ), private              :: ESmax, ESmin, delta
-    character (len = 8)        , private              :: spin, current
-    integer                    , private              :: dimX, dimP
+    real (dp), dimension(:)    , private, allocatable :: ESmax, ESmin, delta
+    integer                    , private              :: dimX, dimP, dimES
 
   contains
 
-    final                                             :: delete_object
-    procedure, private                                :: callVegas, callVegasCparam
-    procedure, public                                 :: List, ListCparam, ESlist, CparamList, &
-                                                         LegendreInt, LegendreDistro
+    procedure, private                                :: callVegas
+    procedure, public                                 :: List, ESlist
+
   end type MCtop
 
 !ccccccccccccccc
 
-  interface MCtop
+  type, extends (MCtop), public :: MCtopUnstable
+    private
+    character (len = 8)        , private              :: spin, current
+
+  contains
+
+    final                                             :: delete_object
+    procedure, private                                :: callVegasCparam
+    procedure, public                                 :: LegendreInt, LegendreDistro, CparamList, ListCparam
+
+  end type MCtopUnstable
+
+!ccccccccccccccc
+
+  type, extends (MCtop), public :: MCStable
+    private
+    integer                            , private    :: Nlog
+    real (dp), dimension(:,:), private, allocatable :: ESlog
+    real (dp), dimension(16 ), private              :: logMin, DeltaLog, logMax
+
+   contains
+
+    final                                                   :: delete_stable
+    ! procedure                                               :: ListLinLog
+
+  end type MCStable
+
+!ccccccccccccccc
+
+  interface MCtopUnstable
     module procedure InMCtop
-  end interface MCtop
+  end interface MCtopUnstable
+
+!ccccccccccccccc
+
+  interface MCStable
+    module procedure InitEvent1
+  end interface MCStable
 
   contains
 
 !ccccccccccccccc
 
    subroutine delete_object(this)
-     type (MCtop) :: this
+     type (MCtopUnstable) :: this
 
      if ( allocated(this%ES   ) ) deallocate(this%ES  )
+     if ( allocated(this%ESMin) ) deallocate(this%ESMin  )
+     if ( allocated(this%ESMax) ) deallocate(this%ESMax  )
      if ( allocated(this%MatEl) ) deallocate(this%MatEl  )
+     if ( allocated(this%delta) ) deallocate(this%delta  )
 
    end subroutine delete_object
 
 !ccccccccccccccc
 
-   type (MCtop) function InMCtop(MatEl, Spin, current, ESmin, ESmax, Nbins, Nevent, Niter)
+   subroutine delete_stable(this)
+     type (MCStable) :: this
+
+     if ( allocated(this%ES   ) ) deallocate(this%ES  )
+     if ( allocated(this%ESMin) ) deallocate(this%ESMin  )
+     if ( allocated(this%ESMax) ) deallocate(this%ESMax  )
+     if ( allocated(this%MatEl) ) deallocate(this%MatEl  )
+     if ( allocated(this%ESlog) ) deallocate(this%ESlog  )
+     if ( allocated(this%delta) ) deallocate(this%delta  )
+
+   end subroutine delete_stable
+
+!ccccccccccccccc
+
+   type (MCStable) function InitEvent1(MatEl, Nbins, Nlog, Nevent, Niter)
+     integer            , intent(in) :: Nbins, Nlog, Nevent, Niter
+     type (MatrixStable), intent(in) :: MatEl
+     real (dp)       , dimension(16) :: DeltaES, DeltaLog, ESMin, ESMax, LogMin, LogMax, delta
+     integer                         :: i
+
+     InitEvent1%Nbins  = Nbins   ; InitEvent1%Nlog  = Nlog; InitEvent1%dimES = 16
+     InitEvent1%Nevent = Nevent  ; InitEvent1%Niter = Niter
+
+     allocate( MatrixStable :: InitEvent1%MatEl )
+     select type (selector => InitEvent1%MatEl)
+       type is (MatrixStable);  selector = MatEl
+     end select
+
+     allocate( InitEvent1%ES(Nbins, 16), InitEvent1%ESlog(Nlog, 16) )
+     allocate( InitEvent1%ESMin(16), InitEvent1%ESMax(16), InitEvent1%delta(16) )
+
+     ESMin  = MatEl%ESMin();  ESmax  = MatEl%ESMax();  Delta    = (ESmax  - ESmin )/Nbins
+     LogMin = - 5          ;  LogMax = 1            ;  DeltaLog = (LogMax - LogMin)/Nlog
+
+     InitEvent1%Delta = Delta;  InitEvent1%DeltaLog = DeltaLog
+
+     do i = 1, Nbins
+       InitEvent1%ES(i,:) = ESMin + Delta * (2 * i - 1)/2
+     end do
+
+     do i = 1, Nlog
+       InitEvent1%ESlog(i,:) = LogMin + DeltaLog * (2 * i - 1)/2
+     end do
+
+     InitEvent1%ESMin  = ESMin ; InitEvent1%ESmax  = ESmax
+     InitEvent1%LogMin = - 5   ; InitEvent1%LogMax = 1
+
+   end function InitEvent1
+
+!ccccccccccccccc
+
+   type (MCtopUnstable) function InMCtop(MatEl, Spin, current, ESmin, ESmax, Nbins, Nevent, Niter)
      class (MatrixElements) , intent(in) :: MatEl
      character (len = *)    , intent(in) :: Spin, current
      integer                , intent(in) :: Nbins, Nevent, Niter
@@ -57,10 +144,10 @@ module MCtopClass
      real (dp), dimension(8)             :: delta
      integer                             :: i
 
-     InMCtop%Nbins = Nbins ; InMCtop%Nevent  = Nevent ; InMCtop%Niter = Niter
-     InMCtop%Spin  = Spin  ; InMCtop%current = current;  InMCtop%ESmin = ESmin
+     allocate( InMCtop%ES(Nbins, 8),  InMCtop%ESMin(8), InMCtop%ESMax(8), InMCtop%delta(8) )
 
-     allocate( InMCtop%ES(Nbins, 8) )
+     InMCtop%Nbins = Nbins ; InMCtop%Nevent  = Nevent ; InMCtop%Niter = Niter
+     InMCtop%Spin  = Spin  ; InMCtop%current = current; InMCtop%ESmin = ESmin
 
      select type (MatEl)
      type is (MatrixElements6)
@@ -82,25 +169,27 @@ module MCtopClass
        InMCtop%ES(i,:) = ESmin + Delta * (2 * i - 1)/2
      end do
 
+     InMCtop%dimES = 8
+
    end function InMCtop
 
 !ccccccccccccccc
 
-  subroutine callVegas(self, method, dist, dist2)
-    class (MCtop), intent(in)                        :: self
-    character (len = *)             , intent(in)     :: method
-    real (dp), dimension(self%Nbins, 8), intent(out) :: dist , dist2
-    real (dp), dimension(self%Nbins, 8, self%Niter)  :: distTot , distTot2
-    real (dp), dimension(self%dimX)                  :: y
-    real (dp)                                        :: AVGI, SD, CHI2A
-    integer                                          :: i, j, n, iter
+  subroutine callVegas(self, method, dist)
+    class (MCtop), intent(in)                           :: self
+    character (len = *)                   , intent(in)  :: method
+    real (dp), dimension(self%Nbins, 8, 2), intent(out) :: dist
+    real (dp), dimension(self%Nbins, 8, self%Niter)     :: distTot , distTot2
+    real (dp), dimension(self%dimX)                     :: y
+    real (dp)                                           :: AVGI, SD, CHI2A
+    integer                                             :: i, j, n, iter
 
     NPRN = - 1; ITMX = 1; NCall = self%Nevent; iter = 1
     if (self%dimX <= 3) iter = 0; distTot = 0; distTot2 = 0
 
     do j = 1, self%Niter
 
-      dist = 0;  dist2 = 0
+      dist = 0
 
       if ( method(:5) == 'vegas' ) then
         if (j > 1 .and. self%dimX > 3) iter = 2
@@ -110,30 +199,31 @@ module MCtopClass
           call Random_number(y)
           AVGI = AVGI + FunMatEl(y, 1._dp)
         end do
-        AVGI = AVGI/self%Nevent; dist = dist/self%Nevent; dist2 = dist2/self%Nevent
+        AVGI = AVGI/self%Nevent; dist = dist/self%Nevent
       end if
 
       do i = 1, 8
 
-        distTot(:,i,j) = dist(:,i)/self%Delta(i)
+        distTot(:,i,j) = dist(:,i,1)/self%Delta(i)
 
-        distTot2(:,i,j) = sqrt(  ( dist2(:,i)/self%Delta(i)**2 - &
+        distTot2(:,i,j) = sqrt(  ( dist(:,i,2)/self%Delta(i)**2 - &
                                 distTot(:,i,j)**2 )/self%Nevent  )
       end do
     end do
 
-    dist = 0;  dist2 = 0;  distTot2 = 1/distTot2**2
+    dist = 0;  distTot2 = 1/distTot2**2
 
     do j = 1, self%Niter
-      dist  = dist  + distTot (:,:,j) * distTot2(:,:,j)
-      dist2 = dist2 + distTot2(:,:,j)
+      dist(:,:,1) = dist(:,:,1) + distTot (:,:,j) * distTot2(:,:,j)
+      dist(:,:,2) = dist(:,:,2) + distTot2(:,:,j)
     end do
 
-    dist2 = 1/dist2;  dist = dist * dist2;  dist2 = sqrt(dist2)
+    dist(:,:,2) = 1/dist(:,:,2);  dist(:,:,1) = dist(:,:,1) * dist(:,:,2)
+    dist(:,:,2) = sqrt(dist(:,:,2))
 
     do i = 1, 8
       do j = 1, self%Nbins
-        if ( dist2(j,i) <= tiny(1._dp) ) dist(j,i) = 0
+        if ( dist(j,i,2) <= tiny(1._dp) ) dist(j,i,1) = 0
       enddo
     end do
 
@@ -149,8 +239,12 @@ module MCtopClass
       real (dp), dimension(self%dimP,4)           :: p
       integer                                     :: l
 
-      p = self%MatEl%GenerateVectors(x); ES = EScomputer(p)
-      FunMatEl = self%MatEl%SpinWeight(self%spin, self%current, p)
+      select type (self)
+      type is (MCtopUnstable)
+        p = self%MatEl%GenerateVectors(x); ES = EScomputer(p)
+        FunMatEl = self%MatEl%SpinWeight(self%spin, self%current, p)
+      end select
+
       k = Ceiling( self%Nbins * (ES - self%ESmin )/(self%ESmax - self%ESmin ) )
 
       do l = 1, 8
@@ -159,8 +253,8 @@ module MCtopClass
         if ( k(l) >  self%Nbins ) k(l) = self%Nbins
 
         if ( k(l) > 0 ) then
-          dist ( k(l), l ) = dist ( k(l), l ) + wgt * FunMatEl
-          dist2( k(l), l ) = dist2( k(l), l ) + wgt * FunMatEl**2
+          dist( k(l), l, 1 ) = dist( k(l), l, 1 ) + wgt * FunMatEl
+          dist( k(l), l, 2 ) = dist( k(l), l, 2 ) + wgt * FunMatEl**2
         end if
 
       end do
@@ -174,7 +268,7 @@ module MCtopClass
 !ccccccccccccccc
 
  function LegendreInt(self, n, expand, method) result(list)
-    class (MCtop)            , intent(in) :: self
+    class (MCtopUnstable)    , intent(in) :: self
     integer                  , intent(in) :: n
     character (len = *)      , intent(in) :: expand, method
     real (dp), dimension(0:n, self%Niter) :: distTot, distTot2
@@ -263,12 +357,12 @@ module MCtopClass
 !ccccccccccccccc
 
  subroutine LegendreDistro(self, n, expand, method, dist, list)
-    class (MCtop)                     , intent(in)  :: self
+    class (MCtopUnstable)             , intent(in)  :: self
     integer                           , intent(in)  :: n
     character (len = *)               , intent(in)  :: expand, method
     real (dp), dimension(self%Nbins,3), intent(out) :: dist
     real (dp), dimension(0:n,2)       , intent(out) :: list
-    real (dp), dimension(self%Nbins, self%Niter)    :: distTot , distTot2
+    real (dp), dimension(self%Nbins, self%Niter)    :: distTot, distTot2
     real (dp), dimension(0:n, self%Niter)           :: listTot, listTot2
     real (dp), dimension(self%dimX)                 :: y
     real (dp)                                       :: AVGI, SD, CHI2A
@@ -375,21 +469,21 @@ module MCtopClass
 
 !ccccccccccccccc
 
-  subroutine callVegasCparam(self, expand, method, dist, dist2)
-    class (MCtop)                   , intent(in)  :: self
-    character (len = *)             , intent(in)  :: expand, method
-    real (dp), dimension(self%Nbins), intent(out) :: dist , dist2
-    real (dp), dimension(self%Nbins, self%Niter)  :: distTot , distTot2
-    real (dp), dimension(self%dimX)               :: y
-    real (dp)                                     :: AVGI, SD, CHI2A
-    integer                                       :: i, j, iter
+  subroutine callVegasCparam(self, expand, method, dist)
+    class (MCtopUnstable)              , intent(in)  :: self
+    character (len = *)                , intent(in)  :: expand, method
+    real (dp), dimension(self%Nbins, 2), intent(out) :: dist
+    real (dp), dimension(self%Nbins, self%Niter)     :: distTot , distTot2
+    real (dp), dimension(self%dimX)                  :: y
+    real (dp)                                        :: AVGI, SD, CHI2A
+    integer                                          :: i, j, iter
 
     NPRN = - 1; ITMX = 1; NCall = self%Nevent; iter = 1
     if (self%dimX <= 3) iter = 0; distTot = 0; distTot2 = 0
 
     do j = 1, self%Niter
 
-      dist = 0;  dist2 = 0; if (j > 1 .and. self%dimX > 3) iter = 2
+      dist = 0;  if (j > 1 .and. self%dimX > 3) iter = 2
       if ( method(:5) == 'vegas' ) then
         call VEGAS(self%dimX, FunMatEl, AVGI, SD, CHI2A, iter)
       else
@@ -399,26 +493,27 @@ module MCtopClass
           AVGI = AVGI + FunMatEl(y, 1._dp)
         end do
 
-        AVGI = AVGI/self%Nevent; dist = dist/self%Nevent; dist2 = dist2/self%Nevent
+        AVGI = AVGI/self%Nevent; dist = dist/self%Nevent
       end if
 
-      distTot(:,j) = dist(:)/self%Delta(5)
+      distTot(:,j) = dist(:,1)/self%Delta(5)
 
-      distTot2(:,j) = sqrt(  ( dist2(:)/self%Delta(5)**2 - &
+      distTot2(:,j) = sqrt(  ( dist(:,2)/self%Delta(5)**2 - &
                               distTot(:,j)**2 )/self%Nevent  )
     end do
 
-    dist = 0;  dist2 = 0;  distTot2 = 1/distTot2**2
+    dist = 0;  distTot2 = 1/distTot2**2
 
     do j = 1, self%Niter
-      dist  = dist  + distTot (:,j) * distTot2(:,j)
-      dist2 = dist2 + distTot2(:,j)
+      dist(:,1) = dist(:,1) + distTot (:,j) * distTot2(:,j)
+      dist(:,2) = dist(:,2) + distTot2(:,j)
     end do
 
-    dist2 = 1/dist2;  dist = dist * dist2;  dist2 = sqrt(dist2)
+    dist(:,2) = 1/dist(:,2);  dist(:,1) = dist(:,1) * dist(:,2)
+    dist(:,2) = sqrt( dist(:,2) )
 
     do j = 1, self%Nbins
-      if ( dist2(j) <= d1mach(1) ) dist(j) = 0
+      if ( dist(j,2) <= d1mach(1) ) dist(j,1) = 0
     enddo
 
   contains
@@ -445,8 +540,8 @@ module MCtopClass
       if ( k >  self%Nbins ) k = self%Nbins
 
       if ( k > 0 ) then
-        dist (k) = dist (k) + wgt * FunMatEl
-        dist2(k) = dist2(k) + wgt * FunMatEl**2
+        dist(k,1) = dist(k,1) + wgt * FunMatEl
+        dist(k,2) = dist(k,2) + wgt * FunMatEl**2
       end if
 
     end function FunMatEl
@@ -458,8 +553,8 @@ module MCtopClass
 !ccccccccccccccc
 
   function ESList(self) result(dist)
-    class (MCtop) , intent(in)          :: self
-    real (dp), dimension(self%Nbins, 8) :: dist
+    class (MCtop)                  , intent(in)  :: self
+    real (dp), dimension(self%Nbins, self%dimES) :: dist
 
     dist = self%ES
 
@@ -468,8 +563,8 @@ module MCtopClass
 !ccccccccccccccc
 
   function CparamList(self) result(dist)
-    class (MCtop) , intent(in)       :: self
-    real (dp), dimension(self%Nbins) :: dist
+    class (MCtopUnstable) , intent(in) :: self
+    real (dp), dimension(self%Nbins)   :: dist
 
     dist = self%ES(:,5)
 
@@ -478,24 +573,24 @@ module MCtopClass
 !ccccccccccccccc
 
   function List(self, method) result(dist)
-    class (MCtop)             , intent(in) :: self
-    character (len = *)       , intent(in) :: method
-    real (dp), dimension(self%Nbins, 8, 3) :: dist
+    class (MCtop)                      , intent(in) :: self
+    character (len = *)                , intent(in) :: method
+    real (dp), dimension(self%Nbins, self%dimES, 3) :: dist
 
     dist(:,:,1  ) = self%ES
-    call self%callVegas( method, dist(:,:,2), dist(:,:,3)  )
+    call self%callVegas( method, dist(:,:,2:3)  )
 
   end function List
 
 !ccccccccccccccc
 
   function ListCparam(self, expand, method) result(dist)
-    class (MCtop)          , intent(in) :: self
+    class (MCtopUnstable)  , intent(in) :: self
     character (len = *)    , intent(in) :: expand, method
     real (dp), dimension(self%Nbins, 3) :: dist
 
     dist(:,1) = self%ES(:,5)
-    call self%callVegasCparam( expand, method, dist(:,2), dist(:,3)  )
+    call self%callVegasCparam( expand, method, dist(:,2:3)  )
 
   end function ListCparam
 

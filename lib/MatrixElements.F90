@@ -41,7 +41,7 @@ module MatrixElementsClass
   type, extends (MatrixElements), public ::  MatrixStable
     private
 
-    real     (dp), private :: Jacob
+    real(dp)           , private :: Jacob
     character (len = 6), private :: oriented
 
   contains
@@ -653,7 +653,6 @@ module MatrixElementsClass
       if (z >= 0.5_dp .and. y < y1) then
 
         MatEl = 3 * ( z - 2 * self%mt2 * [z2, 1+z] ) * (z * z2 * y - self%mt2)/z2/z**2/mod2**2/4
-        ! MatEl = 3 * ( z - 2 * self%mt2 * [z2, 1+z] ) * (z * z2 * y - self%mt2)/z2/z**2/[mod2,mod1]**2/4
 
       else if (z <= 0.5_dp .and. y < y2) then
 
