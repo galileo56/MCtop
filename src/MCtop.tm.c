@@ -289,7 +289,7 @@ MLYDEFN( devyield_result, MLDefaultYielder, ( MLINK mlp, MLYieldParameters yp))
 /********************************* end header *********************************/
 
 
-# line 264 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm"
+# line 275 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm"
 #include "mathlink.h"
 #include "ftypes.h"
 #include <stdio.h>
@@ -604,6 +604,29 @@ static void esdistributions(double mt, double mb, double mW, double Q,
 
 }
 
+extern double f90eslegendre_(double* mt, double* mb, double* mW, double* Q,
+char const* method, char const* spin, char const* decay, char const* current,
+double* ESmin, double* ESmax, int* n, int* Nevent, int* Niter, double* res);
+
+static void eslegendre(double mt, double mb, double mW, double Q,
+  char const* method, char const* spin, char const* decay, char const* current,
+  double ESmin[], long lenmin, double ESmax[], long lenmax, int n, int Nevent,
+  int Niter){
+  double res[16 * (n + 1) ];
+
+   f90eslegendre_(&mt, &mb, &mW, &Q, method, spin, decay, current, ESmin,
+     ESmax, &n, &Nevent, &Niter, res);
+
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutFunction(stdlink, "Transpose", 1);
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutRealList(stdlink, res, 16 * (n + 1) );
+   MLPutInteger(stdlink ,       8 * (n + 1) );
+   MLPutInteger(stdlink ,           (n + 1) );
+   MLEndPacket(stdlink);
+
+}
+
 extern double f90eslist_(double* mt, double* mb, double* mW, double* Q, double* ESmin,
                          double* ESmax, int* Nbins, double* res);
 
@@ -664,7 +687,7 @@ static void vectors6(double x[], long clen, double mt, double mb, double mW, dou
 int main(int argc, char *argv[]){
     return MLMain(argc, argv);
 }
-# line 668 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm.c"
+# line 691 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm.c"
 
 
 void esmin P(( double _tp1, double _tp2));
@@ -1005,12 +1028,65 @@ L0:	return res;
 } /* _tr8 */
 
 
-void eslist P(( double _tp1, double _tp2, double _tp3, double _tp4, double * _tp5, long _tpl5, double * _tp6, long _tpl6, int _tp7));
+void eslegendre P(( double _tp1, double _tp2, double _tp3, double _tp4, const char * _tp5, const char * _tp6, const char * _tp7, const char * _tp8, double * _tp9, long _tpl9, double * _tp10, long _tpl10, int _tp11, int _tp12, int _tp13));
 
 #if MLPROTOTYPES
 static int _tr9( MLINK mlp)
 #else
 static int _tr9(mlp) MLINK mlp;
+#endif
+{
+	int	res = 0;
+	double _tp1;
+	double _tp2;
+	double _tp3;
+	double _tp4;
+	const char * _tp5;
+	const char * _tp6;
+	const char * _tp7;
+	const char * _tp8;
+	double * _tp9;
+	long _tpl9;
+	double * _tp10;
+	long _tpl10;
+	int _tp11;
+	int _tp12;
+	int _tp13;
+	if ( ! MLGetReal( mlp, &_tp1) ) goto L0;
+	if ( ! MLGetReal( mlp, &_tp2) ) goto L1;
+	if ( ! MLGetReal( mlp, &_tp3) ) goto L2;
+	if ( ! MLGetReal( mlp, &_tp4) ) goto L3;
+	if ( ! MLGetString( mlp, &_tp5) ) goto L4;
+	if ( ! MLGetString( mlp, &_tp6) ) goto L5;
+	if ( ! MLGetString( mlp, &_tp7) ) goto L6;
+	if ( ! MLGetString( mlp, &_tp8) ) goto L7;
+	if ( ! MLGetRealList( mlp, &_tp9, &_tpl9) ) goto L8;
+	if ( ! MLGetRealList( mlp, &_tp10, &_tpl10) ) goto L9;
+	if ( ! MLGetInteger( mlp, &_tp11) ) goto L10;
+	if ( ! MLGetInteger( mlp, &_tp12) ) goto L11;
+	if ( ! MLGetInteger( mlp, &_tp13) ) goto L12;
+	if ( ! MLNewPacket(mlp) ) goto L13;
+
+	eslegendre(_tp1, _tp2, _tp3, _tp4, _tp5, _tp6, _tp7, _tp8, _tp9, _tpl9, _tp10, _tpl10, _tp11, _tp12, _tp13);
+
+	res = 1;
+L13: L12: L11: L10:	MLReleaseReal64List(mlp, _tp10, _tpl10);
+L9:	MLReleaseReal64List(mlp, _tp9, _tpl9);
+L8:	MLReleaseString(mlp, _tp8);
+L7:	MLReleaseString(mlp, _tp7);
+L6:	MLReleaseString(mlp, _tp6);
+L5:	MLReleaseString(mlp, _tp5);
+L4: L3: L2: L1: 
+L0:	return res;
+} /* _tr9 */
+
+
+void eslist P(( double _tp1, double _tp2, double _tp3, double _tp4, double * _tp5, long _tpl5, double * _tp6, long _tpl6, int _tp7));
+
+#if MLPROTOTYPES
+static int _tr10( MLINK mlp)
+#else
+static int _tr10(mlp) MLINK mlp;
 #endif
 {
 	int	res = 0;
@@ -1039,15 +1115,15 @@ L7: L6:	MLReleaseReal64List(mlp, _tp6, _tpl6);
 L5:	MLReleaseReal64List(mlp, _tp5, _tpl5);
 L4: L3: L2: L1: 
 L0:	return res;
-} /* _tr9 */
+} /* _tr10 */
 
 
 void esliststable P(( double _tp1, double _tp2, int _tp3));
 
 #if MLPROTOTYPES
-static int _tr10( MLINK mlp)
+static int _tr11( MLINK mlp)
 #else
-static int _tr10(mlp) MLINK mlp;
+static int _tr11(mlp) MLINK mlp;
 #endif
 {
 	int	res = 0;
@@ -1064,15 +1140,15 @@ static int _tr10(mlp) MLINK mlp;
 	res = 1;
 L3: L2: L1: 
 L0:	return res;
-} /* _tr10 */
+} /* _tr11 */
 
 
 void escomputer P(( double * _tp1, long _tpl1));
 
 #if MLPROTOTYPES
-static int _tr11( MLINK mlp)
+static int _tr12( MLINK mlp)
 #else
-static int _tr11(mlp) MLINK mlp;
+static int _tr12(mlp) MLINK mlp;
 #endif
 {
 	int	res = 0;
@@ -1087,15 +1163,15 @@ static int _tr11(mlp) MLINK mlp;
 L1:	MLReleaseReal64List(mlp, _tp1, _tpl1);
 
 L0:	return res;
-} /* _tr11 */
+} /* _tr12 */
 
 
 void esminmax4 P(( int _tp1, double _tp2, double _tp3, double _tp4, double _tp5));
 
 #if MLPROTOTYPES
-static int _tr12( MLINK mlp)
+static int _tr13( MLINK mlp)
 #else
-static int _tr12(mlp) MLINK mlp;
+static int _tr13(mlp) MLINK mlp;
 #endif
 {
 	int	res = 0;
@@ -1116,39 +1192,10 @@ static int _tr12(mlp) MLINK mlp;
 	res = 1;
 L5: L4: L3: L2: L1: 
 L0:	return res;
-} /* _tr12 */
-
-
-void cparammaxmin4 P(( double _tp1, double _tp2, double _tp3, double _tp4, double _tp5));
-
-#if MLPROTOTYPES
-static int _tr13( MLINK mlp)
-#else
-static int _tr13(mlp) MLINK mlp;
-#endif
-{
-	int	res = 0;
-	double _tp1;
-	double _tp2;
-	double _tp3;
-	double _tp4;
-	double _tp5;
-	if ( ! MLGetReal( mlp, &_tp1) ) goto L0;
-	if ( ! MLGetReal( mlp, &_tp2) ) goto L1;
-	if ( ! MLGetReal( mlp, &_tp3) ) goto L2;
-	if ( ! MLGetReal( mlp, &_tp4) ) goto L3;
-	if ( ! MLGetReal( mlp, &_tp5) ) goto L4;
-	if ( ! MLNewPacket(mlp) ) goto L5;
-
-	cparammaxmin4(_tp1, _tp2, _tp3, _tp4, _tp5);
-
-	res = 1;
-L5: L4: L3: L2: L1: 
-L0:	return res;
 } /* _tr13 */
 
 
-void cparammaxmin6 P(( double _tp1, double _tp2, double _tp3, double _tp4, double _tp5));
+void cparammaxmin4 P(( double _tp1, double _tp2, double _tp3, double _tp4, double _tp5));
 
 #if MLPROTOTYPES
 static int _tr14( MLINK mlp)
@@ -1169,7 +1216,7 @@ static int _tr14(mlp) MLINK mlp;
 	if ( ! MLGetReal( mlp, &_tp5) ) goto L4;
 	if ( ! MLNewPacket(mlp) ) goto L5;
 
-	cparammaxmin6(_tp1, _tp2, _tp3, _tp4, _tp5);
+	cparammaxmin4(_tp1, _tp2, _tp3, _tp4, _tp5);
 
 	res = 1;
 L5: L4: L3: L2: L1: 
@@ -1177,7 +1224,7 @@ L0:	return res;
 } /* _tr14 */
 
 
-void cparamminmax4 P(( int _tp1, double _tp2, double _tp3, double _tp4, double _tp5));
+void cparammaxmin6 P(( double _tp1, double _tp2, double _tp3, double _tp4, double _tp5));
 
 #if MLPROTOTYPES
 static int _tr15( MLINK mlp)
@@ -1186,19 +1233,19 @@ static int _tr15(mlp) MLINK mlp;
 #endif
 {
 	int	res = 0;
-	int _tp1;
+	double _tp1;
 	double _tp2;
 	double _tp3;
 	double _tp4;
 	double _tp5;
-	if ( ! MLGetInteger( mlp, &_tp1) ) goto L0;
+	if ( ! MLGetReal( mlp, &_tp1) ) goto L0;
 	if ( ! MLGetReal( mlp, &_tp2) ) goto L1;
 	if ( ! MLGetReal( mlp, &_tp3) ) goto L2;
 	if ( ! MLGetReal( mlp, &_tp4) ) goto L3;
 	if ( ! MLGetReal( mlp, &_tp5) ) goto L4;
 	if ( ! MLNewPacket(mlp) ) goto L5;
 
-	cparamminmax4(_tp1, _tp2, _tp3, _tp4, _tp5);
+	cparammaxmin6(_tp1, _tp2, _tp3, _tp4, _tp5);
 
 	res = 1;
 L5: L4: L3: L2: L1: 
@@ -1206,7 +1253,7 @@ L0:	return res;
 } /* _tr15 */
 
 
-void cparamminmax6 P(( int _tp1, double _tp2, double _tp3, double _tp4, double _tp5));
+void cparamminmax4 P(( int _tp1, double _tp2, double _tp3, double _tp4, double _tp5));
 
 #if MLPROTOTYPES
 static int _tr16( MLINK mlp)
@@ -1227,7 +1274,7 @@ static int _tr16(mlp) MLINK mlp;
 	if ( ! MLGetReal( mlp, &_tp5) ) goto L4;
 	if ( ! MLNewPacket(mlp) ) goto L5;
 
-	cparamminmax6(_tp1, _tp2, _tp3, _tp4, _tp5);
+	cparamminmax4(_tp1, _tp2, _tp3, _tp4, _tp5);
 
 	res = 1;
 L5: L4: L3: L2: L1: 
@@ -1235,7 +1282,7 @@ L0:	return res;
 } /* _tr16 */
 
 
-void esminmax6 P(( int _tp1, double _tp2, double _tp3, double _tp4, double _tp5));
+void cparamminmax6 P(( int _tp1, double _tp2, double _tp3, double _tp4, double _tp5));
 
 #if MLPROTOTYPES
 static int _tr17( MLINK mlp)
@@ -1256,7 +1303,7 @@ static int _tr17(mlp) MLINK mlp;
 	if ( ! MLGetReal( mlp, &_tp5) ) goto L4;
 	if ( ! MLNewPacket(mlp) ) goto L5;
 
-	esminmax6(_tp1, _tp2, _tp3, _tp4, _tp5);
+	cparamminmax6(_tp1, _tp2, _tp3, _tp4, _tp5);
 
 	res = 1;
 L5: L4: L3: L2: L1: 
@@ -1264,12 +1311,41 @@ L0:	return res;
 } /* _tr17 */
 
 
-void vectors4 P(( double * _tp1, long _tpl1, double _tp2, double _tp3, double _tp4, double _tp5));
+void esminmax6 P(( int _tp1, double _tp2, double _tp3, double _tp4, double _tp5));
 
 #if MLPROTOTYPES
 static int _tr18( MLINK mlp)
 #else
 static int _tr18(mlp) MLINK mlp;
+#endif
+{
+	int	res = 0;
+	int _tp1;
+	double _tp2;
+	double _tp3;
+	double _tp4;
+	double _tp5;
+	if ( ! MLGetInteger( mlp, &_tp1) ) goto L0;
+	if ( ! MLGetReal( mlp, &_tp2) ) goto L1;
+	if ( ! MLGetReal( mlp, &_tp3) ) goto L2;
+	if ( ! MLGetReal( mlp, &_tp4) ) goto L3;
+	if ( ! MLGetReal( mlp, &_tp5) ) goto L4;
+	if ( ! MLNewPacket(mlp) ) goto L5;
+
+	esminmax6(_tp1, _tp2, _tp3, _tp4, _tp5);
+
+	res = 1;
+L5: L4: L3: L2: L1: 
+L0:	return res;
+} /* _tr18 */
+
+
+void vectors4 P(( double * _tp1, long _tpl1, double _tp2, double _tp3, double _tp4, double _tp5));
+
+#if MLPROTOTYPES
+static int _tr19( MLINK mlp)
+#else
+static int _tr19(mlp) MLINK mlp;
 #endif
 {
 	int	res = 0;
@@ -1292,15 +1368,15 @@ static int _tr18(mlp) MLINK mlp;
 L5: L4: L3: L2: L1:	MLReleaseReal64List(mlp, _tp1, _tpl1);
 
 L0:	return res;
-} /* _tr18 */
+} /* _tr19 */
 
 
 double cparam4 P(( double * _tp1, long _tpl1, double _tp2, double _tp3, double _tp4, double _tp5));
 
 #if MLPROTOTYPES
-static int _tr19( MLINK mlp)
+static int _tr20( MLINK mlp)
 #else
-static int _tr19(mlp) MLINK mlp;
+static int _tr20(mlp) MLINK mlp;
 #endif
 {
 	int	res = 0;
@@ -1325,15 +1401,15 @@ static int _tr19(mlp) MLINK mlp;
 L5: L4: L3: L2: L1:	MLReleaseReal64List(mlp, _tp1, _tpl1);
 
 L0:	return res;
-} /* _tr19 */
+} /* _tr20 */
 
 
 double cparam6 P(( double * _tp1, long _tpl1, double _tp2, double _tp3, double _tp4, double _tp5));
 
 #if MLPROTOTYPES
-static int _tr20( MLINK mlp)
+static int _tr21( MLINK mlp)
 #else
-static int _tr20(mlp) MLINK mlp;
+static int _tr21(mlp) MLINK mlp;
 #endif
 {
 	int	res = 0;
@@ -1358,15 +1434,15 @@ static int _tr20(mlp) MLINK mlp;
 L5: L4: L3: L2: L1:	MLReleaseReal64List(mlp, _tp1, _tpl1);
 
 L0:	return res;
-} /* _tr20 */
+} /* _tr21 */
 
 
 double cparambeta4 P(( double * _tp1, long _tpl1, double _tp2, double _tp3, double _tp4, double _tp5));
 
 #if MLPROTOTYPES
-static int _tr21( MLINK mlp)
+static int _tr22( MLINK mlp)
 #else
-static int _tr21(mlp) MLINK mlp;
+static int _tr22(mlp) MLINK mlp;
 #endif
 {
 	int	res = 0;
@@ -1391,15 +1467,15 @@ static int _tr21(mlp) MLINK mlp;
 L5: L4: L3: L2: L1:	MLReleaseReal64List(mlp, _tp1, _tpl1);
 
 L0:	return res;
-} /* _tr21 */
+} /* _tr22 */
 
 
 double cparambeta6 P(( double * _tp1, long _tpl1, double _tp2, double _tp3, double _tp4, double _tp5));
 
 #if MLPROTOTYPES
-static int _tr22( MLINK mlp)
+static int _tr23( MLINK mlp)
 #else
-static int _tr22(mlp) MLINK mlp;
+static int _tr23(mlp) MLINK mlp;
 #endif
 {
 	int	res = 0;
@@ -1424,15 +1500,15 @@ static int _tr22(mlp) MLINK mlp;
 L5: L4: L3: L2: L1:	MLReleaseReal64List(mlp, _tp1, _tpl1);
 
 L0:	return res;
-} /* _tr22 */
+} /* _tr23 */
 
 
 void vectors6 P(( double * _tp1, long _tpl1, double _tp2, double _tp3, double _tp4, double _tp5));
 
 #if MLPROTOTYPES
-static int _tr23( MLINK mlp)
+static int _tr24( MLINK mlp)
 #else
-static int _tr23(mlp) MLINK mlp;
+static int _tr24(mlp) MLINK mlp;
 #endif
 {
 	int	res = 0;
@@ -1455,15 +1531,15 @@ static int _tr23(mlp) MLINK mlp;
 L5: L4: L3: L2: L1:	MLReleaseReal64List(mlp, _tp1, _tpl1);
 
 L0:	return res;
-} /* _tr23 */
+} /* _tr24 */
 
 
 void restvectors4 P(( double * _tp1, long _tpl1, double _tp2, double _tp3, double _tp4, double _tp5));
 
 #if MLPROTOTYPES
-static int _tr24( MLINK mlp)
+static int _tr25( MLINK mlp)
 #else
-static int _tr24(mlp) MLINK mlp;
+static int _tr25(mlp) MLINK mlp;
 #endif
 {
 	int	res = 0;
@@ -1486,15 +1562,15 @@ static int _tr24(mlp) MLINK mlp;
 L5: L4: L3: L2: L1:	MLReleaseReal64List(mlp, _tp1, _tpl1);
 
 L0:	return res;
-} /* _tr24 */
+} /* _tr25 */
 
 
 void restvectors6 P(( double * _tp1, long _tpl1, double _tp2, double _tp3, double _tp4, double _tp5));
 
 #if MLPROTOTYPES
-static int _tr25( MLINK mlp)
+static int _tr26( MLINK mlp)
 #else
-static int _tr25(mlp) MLINK mlp;
+static int _tr26(mlp) MLINK mlp;
 #endif
 {
 	int	res = 0;
@@ -1517,7 +1593,7 @@ static int _tr25(mlp) MLINK mlp;
 L5: L4: L3: L2: L1:	MLReleaseReal64List(mlp, _tp1, _tpl1);
 
 L0:	return res;
-} /* _tr25 */
+} /* _tr26 */
 
 
 static struct func {
@@ -1525,7 +1601,7 @@ static struct func {
 	int   manual;
 	int   (*f_func)P((MLINK));
 	const char  *f_name;
-	} _tramps[26] = {
+	} _tramps[27] = {
 		{ 2, 0, _tr0, "esmin" },
 		{ 2, 0, _tr1, "esmax" },
 		{ 1, 0, _tr2, "cparamcomputer" },
@@ -1535,23 +1611,24 @@ static struct func {
 		{15, 0, _tr6, "cparamlegendredistro" },
 		{14, 0, _tr7, "cparamlegendre" },
 		{13, 0, _tr8, "esdistributions" },
-		{ 7, 0, _tr9, "eslist" },
-		{ 3, 0, _tr10, "esliststable" },
-		{ 1, 0, _tr11, "escomputer" },
-		{ 5, 0, _tr12, "esminmax4" },
-		{ 5, 0, _tr13, "cparammaxmin4" },
-		{ 5, 0, _tr14, "cparammaxmin6" },
-		{ 5, 0, _tr15, "cparamminmax4" },
-		{ 5, 0, _tr16, "cparamminmax6" },
-		{ 5, 0, _tr17, "esminmax6" },
-		{ 5, 0, _tr18, "vectors4" },
-		{ 5, 0, _tr19, "cparam4" },
-		{ 5, 0, _tr20, "cparam6" },
-		{ 5, 0, _tr21, "cparambeta4" },
-		{ 5, 0, _tr22, "cparambeta6" },
-		{ 5, 0, _tr23, "vectors6" },
-		{ 5, 0, _tr24, "restvectors4" },
-		{ 5, 0, _tr25, "restvectors6" }
+		{13, 0, _tr9, "eslegendre" },
+		{ 7, 0, _tr10, "eslist" },
+		{ 3, 0, _tr11, "esliststable" },
+		{ 1, 0, _tr12, "escomputer" },
+		{ 5, 0, _tr13, "esminmax4" },
+		{ 5, 0, _tr14, "cparammaxmin4" },
+		{ 5, 0, _tr15, "cparammaxmin6" },
+		{ 5, 0, _tr16, "cparamminmax4" },
+		{ 5, 0, _tr17, "cparamminmax6" },
+		{ 5, 0, _tr18, "esminmax6" },
+		{ 5, 0, _tr19, "vectors4" },
+		{ 5, 0, _tr20, "cparam4" },
+		{ 5, 0, _tr21, "cparam6" },
+		{ 5, 0, _tr22, "cparambeta4" },
+		{ 5, 0, _tr23, "cparambeta6" },
+		{ 5, 0, _tr24, "vectors6" },
+		{ 5, 0, _tr25, "restvectors4" },
+		{ 5, 0, _tr26, "restvectors6" }
 		};
 
 static const char* evalstrs[] = {
@@ -1593,6 +1670,10 @@ static const char* evalstrs[] = {
 	"ESDistributions::usage = \"ESDistributions[mt, mb, mW, Q, method,",
 	" Spin, decay, current, ESmin, ESmax, Nbins, Nevent, Niter] compu",
 	"tes the distribution of the event-shape variables\"",
+	(const char*)0,
+	"ESLegendre::usage = \"ESLegendre[mt, mb, mW, Q, method, Spin, dec",
+	"ay, current, ESmin, ESmax, Nbins, Nevent, Niter] computes the Le",
+	"gendre coefficients of the event-shape variables\"",
 	(const char*)0,
 	"CparamDistribution::usage = \"CparamDistribution[mt, mb, mW, Q, e",
 	"xpand, method, Spin, decay, current, Cmin, Cmax, Nbins, Nevent, ",
@@ -1668,7 +1749,7 @@ static const char* evalstrs[] = {
 	(const char*)0,
 	(const char*)0
 };
-#define CARDOF_EVALSTRS 36
+#define CARDOF_EVALSTRS 37
 
 static int _definepattern P(( MLINK, char*, char*, int));
 
@@ -1718,6 +1799,7 @@ int MLInstall(mlp) MLINK mlp;
 	if (_res) _res = _doevalstr( mlp, 30);
 	if (_res) _res = _doevalstr( mlp, 31);
 	if (_res) _res = _doevalstr( mlp, 32);
+	if (_res) _res = _doevalstr( mlp, 33);
 	if (_res) _res = _definepattern(mlp, (char *)"ESMin[m_, Q_]", (char *)"{m, Q}", 0);
 	if (_res) _res = _definepattern(mlp, (char *)"ESMax[m_, Q_]", (char *)"{m, Q}", 1);
 	if (_res) _res = _definepattern(mlp, (char *)"CparamComputer[p_]", (char *)"{Flatten[Transpose[p]]}", 2);
@@ -1727,26 +1809,27 @@ int MLInstall(mlp) MLINK mlp;
 	if (_res) _res = _definepattern(mlp, (char *)"CparamLegendreDistro[mt_, mb_, mW_, Q_, expand_, method_, spin_,                  decay_, current_, Cmin_, Cmax_, n_, Nbins_, Nevent_, Niter_]", (char *)"{mt, mb, mW, Q, expand, method, spin, decay, current, Cmin, Cmax,                  n, Nbins, Nevent, Niter}", 6);
 	if (_res) _res = _definepattern(mlp, (char *)"CparamLegendre[n_, mt_, mb_, mW_, Q_, expand_, method_, spin_, decay_,                  current_, Cmin_, Cmax_, Nevent_, Niter_]", (char *)"{n, mt, mb, mW, Q, expand, method, spin, decay, current, Cmin, Cmax,                  Nevent, Niter}", 7);
 	if (_res) _res = _definepattern(mlp, (char *)"ESDistributions[mt_, mb_, mW_, Q_, method_, spin_, decay_, current_,                  Cmin_, Cmax_, Nbins_, Nevent_, Niter_]", (char *)"{mt, mb, mW, Q, method, spin, decay, current, Cmin, Cmax, Nbins, Nevent, Niter}", 8);
-	if (_res) _res = _definepattern(mlp, (char *)"ESList[mt_, mb_, mW_, Q_, ESmin_, ESmax_, Nbins_]", (char *)"{mt, mb, mW, Q, ESmin, ESmax, Nbins}", 9);
-	if (_res) _res = _definepattern(mlp, (char *)"ESListStable[mt_, Q_, Nbins_]", (char *)"{mt, Q, Nbins}", 10);
-	if (_res) _res = _definepattern(mlp, (char *)"EScomputer[p_]", (char *)"{Flatten[Transpose[p]]}", 11);
-	if (_res) _res = _definepattern(mlp, (char *)"ESMinMax4[n_, mt_, mb_, mW_, Q_]", (char *)"{n, mt, mb, mW, Q}", 12);
-	if (_res) _res = _definepattern(mlp, (char *)"CparamMaxMin4[eps_, mt_, mb_, mW_, Q_]", (char *)"{eps, mt, mb, mW, Q}", 13);
-	if (_res) _res = _definepattern(mlp, (char *)"CparamMaxMin6[eps_, mt_, mb_, mW_, Q_]", (char *)"{eps, mt, mb, mW, Q}", 14);
-	if (_res) _res = _definepattern(mlp, (char *)"CparamMinMax4[n_, mt_, mb_, mW_, Q_]", (char *)"{n, mt, mb, mW, Q}", 15);
-	if (_res) _res = _definepattern(mlp, (char *)"CparamMinMax6[n_, mt_, mb_, mW_, Q_]", (char *)"{n, mt, mb, mW, Q}", 16);
-	if (_res) _res = _definepattern(mlp, (char *)"ESMinMax6[n_, mt_, mb_, mW_, Q_]", (char *)"{n, mt, mb, mW, Q}", 17);
-	if (_res) _res = _definepattern(mlp, (char *)"Vectors4[x_, mt_, mb_, mW_, Q_]", (char *)"{x, mt, mb, mW, Q}", 18);
-	if (_res) _res = _definepattern(mlp, (char *)"Cparam4[x_, mt_, mb_, mW_, Q_]", (char *)"{x, mt, mb, mW, Q}", 19);
-	if (_res) _res = _definepattern(mlp, (char *)"Cparam6[x_, mt_, mb_, mW_, Q_]", (char *)"{x, mt, mb, mW, Q}", 20);
-	if (_res) _res = _definepattern(mlp, (char *)"CparamBeta4[x_, mt_, mb_, mW_, Q_]", (char *)"{x, mt, mb, mW, Q}", 21);
-	if (_res) _res = _definepattern(mlp, (char *)"CparamBeta6[x_, mt_, mb_, mW_, Q_]", (char *)"{x, mt, mb, mW, Q}", 22);
-	if (_res) _res = _definepattern(mlp, (char *)"Vectors6[x_, mt_, mb_, mW_, Q_]", (char *)"{x, mt, mb, mW, Q}", 23);
-	if (_res) _res = _definepattern(mlp, (char *)"RestVectors4[x_, mt_, mb_, mW_, Q_]", (char *)"{x, mt, mb, mW, Q}", 24);
-	if (_res) _res = _definepattern(mlp, (char *)"RestVectors6[x_, mt_, mb_, mW_, Q_]", (char *)"{x, mt, mb, mW, Q}", 25);
-	if (_res) _res = _doevalstr( mlp, 33);
+	if (_res) _res = _definepattern(mlp, (char *)"ESLegendre[mt_, mb_, mW_, Q_, method_, spin_, decay_, current_,                  Cmin_, Cmax_, n_, Nevent_, Niter_]", (char *)"{mt, mb, mW, Q, method, spin, decay, current, Cmin, Cmax, n, Nevent, Niter}", 9);
+	if (_res) _res = _definepattern(mlp, (char *)"ESList[mt_, mb_, mW_, Q_, ESmin_, ESmax_, Nbins_]", (char *)"{mt, mb, mW, Q, ESmin, ESmax, Nbins}", 10);
+	if (_res) _res = _definepattern(mlp, (char *)"ESListStable[mt_, Q_, Nbins_]", (char *)"{mt, Q, Nbins}", 11);
+	if (_res) _res = _definepattern(mlp, (char *)"EScomputer[p_]", (char *)"{Flatten[Transpose[p]]}", 12);
+	if (_res) _res = _definepattern(mlp, (char *)"ESMinMax4[n_, mt_, mb_, mW_, Q_]", (char *)"{n, mt, mb, mW, Q}", 13);
+	if (_res) _res = _definepattern(mlp, (char *)"CparamMaxMin4[eps_, mt_, mb_, mW_, Q_]", (char *)"{eps, mt, mb, mW, Q}", 14);
+	if (_res) _res = _definepattern(mlp, (char *)"CparamMaxMin6[eps_, mt_, mb_, mW_, Q_]", (char *)"{eps, mt, mb, mW, Q}", 15);
+	if (_res) _res = _definepattern(mlp, (char *)"CparamMinMax4[n_, mt_, mb_, mW_, Q_]", (char *)"{n, mt, mb, mW, Q}", 16);
+	if (_res) _res = _definepattern(mlp, (char *)"CparamMinMax6[n_, mt_, mb_, mW_, Q_]", (char *)"{n, mt, mb, mW, Q}", 17);
+	if (_res) _res = _definepattern(mlp, (char *)"ESMinMax6[n_, mt_, mb_, mW_, Q_]", (char *)"{n, mt, mb, mW, Q}", 18);
+	if (_res) _res = _definepattern(mlp, (char *)"Vectors4[x_, mt_, mb_, mW_, Q_]", (char *)"{x, mt, mb, mW, Q}", 19);
+	if (_res) _res = _definepattern(mlp, (char *)"Cparam4[x_, mt_, mb_, mW_, Q_]", (char *)"{x, mt, mb, mW, Q}", 20);
+	if (_res) _res = _definepattern(mlp, (char *)"Cparam6[x_, mt_, mb_, mW_, Q_]", (char *)"{x, mt, mb, mW, Q}", 21);
+	if (_res) _res = _definepattern(mlp, (char *)"CparamBeta4[x_, mt_, mb_, mW_, Q_]", (char *)"{x, mt, mb, mW, Q}", 22);
+	if (_res) _res = _definepattern(mlp, (char *)"CparamBeta6[x_, mt_, mb_, mW_, Q_]", (char *)"{x, mt, mb, mW, Q}", 23);
+	if (_res) _res = _definepattern(mlp, (char *)"Vectors6[x_, mt_, mb_, mW_, Q_]", (char *)"{x, mt, mb, mW, Q}", 24);
+	if (_res) _res = _definepattern(mlp, (char *)"RestVectors4[x_, mt_, mb_, mW_, Q_]", (char *)"{x, mt, mb, mW, Q}", 25);
+	if (_res) _res = _definepattern(mlp, (char *)"RestVectors6[x_, mt_, mb_, mW_, Q_]", (char *)"{x, mt, mb, mW, Q}", 26);
 	if (_res) _res = _doevalstr( mlp, 34);
 	if (_res) _res = _doevalstr( mlp, 35);
+	if (_res) _res = _doevalstr( mlp, 36);
 	if (_res) _res = MLPutSymbol( mlp, "End");
 	if (_res) _res = MLFlush( mlp);
 	return _res;
@@ -1759,7 +1842,7 @@ int MLDoCallPacket( MLINK mlp)
 int MLDoCallPacket( mlp) MLINK mlp;
 #endif
 {
-	return _MLDoCallPacket( mlp, _tramps, 26);
+	return _MLDoCallPacket( mlp, _tramps, 27);
 } /* MLDoCallPacket */
 
 /******************************* begin trailer ********************************/

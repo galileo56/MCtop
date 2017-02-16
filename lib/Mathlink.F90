@@ -118,6 +118,37 @@ end subroutine f90ESDistributions
 
 !ccccccccccccccc
 
+subroutine f90ESLegendre(mt, mb, mW, Q, method, Spin, decay, current, ESmin, &
+                         ESmax, n, Nevent, Niter, list)
+  use constants, only: dp; use MatrixElementsClass; use MCtopClass; implicit none
+  real (dp)                        , intent(in)  :: mt, mW, mb, Q
+  integer                          , intent(in)  :: n, Nevent, Niter
+  character (len = *)              , intent(in)  :: Spin, decay, method, current
+  real (dp), dimension(8)          , intent(in)  :: ESmin, ESmax
+  real (dp), dimension(0:n, 8, 2)  , intent(out) :: list
+  real (dp), dimension(1  , 8, 3)                :: list2
+  type (MCtopUnstable)                           :: MC
+  class (MatrixElements), allocatable            :: MatEl
+
+  if ( decay(:6) == 'stable') then
+    allocate( MatrixElements4 :: MatEl )
+    select type (MatEl)
+    type is (MatrixElements4);  MatEl = MatrixElements4(mt, mb, mW, Q)
+    end select
+  else
+    allocate( MatrixElements6 :: MatEl )
+    select type (MatEl)
+    type is (MatrixElements6);  MatEl = MatrixElements6(mt, mb, mW, Q)
+    end select
+  end if
+
+  MC   = MCtopUnstable(MatEl, Spin(:8), current(:8), ESmin, ESmax, 1, Nevent, Niter)
+  call MC%callVegas( n, method(:5), list2, list )
+
+end subroutine f90ESLegendre
+
+!ccccccccccccccc
+
 subroutine f90CparamDistribution(mt, mb, mW, Q, expand, method, spin, decay, current, &
                                  Cmin, Cmax, Nbins, Nevent, Niter, list)
   use constants, only: dp; use MatrixElementsClass; use MCtopClass; implicit none

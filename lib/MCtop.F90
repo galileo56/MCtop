@@ -23,8 +23,7 @@ module MCtopClass
 
   contains
 
-    procedure, private                              :: callVegas
-    procedure, public                               :: List, ESlist
+    procedure, public                               :: List, ESlist, callVegas
 
   end type MCtop
 
@@ -203,7 +202,7 @@ module MCtopClass
           AVGI = AVGI + FunMatEl(y, 1._dp)
         end do
         AVGI = AVGI/self%Nevent; dist(:,:,2:) = dist(:,:,2:)/self%Nevent
-        list  = list/self%Nevent
+        list = list/self%Nevent
       end if
 
       listTot(:,:,j,1) = list(:,:,1)
@@ -219,6 +218,7 @@ module MCtopClass
     end do
 
     dist(:,:,2:) = 0;  distTot(:,:,:,2) = 1/distTot(:,:,:,2)**2
+    list         = 0;  listTot(:,:,:,2) = 1/listTot(:,:,:,2)**2
 
     do j = 1, self%Niter
       list(1:,:,1) = list(1:,:,1) + listTot(1:,:,j,1) * listTot(1:,:,j,2)
@@ -243,7 +243,7 @@ module MCtopClass
 
     do i = 1, 8
       list(:,i,:) = list(:,i,:)/(self%ESmax(i) - self%ESmin(i) )
-      if (  ISNAN( list(0,i,2) )  ) list(0,i,2) = 0
+      if (  ISNAN( list(0,i,2) ) .or. list(0,i,2) + 1 == list(0,i,2)  ) list(0,i,2) = 0
     end do
 
     do i = 1, 8
@@ -288,8 +288,7 @@ module MCtopClass
         if ( k(l) >  self%Nbins ) k(l) = self%Nbins
 
         if ( k(l) > 0 ) then
-          dist( k(l), l, 2 ) = dist( k(l), l, 2 ) + wgt * FunMatEl
-          dist( k(l), l, 3 ) = dist( k(l), l, 3 ) + wgt * FunMatEl**2
+          dist( k(l), l, 2: ) = dist( k(l), l, 2: ) + wgt * FunMatEl**[1,2]
         end if
 
       end do
@@ -378,7 +377,7 @@ module MCtopClass
     real (dp) function FunMatEl(x, wgt)
       real (dp), dimension(self%dimX), intent(in) :: x
       real (dp)                      , intent(in) :: wgt
-      real (dp)                                   :: ES
+      real (dp)                                   :: ES, ESNorm
       real (dp), dimension(0:n)                   :: ESLeg
       real (dp), dimension(self%dimP,4)           :: p
       integer                                     :: k
@@ -390,22 +389,22 @@ module MCtopClass
         FunMatEl = self%MatEl%SpinWeight(self%spin, self%current, p)
       end if
 
-      ESLeg = LegendreList(  n, 2 * ( Cparam(p) - self%ESmin(5) )/&
-                                ( self%ESmax(5) - self%ESmin(5) ) - 1  )
+      ESNorm = (ES - self%ESmin(5) )/(self%ESmax(5) - self%ESmin(5) )
+
+      ESLeg = LegendreList(  n, 2 * ESNorm - 1  )
 
       if ( ES < self%ESmin(5) .or. ES > self%ESmax(5) ) return
 
       list(:,1) = list(:,1) + wgt *  FunMatEl * ESLeg
       list(:,2) = list(:,2) + wgt * (FunMatEl * ESLeg)**2
 
-      k = Ceiling( self%Nbins * (ES - self%ESmin(5) )/(self%ESmax(5) - self%ESmin(5) ) )
+      k = Ceiling( self%Nbins * ESNorm )
 
       if ( k <= 0          ) k = 1
       if ( k >  self%Nbins ) k = self%Nbins
 
       if ( k > 0 ) then
-        dist(k,2) = dist(k,2) + wgt * FunMatEl
-        dist(k,3) = dist(k,3) + wgt * FunMatEl**2
+        dist(k,2:) = dist(k,2:) + wgt * FunMatEl**[1,2]
       end if
 
     end function FunMatEl
