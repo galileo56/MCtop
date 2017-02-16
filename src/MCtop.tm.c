@@ -480,11 +480,12 @@ static void esmaxmin6(double eps, double mt, double mb, double mW, double Q){
 
    f90esmaxmin6_(&eps, &mt, &mb, &mW, &Q, res);
 
-  //  MLPutFunction(stdlink, "Partition", 2);
-  //  MLPutFunction(stdlink, "Partition", 2);
+   MLPutFunction(stdlink, "Transpose", 1);
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutFunction(stdlink, "Partition", 2);
    MLPutRealList(stdlink, res, 128);
-  //  MLPutInteger(stdlink, 64);
-  //  MLPutInteger(stdlink, 8);
+   MLPutInteger(stdlink, 8);
+   MLPutInteger(stdlink, 8);
    MLEndPacket(stdlink);
 }
 
@@ -508,11 +509,12 @@ static void esmaxmin4(double eps, double mt, double mb, double mW, double Q){
 
    f90esmaxmin4_(&eps, &mt, &mb, &mW, &Q, res);
 
+   MLPutFunction(stdlink, "Transpose", 1);
    MLPutFunction(stdlink, "Partition", 2);
    MLPutFunction(stdlink, "Partition", 2);
    MLPutRealList(stdlink, res, 64);
-   MLPutInteger(stdlink, 32);
    MLPutInteger(stdlink, 4);
+   MLPutInteger(stdlink, 8);
    MLEndPacket(stdlink);
 }
 
@@ -717,7 +719,7 @@ static void vectors6(double x[], long clen, double mt, double mb, double mW, dou
 int main(int argc, char *argv[]){
     return MLMain(argc, argv);
 }
-# line 721 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm.c"
+# line 723 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm.c"
 
 
 void esmin P(( double _tp1, double _tp2));

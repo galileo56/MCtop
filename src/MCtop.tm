@@ -480,11 +480,12 @@ static void esmaxmin6(double eps, double mt, double mb, double mW, double Q){
 
    f90esmaxmin6_(&eps, &mt, &mb, &mW, &Q, res);
 
-  //  MLPutFunction(stdlink, "Partition", 2);
-  //  MLPutFunction(stdlink, "Partition", 2);
+   MLPutFunction(stdlink, "Transpose", 1);
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutFunction(stdlink, "Partition", 2);
    MLPutRealList(stdlink, res, 128);
-  //  MLPutInteger(stdlink, 64);
-  //  MLPutInteger(stdlink, 8);
+   MLPutInteger(stdlink, 8);
+   MLPutInteger(stdlink, 8);
    MLEndPacket(stdlink);
 }
 
@@ -508,11 +509,12 @@ static void esmaxmin4(double eps, double mt, double mb, double mW, double Q){
 
    f90esmaxmin4_(&eps, &mt, &mb, &mW, &Q, res);
 
+   MLPutFunction(stdlink, "Transpose", 1);
    MLPutFunction(stdlink, "Partition", 2);
    MLPutFunction(stdlink, "Partition", 2);
    MLPutRealList(stdlink, res, 64);
-   MLPutInteger(stdlink, 32);
    MLPutInteger(stdlink, 4);
+   MLPutInteger(stdlink, 8);
    MLEndPacket(stdlink);
 }
 
