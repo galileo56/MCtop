@@ -292,7 +292,11 @@ MLYDEFN( devyield_result, MLDefaultYielder, ( MLINK mlp, MLYieldParameters yp))
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # line 237 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm"
+=======
+# line 264 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm"
+>>>>>>> Event-1-MC
 =======
 # line 264 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm"
 >>>>>>> Event-1-MC
@@ -678,6 +682,7 @@ int main(int argc, char *argv[]){
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # line 631 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm.c"
 =======
 # line 667 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm.c"
@@ -696,6 +701,55 @@ void esmin P(( double _tp1, double _tp2));
 static int _tr0( MLINK mlp)
 #else
 static int _tr0(mlp) MLINK mlp;
+#endif
+{
+	int	res = 0;
+	double _tp1;
+	double _tp2;
+	if ( ! MLGetReal( mlp, &_tp1) ) goto L0;
+	if ( ! MLGetReal( mlp, &_tp2) ) goto L1;
+	if ( ! MLNewPacket(mlp) ) goto L2;
+
+	esmin(_tp1, _tp2);
+
+	res = 1;
+L2: L1: 
+L0:	return res;
+} /* _tr0 */
+
+
+void esmax P(( double _tp1, double _tp2));
+
+#if MLPROTOTYPES
+static int _tr1( MLINK mlp)
+#else
+static int _tr1(mlp) MLINK mlp;
+#endif
+{
+	int	res = 0;
+	double _tp1;
+	double _tp2;
+	if ( ! MLGetReal( mlp, &_tp1) ) goto L0;
+	if ( ! MLGetReal( mlp, &_tp2) ) goto L1;
+	if ( ! MLNewPacket(mlp) ) goto L2;
+
+	esmax(_tp1, _tp2);
+
+	res = 1;
+L2: L1: 
+L0:	return res;
+} /* _tr1 */
+=======
+# line 667 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm.c"
+>>>>>>> Event-1-MC
+
+
+void esmin P(( double _tp1, double _tp2));
+
+#if MLPROTOTYPES
+static int _tr2( MLINK mlp)
+#else
+static int _tr2(mlp) MLINK mlp;
 #endif
 {
 	int	res = 0;
