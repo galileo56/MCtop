@@ -1,0 +1,8 @@
+cmake
+cmake
+cmake
+cmake
+epstool
+gsl
+gv
+kdiff3
