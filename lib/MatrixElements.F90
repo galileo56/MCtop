@@ -452,14 +452,14 @@ module MatrixElementsClass
 
     do i = 1, 8
 
-      x = 0.1_dp; signo = 1
+      x = 0.2_dp; signo = 1
 
       call f90compass_search( fun, self%sizeX, x, eps, delta_init, kmax, &
                               res(1:,i,1), res(0,i,1), ktot )
-      x = 0.1_dp; signo = - 1
+      x = 0.2_dp; signo = - 1
 
       call f90compass_search( fun, self%sizeX, x, eps, delta_init, kmax, res(1:,i,2), &
-                          res(0,i,2), ktot ); res(0,i,2) = - res(0,i,2)
+                              res(0,i,2), ktot ); res(0,i,2) = - res(0,i,2)
     end do
 
   contains
