@@ -86,21 +86,21 @@ module MCtopClass
 
 !ccccccccccccccc
 
-  subroutine callVegas(self, method, dist, dist2)
-    class (MCtop), intent(in)                        :: self
-    character (len = *)             , intent(in)     :: method
-    real (dp), dimension(self%Nbins, 8), intent(out) :: dist , dist2
-    real (dp), dimension(self%Nbins, 8, self%Niter)  :: distTot , distTot2
-    real (dp), dimension(self%dimX)                  :: y
-    real (dp)                                        :: AVGI, SD, CHI2A
-    integer                                          :: i, j, n, iter
+  subroutine callVegas(self, method, dist)
+    class (MCtop), intent(in)                           :: self
+    character (len = *)                   , intent(in)  :: method
+    real (dp), dimension(self%Nbins, 8, 2), intent(out) :: dist
+    real (dp), dimension(self%Nbins, 8, self%Niter)     :: distTot , distTot2
+    real (dp), dimension(self%dimX)                     :: y
+    real (dp)                                           :: AVGI, SD, CHI2A
+    integer                                             :: i, j, n, iter
 
     NPRN = - 1; ITMX = 1; NCall = self%Nevent; iter = 1
     if (self%dimX <= 3) iter = 0; distTot = 0; distTot2 = 0
 
     do j = 1, self%Niter
 
-      dist = 0;  dist2 = 0
+      dist = 0
 
       if ( method(:5) == 'vegas' ) then
         if (j > 1 .and. self%dimX > 3) iter = 2
@@ -110,30 +110,31 @@ module MCtopClass
           call Random_number(y)
           AVGI = AVGI + FunMatEl(y, 1._dp)
         end do
-        AVGI = AVGI/self%Nevent; dist = dist/self%Nevent; dist2 = dist2/self%Nevent
+        AVGI = AVGI/self%Nevent; dist = dist/self%Nevent
       end if
 
       do i = 1, 8
 
-        distTot(:,i,j) = dist(:,i)/self%Delta(i)
+        distTot(:,i,j) = dist(:,i,1)/self%Delta(i)
 
-        distTot2(:,i,j) = sqrt(  ( dist2(:,i)/self%Delta(i)**2 - &
+        distTot2(:,i,j) = sqrt(  ( dist(:,i,2)/self%Delta(i)**2 - &
                                 distTot(:,i,j)**2 )/self%Nevent  )
       end do
     end do
 
-    dist = 0;  dist2 = 0;  distTot2 = 1/distTot2**2
+    dist = 0;  distTot2 = 1/distTot2**2
 
     do j = 1, self%Niter
-      dist  = dist  + distTot (:,:,j) * distTot2(:,:,j)
-      dist2 = dist2 + distTot2(:,:,j)
+      dist(:,:,1) = dist(:,:,1) + distTot (:,:,j) * distTot2(:,:,j)
+      dist(:,:,2) = dist(:,:,2) + distTot2(:,:,j)
     end do
 
-    dist2 = 1/dist2;  dist = dist * dist2;  dist2 = sqrt(dist2)
+    dist(:,:,2) = 1/dist(:,:,2);  dist(:,:,1) = dist(:,:,1) * dist(:,:,2)
+    dist(:,:,2) = sqrt(dist(:,:,2))
 
     do i = 1, 8
       do j = 1, self%Nbins
-        if ( dist2(j,i) <= tiny(1._dp) ) dist(j,i) = 0
+        if ( dist(j,i,2) <= tiny(1._dp) ) dist(j,i,1) = 0
       enddo
     end do
 
@@ -159,8 +160,8 @@ module MCtopClass
         if ( k(l) >  self%Nbins ) k(l) = self%Nbins
 
         if ( k(l) > 0 ) then
-          dist ( k(l), l ) = dist ( k(l), l ) + wgt * FunMatEl
-          dist2( k(l), l ) = dist2( k(l), l ) + wgt * FunMatEl**2
+          dist( k(l), l, 1 ) = dist( k(l), l, 1 ) + wgt * FunMatEl
+          dist( k(l), l, 2 ) = dist( k(l), l, 2 ) + wgt * FunMatEl**2
         end if
 
       end do
@@ -268,7 +269,7 @@ module MCtopClass
     character (len = *)               , intent(in)  :: expand, method
     real (dp), dimension(self%Nbins,3), intent(out) :: dist
     real (dp), dimension(0:n,2)       , intent(out) :: list
-    real (dp), dimension(self%Nbins, self%Niter)    :: distTot , distTot2
+    real (dp), dimension(self%Nbins, self%Niter)    :: distTot, distTot2
     real (dp), dimension(0:n, self%Niter)           :: listTot, listTot2
     real (dp), dimension(self%dimX)                 :: y
     real (dp)                                       :: AVGI, SD, CHI2A
@@ -375,21 +376,21 @@ module MCtopClass
 
 !ccccccccccccccc
 
-  subroutine callVegasCparam(self, expand, method, dist, dist2)
-    class (MCtop)                   , intent(in)  :: self
-    character (len = *)             , intent(in)  :: expand, method
-    real (dp), dimension(self%Nbins), intent(out) :: dist , dist2
-    real (dp), dimension(self%Nbins, self%Niter)  :: distTot , distTot2
-    real (dp), dimension(self%dimX)               :: y
-    real (dp)                                     :: AVGI, SD, CHI2A
-    integer                                       :: i, j, iter
+  subroutine callVegasCparam(self, expand, method, dist)
+    class (MCtop)                      , intent(in)  :: self
+    character (len = *)                , intent(in)  :: expand, method
+    real (dp), dimension(self%Nbins, 2), intent(out) :: dist
+    real (dp), dimension(self%Nbins, self%Niter)     :: distTot , distTot2
+    real (dp), dimension(self%dimX)                  :: y
+    real (dp)                                        :: AVGI, SD, CHI2A
+    integer                                          :: i, j, iter
 
     NPRN = - 1; ITMX = 1; NCall = self%Nevent; iter = 1
     if (self%dimX <= 3) iter = 0; distTot = 0; distTot2 = 0
 
     do j = 1, self%Niter
 
-      dist = 0;  dist2 = 0; if (j > 1 .and. self%dimX > 3) iter = 2
+      dist = 0;  if (j > 1 .and. self%dimX > 3) iter = 2
       if ( method(:5) == 'vegas' ) then
         call VEGAS(self%dimX, FunMatEl, AVGI, SD, CHI2A, iter)
       else
@@ -399,26 +400,27 @@ module MCtopClass
           AVGI = AVGI + FunMatEl(y, 1._dp)
         end do
 
-        AVGI = AVGI/self%Nevent; dist = dist/self%Nevent; dist2 = dist2/self%Nevent
+        AVGI = AVGI/self%Nevent; dist = dist/self%Nevent
       end if
 
-      distTot(:,j) = dist(:)/self%Delta(5)
+      distTot(:,j) = dist(:,1)/self%Delta(5)
 
-      distTot2(:,j) = sqrt(  ( dist2(:)/self%Delta(5)**2 - &
+      distTot2(:,j) = sqrt(  ( dist(:,2)/self%Delta(5)**2 - &
                               distTot(:,j)**2 )/self%Nevent  )
     end do
 
-    dist = 0;  dist2 = 0;  distTot2 = 1/distTot2**2
+    dist = 0;  distTot2 = 1/distTot2**2
 
     do j = 1, self%Niter
-      dist  = dist  + distTot (:,j) * distTot2(:,j)
-      dist2 = dist2 + distTot2(:,j)
+      dist(:,1) = dist(:,1) + distTot (:,j) * distTot2(:,j)
+      dist(:,2) = dist(:,2) + distTot2(:,j)
     end do
 
-    dist2 = 1/dist2;  dist = dist * dist2;  dist2 = sqrt(dist2)
+    dist(:,2) = 1/dist(:,2);  dist(:,1) = dist(:,1) * dist(:,2)
+    dist(:,2) = sqrt( dist(:,2) )
 
     do j = 1, self%Nbins
-      if ( dist2(j) <= d1mach(1) ) dist(j) = 0
+      if ( dist(j,2) <= d1mach(1) ) dist(j,1) = 0
     enddo
 
   contains
@@ -445,8 +447,8 @@ module MCtopClass
       if ( k >  self%Nbins ) k = self%Nbins
 
       if ( k > 0 ) then
-        dist (k) = dist (k) + wgt * FunMatEl
-        dist2(k) = dist2(k) + wgt * FunMatEl**2
+        dist(k,1) = dist(k,1) + wgt * FunMatEl
+        dist(k,2) = dist(k,2) + wgt * FunMatEl**2
       end if
 
     end function FunMatEl
@@ -483,7 +485,7 @@ module MCtopClass
     real (dp), dimension(self%Nbins, 8, 3) :: dist
 
     dist(:,:,1  ) = self%ES
-    call self%callVegas( method, dist(:,:,2), dist(:,:,3)  )
+    call self%callVegas( method, dist(:,:,2:3)  )
 
   end function List
 
@@ -495,7 +497,7 @@ module MCtopClass
     real (dp), dimension(self%Nbins, 3) :: dist
 
     dist(:,1) = self%ES(:,5)
-    call self%callVegasCparam( expand, method, dist(:,2), dist(:,3)  )
+    call self%callVegasCparam( expand, method, dist(:,2:3)  )
 
   end function ListCparam
 
