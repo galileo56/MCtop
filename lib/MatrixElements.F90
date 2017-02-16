@@ -19,26 +19,26 @@ module MatrixElementsClass
     procedure, pass (self), public       :: ESMinMax, CparamMinMax, GenerateVectors, &
                                             SpinWeight, dimX, dimP, CparamBeta,      &
                                             GenerateRestVectors, GenerateVectors2,   &
-                                            SetMasses, CparamMaxMin
+                                            SetMasses, CparamMaxMin, ESMaxMin
   end type MatrixElements
 
 !ccccccccccccccc
 
-  type, extends (MatrixElements), public ::  MatrixElements4
+  type, extends (MatrixElements), public :: MatrixElements4
     private
 
   end type MatrixElements4
 
 !ccccccccccccccc
 
-  type, extends (MatrixElements), public ::  MatrixElements6
+  type, extends (MatrixElements), public :: MatrixElements6
     private
 
   end type MatrixElements6
 
 !ccccccccccccccc
 
-  type, extends (MatrixElements), public ::  MatrixStable
+  type, extends (MatrixElements), public :: MatrixStable
     private
 
     real(dp)           , private :: Jacob
@@ -46,8 +46,8 @@ module MatrixElementsClass
 
   contains
 
-    procedure                  :: MatElComputer, ESmin, ESmax, ZY
-    procedure, private         :: modulus, zPlusMinus
+    procedure                   :: MatElComputer, ESmin, ESmax, ZY
+    procedure, private          :: modulus, zPlusMinus
 
   end type MatrixStable
 
@@ -437,6 +437,43 @@ module MatrixElementsClass
     end function fun
 
   end function CparamMaxMin
+
+ !ccccccccccccccc
+
+  function ESMaxMin(self, eps) result(res)
+    class (MatrixElements)    , intent(in) :: self
+    real (dp)                 , intent(in) :: eps
+    real (dp), dimension(0:self%sizeX,8,2) :: res
+    real (dp), dimension(self%sizeX)       :: x
+    real (dp)                              :: delta_init
+    integer                                :: ktot, kmax, signo, i
+
+    DELTA_INIT = 1.d-2;  KMAX = 100000000
+
+    do i = 1, 8
+
+      x = 0.1_dp; signo = 1
+
+      call f90compass_search( fun, self%sizeX, x, eps, delta_init, kmax, &
+                              res(1:,i,1), res(0,i,1), ktot )
+      x = 0.1_dp; signo = - 1
+
+      call f90compass_search( fun, self%sizeX, x, eps, delta_init, kmax, res(1:,i,2), &
+                          res(0,i,2), ktot ); res(0,i,2) = - res(0,i,2)
+    end do
+
+  contains
+
+    real (dp) function fun(n, x)
+      integer                         , intent(in) :: n
+      real (dp), dimension(self%sizeX), intent(in) :: x
+      real (dp), dimension(8)                      :: ES
+
+      ES = EScomputer( self%GenerateVectors(x) );  fun = signo * ES(i)
+
+    end function fun
+
+  end function ESMaxMin
 
  !ccccccccccccccc
 
