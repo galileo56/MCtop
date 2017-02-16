@@ -1,6 +1,30 @@
 
 !ccccccccccccccc
 
+subroutine f90ESMax(m, Q, ES)
+  use constants, only: dp; use MatrixElementsClass; implicit none
+  real (dp)               , intent(in ) :: m, Q
+  real (dp), dimension(16), intent(out) :: ES
+  type (MatrixStable)                 :: MatEl
+
+  MatEl = MatrixStable('no', m, Q);  ES = MatEl%ESMax()
+
+end subroutine f90ESMax
+
+!ccccccccccccccc
+
+subroutine f90ESMin(m, Q, ES)
+  use constants, only: dp; use MatrixElementsClass; implicit none
+  real (dp)               , intent(in ) :: m, Q
+  real (dp), dimension(16), intent(out) :: ES
+  type (MatrixStable)                   :: MatEl
+
+  MatEl = MatrixStable('no', m, Q);  ES = MatEl%ESMin()
+
+end subroutine f90ESMin
+
+!ccccccccccccccc
+
 subroutine f90LegendreList(n, x, res)
   use constants, only: dp; use Legendre
   integer                  , intent(in)  :: n
@@ -27,6 +51,22 @@ subroutine f90ESList(mt, mb, mW, Q, ESmin, ESmax, Nbins, list)
   list  = MC%ESlist()
 
 end subroutine f90ESList
+
+!ccccccccccccccc
+
+subroutine f90ESListStable(mt, Q, Nbins, list)
+  use constants, only: dp; use MatrixElementsClass; use MCtopClass; implicit none
+  real (dp)                      , intent(in)  :: mt, Q
+  integer                        , intent(in)  :: Nbins
+  real (dp), dimension(Nbins, 16), intent(out) :: list
+  type (MCStable)                              :: MC
+  type (MatrixStable)                          :: MatEl
+
+  MatEl = MatrixStable('no', mt, Q)
+  MC    = MCStable(MatEl, Nbins, 1, 0, 0)
+  list  = MC%ESlist()
+
+end subroutine f90ESListStable
 
 !ccccccccccccccc
 

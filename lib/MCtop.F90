@@ -13,13 +13,12 @@ module MCtopClass
 
 !ccccccccccccccc
 
-  type, abstract :: MCtop
+  type, abstract, public :: MCtop
     integer                    , private              :: Nbins, Nevent, Niter
     class (MatrixElements)     , private, allocatable :: MatEl
     real (dp), dimension(:,:  ), private, allocatable :: ES
     real (dp), dimension(:)    , private, allocatable :: ESmax, ESmin, delta
-    ! real (dp), dimension(8    ), private              :: ESmax, ESmin, delta
-    integer                    , private              :: dimX, dimP
+    integer                    , private              :: dimX, dimP, dimES
 
   contains
 
@@ -44,7 +43,7 @@ module MCtopClass
 
 !ccccccccccccccc
 
-  type, extends (MCtop) :: MCStable
+  type, extends (MCtop), public :: MCStable
     private
     integer                            , private    :: Nlog
     real (dp), dimension(:,:), private, allocatable :: ESlog
@@ -106,7 +105,7 @@ module MCtopClass
      real (dp)       , dimension(16) :: DeltaES, DeltaLog, ESMin, ESMax, LogMin, LogMax, delta
      integer                         :: i
 
-     InitEvent1%Nbins  = Nbins   ; InitEvent1%Nlog  = Nlog
+     InitEvent1%Nbins  = Nbins   ; InitEvent1%Nlog  = Nlog; InitEvent1%dimES = 16
      InitEvent1%Nevent = Nevent  ; InitEvent1%Niter = Niter
 
      allocate( MatrixStable :: InitEvent1%MatEl )
@@ -169,6 +168,8 @@ module MCtopClass
      do i = 1, Nbins
        InMCtop%ES(i,:) = ESmin + Delta * (2 * i - 1)/2
      end do
+
+     InMCtop%dimES = 8
 
    end function InMCtop
 
@@ -553,7 +554,7 @@ module MCtopClass
 
   function ESList(self) result(dist)
     class (MCtop) , intent(in)          :: self
-    real (dp), dimension(self%Nbins, 8) :: dist
+    real (dp), dimension(self%Nbins, self%dimES) :: dist
 
     dist = self%ES
 
@@ -574,7 +575,7 @@ module MCtopClass
   function List(self, method) result(dist)
     class (MCtop)             , intent(in) :: self
     character (len = *)       , intent(in) :: method
-    real (dp), dimension(self%Nbins, 8, 3) :: dist
+    real (dp), dimension(self%Nbins, self%dimES, 3) :: dist
 
     dist(:,:,1  ) = self%ES
     call self%callVegas( method, dist(:,:,2:3)  )
