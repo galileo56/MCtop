@@ -1,7 +1,0 @@
-# The fortran modules provided by this target.
-provides
- constants
- legendre
- matrixelementsclass
- mc_vegas
- mctopclass

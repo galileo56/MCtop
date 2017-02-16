@@ -290,7 +290,11 @@ MLYDEFN( devyield_result, MLDefaultYielder, ( MLINK mlp, MLYieldParameters yp))
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 # line 237 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm"
+=======
+# line 264 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm"
+>>>>>>> Event-1-MC
 =======
 # line 264 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm"
 >>>>>>> Event-1-MC
@@ -668,7 +672,11 @@ int main(int argc, char *argv[]){
     return MLMain(argc, argv);
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 # line 631 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm.c"
+=======
+# line 667 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm.c"
+>>>>>>> Event-1-MC
 =======
 # line 667 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm.c"
 >>>>>>> Event-1-MC
