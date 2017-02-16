@@ -7,8 +7,8 @@ module MCtopClass
   character (len = 11), dimension(8) , public :: ESNames
   character (len = 11), dimension(16), public :: StableNames
 
-  data ESNames     /'tau', 'HJM', 'LJM', 'SJM', 'C-parameter', 'B', 'B-wide', 'B-narrow'/
-  data StableNames / 'tau', 'tauQ', 'tauE', 'tauJ', 'CJ', 'CE', 'CQ', 'CP', &
+  data ESNames     /'tau', 'HJM' , 'LJM', 'SJM', 'C-parameter', 'B', 'B-wide', 'B-narrow'/
+  data StableNames /'tau', 'tauQ', 'tauE', 'tauJ', 'CJ', 'CE', 'CQ', 'CP', &
   'rho', 'rhoE', 'rhoQ', 'rhoP', 'rhoSum', 'Broadening ', 'BroadeningQ', 'BroadeningE' /
 
 !ccccccccccccccc
@@ -36,7 +36,7 @@ module MCtopClass
   contains
 
     final                                             :: delete_object
-    procedure, public                                 :: LegendreInt, LegendreDistro, CparamList, ListCparam
+    procedure, public                                 :: LegendreDistro, CparamList, ListCparam
 
   end type MCtopUnstable
 
@@ -263,95 +263,6 @@ module MCtopClass
 !ccccccccccccccc
 
   end subroutine callVegas
-
-!ccccccccccccccc
-
- function LegendreInt(self, n, expand, method) result(list)
-    class (MCtopUnstable)    , intent(in) :: self
-    integer                  , intent(in) :: n
-    character (len = *)      , intent(in) :: expand, method
-    real (dp), dimension(0:n, self%Niter) :: distTot, distTot2
-    real (dp), dimension(2,0:n)           :: list
-    real (dp)                             :: AVGI, SD, CHI2A
-    integer                               :: i, j, iter
-    real (dp), dimension(self%dimX)       :: y
-
-    NPRN = - 1; ITMX = 1; NCall = self%Nevent; iter = 1; list = 0
-    if (self%dimX <= 3) iter = 0
-
-    do j = 1, self%Niter
-
-      list = 0
-
-      if ( method(:5) == 'vegas' ) then
-        if (j > 1 .and. self%dimX > 3) iter = 2
-        call VEGAS(self%dimX, FunMatEl, AVGI, SD, CHI2A, iter)
-      else
-
-  !##$OMP PARALLEL DO
-
-        do i = 1, NCall
-          call Random_number(y)
-          AVGI = AVGI + FunMatEl(y, 1._dp)
-        end do
-
-  !##$OMP END PARALLEL DO
-
-        AVGI = AVGI/self%Nevent; list = list/self%Nevent
-      end if
-
-      distTot(:,j) = list(1,:)
-      distTot2(:,j) = sqrt(  ( list(2,:) - distTot(:,j)**2 )/self%Nevent  )
-
-    end do
-
-    list = 0;  distTot2 = 1/distTot2**2
-
-    do j = 1, self%Niter
-      list(1,1:) = list(1,1:) + distTot (1:,j) * distTot2(1:,j)
-      list(2,1:) = list(2,1:) + distTot2(1:,j)
-    end do
-
-    list(2,1:) = 1/list(2,1:);  list(1,1:) = list(1,1:) * list(2,1:)
-    list(2,1:) = sqrt( list(2,1:) )
-
-    list(:,0) = [ sum( distTot(0,:) )/self%Niter, 1/sqrt( sum( distTot2(0,:) ) ) ]
-
-    list = list/(self%ESmax(5) - self%ESmin(5) )
-
-    do i = 0, n
-      list(:,i) = (2 * i + 1) * list(:,i)
-    end do
-
-  contains
-
-!ccccccccccccccc
-
-    real (dp) function FunMatEl(x, wgt)
-      real (dp), dimension(self%dimX), intent(in) :: x
-      real (dp)                      , intent(in) :: wgt
-      real (dp)                                   :: ES
-      real (dp), dimension(0:n)                   :: ESLeg
-      real (dp), dimension(self%dimP,4)           :: p
-
-      if ( expand(:6) == 'expand' ) then
-        ES = self%MatEl%CparamBeta(x); FunMatEl = 1
-      else
-        p = self%MatEl%GenerateVectors(x); ES = Cparam(p)
-        FunMatEl = self%MatEl%SpinWeight(self%spin, self%current, p)
-      end if
-
-      ESLeg = LegendreList(  n, 2 * ( Cparam(p) - self%ESmin(5) )/&
-                                ( self%ESmax(5) - self%ESmin(5) ) - 1  )
-
-      if ( ES < self%ESmin(5) .or. ES > self%ESmax(5) ) return
-
-      list(1,:) = list(1,:) + wgt *  FunMatEl * ESLeg
-      list(2,:) = list(2,:) + wgt * (FunMatEl * ESLeg)**2
-
-    end function FunMatEl
-
- end function LegendreInt
 
 !ccccccccccccccc
 
