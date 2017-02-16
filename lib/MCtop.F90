@@ -236,7 +236,7 @@ module MCtopClass
 
     if ( method(:5) == 'vegas' ) list(0,:,1) = AVGI
 
-    do i = 0, n
+    do i = 0, m
       list(i,:,:) = (2 * i + 1) * list(i,:,:)
     end do
 
@@ -287,8 +287,8 @@ module MCtopClass
         if ( k(l) >  self%Nbins ) k(l) = self%Nbins
 
         if ( k(l) > 0 ) then
-          dist( k(l), l, 1 ) = dist( k(l), l, 1 ) + wgt * FunMatEl
-          dist( k(l), l, 2 ) = dist( k(l), l, 2 ) + wgt * FunMatEl**2
+          dist( k(l), l, 2 ) = dist( k(l), l, 2 ) + wgt * FunMatEl
+          dist( k(l), l, 3 ) = dist( k(l), l, 3 ) + wgt * FunMatEl**2
         end if
 
       end do
