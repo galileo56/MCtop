@@ -19,11 +19,11 @@ subroutine f90ESList(mt, mb, mW, Q, ESmin, ESmax, Nbins, list)
   integer                       , intent(in)  :: Nbins
   real (dp), dimension(8)       , intent(in)  :: ESmin, ESmax
   real (dp), dimension(Nbins, 8), intent(out) :: list
-  type (MCtop)                                :: MC
+  type (MCtopUnstable)                                :: MC
   type (MatrixElements4)                      :: MatEl
 
   MatEl = MatrixElements4(mt, mb, mW, Q)
-  MC    = MCtop(MatEl, 'uncorr', 'vector', ESmin, ESmax, Nbins, 0, 0)
+  MC    = MCtopUnstable(MatEl, 'uncorr', 'vector', ESmin, ESmax, Nbins, 0, 0)
   list  = MC%ESlist()
 
 end subroutine f90ESList
@@ -36,11 +36,11 @@ subroutine f90CparamList(mt, mb, mW, Q, Cmin, Cmax, Nbins, list)
   integer                    , intent(in)  :: Nbins
   real (dp)                  , intent(in)  :: Cmin, Cmax
   real (dp), dimension(Nbins), intent(out) :: list
-  type (MCtop)                             :: MC
+  type (MCtopUnstable)                     :: MC
   type (MatrixElements4)                   :: MatEl
 
   MatEl = MatrixElements4(mt, mb, mW, Q)
-  MC    = MCtop(MatEl, 'uncorr', 'vector', [1,1,1,1,1,1,1,1] * Cmin, &
+  MC    = MCtopUnstable(MatEl, 'uncorr', 'vector', [1,1,1,1,1,1,1,1] * Cmin, &
                 [1,1,1,1,1,1,1,1] * Cmax, Nbins, 0, 0)
   list  = MC%Cparamlist()
 
@@ -56,7 +56,7 @@ subroutine f90ESDistributions(mt, mb, mW, Q, method, Spin, decay, current, ESmin
   character (len = *)              , intent(in)  :: Spin, decay, method, current
   real (dp), dimension(8)          , intent(in)  :: ESmin, ESmax
   real (dp), dimension(Nbins, 8, 3), intent(out) :: list
-  type (MCtop)                                   :: MC
+  type (MCtopUnstable)                                   :: MC
   class (MatrixElements), allocatable            :: MatEl
 
   if ( decay(:6) == 'stable') then
@@ -71,7 +71,7 @@ subroutine f90ESDistributions(mt, mb, mW, Q, method, Spin, decay, current, ESmin
     end select
   end if
 
-  MC   = MCtop(MatEl, Spin(:8), current(:8), ESmin, ESmax, Nbins, Nevent, Niter)
+  MC   = MCtopUnstable(MatEl, Spin(:8), current(:8), ESmin, ESmax, Nbins, Nevent, Niter)
   list = MC%list( method(:5) )
 
 end subroutine f90ESDistributions
@@ -86,7 +86,7 @@ subroutine f90CparamDistribution(mt, mb, mW, Q, expand, method, spin, decay, cur
   character (len = *)           , intent(in)  :: spin, decay, current, method, expand
   real (dp)                     , intent(in)  :: Cmin, Cmax
   real (dp), dimension(Nbins, 3), intent(out) :: list
-  type (MCtop)                                :: MC
+  type (MCtopUnstable)                                :: MC
   class (MatrixElements), allocatable         :: MatEl
 
   if ( decay(:6) == 'stable') then
@@ -101,7 +101,7 @@ subroutine f90CparamDistribution(mt, mb, mW, Q, expand, method, spin, decay, cur
     end select
   end if
 
-  MC   = MCtop(MatEl, spin(:8), current(:8), [1,1,1,1,1,1,1,1] * Cmin, &
+  MC   = MCtopUnstable(MatEl, spin(:8), current(:8), [1,1,1,1,1,1,1,1] * Cmin, &
                [1,1,1,1,1,1,1,1] * Cmax, Nbins, Nevent, Niter)
   list = MC%ListCparam( expand(:6), method(:5) )
 
@@ -118,7 +118,7 @@ subroutine f90CparamLegendreDistro(mt, mb, mW, Q, expand, method, spin, decay, c
   real (dp)                     , intent(in)  :: Cmin, Cmax
   real (dp), dimension(Nbins, 3), intent(out) :: list
   real (dp), dimension(0:n  , 2), intent(out) :: list2
-  type (MCtop)                                :: MC
+  type (MCtopUnstable)                                :: MC
   class (MatrixElements), allocatable         :: MatEl
 
   if ( decay(:6) == 'stable') then
@@ -133,7 +133,7 @@ subroutine f90CparamLegendreDistro(mt, mb, mW, Q, expand, method, spin, decay, c
     end select
   end if
 
-  MC   = MCtop(MatEl, spin(:8), current(:8), [1,1,1,1,1,1,1,1] * Cmin, &
+  MC   = MCtopUnstable(MatEl, spin(:8), current(:8), [1,1,1,1,1,1,1,1] * Cmin, &
                [1,1,1,1,1,1,1,1] * Cmax, Nbins, Nevent, Niter)
   call MC%LegendreDistro( n, expand(:6), method(:5), list, list2 )
 
@@ -149,7 +149,7 @@ subroutine f90CparamLegendre(n, mt, mb, mW, Q, expand, method, spin, decay, curr
   character (len = *)        , intent(in)  :: spin, decay, current, method, expand
   real (dp)                  , intent(in)  :: Cmin, Cmax
   real (dp), dimension(2,0:n), intent(out) :: list
-  type (MCtop)                             :: MC
+  type (MCtopUnstable)                             :: MC
   class (MatrixElements), allocatable      :: MatEl
 
   if ( decay(:6) == 'stable') then
@@ -164,7 +164,7 @@ subroutine f90CparamLegendre(n, mt, mb, mW, Q, expand, method, spin, decay, curr
     end select
   end if
 
-  MC   = MCtop(MatEl, spin(:8), current(:8), [1,1,1,1,1,1,1,1] * Cmin, &
+  MC   = MCtopUnstable(MatEl, spin(:8), current(:8), [1,1,1,1,1,1,1,1] * Cmin, &
                [1,1,1,1,1,1,1,1] * Cmax, 100, Nevent, Niter)
   list = MC%LegendreInt( n, expand(:6), method(:5) )
 

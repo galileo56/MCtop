@@ -13,34 +13,46 @@ module MCtopClass
 
 !ccccccccccccccc
 
-  type MCtop
+  type, abstract :: MCtop
     integer                    , private              :: Nbins, Nevent, Niter
     class (MatrixElements)     , private, allocatable :: MatEl
     real (dp), dimension(:,:  ), private, allocatable :: ES
     real (dp), dimension(8    ), private              :: ESmax, ESmin, delta
-    character (len = 8)        , private              :: spin, current
     integer                    , private              :: dimX, dimP
 
   contains
 
-    final                                             :: delete_object
-    procedure, private                                :: callVegas, callVegasCparam
-    procedure, public                                 :: List, ListCparam, ESlist, CparamList, &
-                                                         LegendreInt, LegendreDistro
+    procedure, private                                :: callVegas
+    procedure, public                                 :: List, ESlist
+
   end type MCtop
 
 !ccccccccccccccc
 
-  interface MCtop
+  type, extends (MCtop), public :: MCtopUnstable
+    private
+    character (len = 8)        , private              :: spin, current
+
+  contains
+
+    final                                             :: delete_object
+    procedure, private                                :: callVegasCparam
+    procedure, public                                 :: LegendreInt, LegendreDistro, CparamList, ListCparam
+
+  end type MCtopUnstable
+
+!ccccccccccccccc
+
+  interface MCtopUnstable
     module procedure InMCtop
-  end interface MCtop
+  end interface MCtopUnstable
 
   contains
 
 !ccccccccccccccc
 
    subroutine delete_object(this)
-     type (MCtop) :: this
+     type (MCtopUnstable) :: this
 
      if ( allocated(this%ES   ) ) deallocate(this%ES  )
      if ( allocated(this%MatEl) ) deallocate(this%MatEl  )
@@ -49,7 +61,7 @@ module MCtopClass
 
 !ccccccccccccccc
 
-   type (MCtop) function InMCtop(MatEl, Spin, current, ESmin, ESmax, Nbins, Nevent, Niter)
+   type (MCtopUnstable) function InMCtop(MatEl, Spin, current, ESmin, ESmax, Nbins, Nevent, Niter)
      class (MatrixElements) , intent(in) :: MatEl
      character (len = *)    , intent(in) :: Spin, current
      integer                , intent(in) :: Nbins, Nevent, Niter
@@ -150,8 +162,12 @@ module MCtopClass
       real (dp), dimension(self%dimP,4)           :: p
       integer                                     :: l
 
-      p = self%MatEl%GenerateVectors(x); ES = EScomputer(p)
-      FunMatEl = self%MatEl%SpinWeight(self%spin, self%current, p)
+      select type (self)
+      type is (MCtopUnstable)
+        p = self%MatEl%GenerateVectors(x); ES = EScomputer(p)
+        FunMatEl = self%MatEl%SpinWeight(self%spin, self%current, p)
+      end select
+
       k = Ceiling( self%Nbins * (ES - self%ESmin )/(self%ESmax - self%ESmin ) )
 
       do l = 1, 8
@@ -175,7 +191,7 @@ module MCtopClass
 !ccccccccccccccc
 
  function LegendreInt(self, n, expand, method) result(list)
-    class (MCtop)            , intent(in) :: self
+    class (MCtopUnstable)    , intent(in) :: self
     integer                  , intent(in) :: n
     character (len = *)      , intent(in) :: expand, method
     real (dp), dimension(0:n, self%Niter) :: distTot, distTot2
@@ -264,7 +280,7 @@ module MCtopClass
 !ccccccccccccccc
 
  subroutine LegendreDistro(self, n, expand, method, dist, list)
-    class (MCtop)                     , intent(in)  :: self
+    class (MCtopUnstable)             , intent(in)  :: self
     integer                           , intent(in)  :: n
     character (len = *)               , intent(in)  :: expand, method
     real (dp), dimension(self%Nbins,3), intent(out) :: dist
@@ -377,7 +393,7 @@ module MCtopClass
 !ccccccccccccccc
 
   subroutine callVegasCparam(self, expand, method, dist)
-    class (MCtop)                      , intent(in)  :: self
+    class (MCtopUnstable)              , intent(in)  :: self
     character (len = *)                , intent(in)  :: expand, method
     real (dp), dimension(self%Nbins, 2), intent(out) :: dist
     real (dp), dimension(self%Nbins, self%Niter)     :: distTot , distTot2
@@ -470,8 +486,8 @@ module MCtopClass
 !ccccccccccccccc
 
   function CparamList(self) result(dist)
-    class (MCtop) , intent(in)       :: self
-    real (dp), dimension(self%Nbins) :: dist
+    class (MCtopUnstable) , intent(in) :: self
+    real (dp), dimension(self%Nbins)   :: dist
 
     dist = self%ES(:,5)
 
@@ -492,7 +508,7 @@ module MCtopClass
 !ccccccccccccccc
 
   function ListCparam(self, expand, method) result(dist)
-    class (MCtop)          , intent(in) :: self
+    class (MCtopUnstable)  , intent(in) :: self
     character (len = *)    , intent(in) :: expand, method
     real (dp), dimension(self%Nbins, 3) :: dist
 
