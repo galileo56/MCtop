@@ -287,8 +287,7 @@ module MCtopClass
         if ( k(l) >  self%Nbins ) k(l) = self%Nbins
 
         if ( k(l) > 0 ) then
-          dist( k(l), l, 2 ) = dist( k(l), l, 2 ) + wgt * FunMatEl
-          dist( k(l), l, 3 ) = dist( k(l), l, 3 ) + wgt * FunMatEl**2
+          dist( k(l), l, 2: ) = dist( k(l), l, 2: ) + (wgt * FunMatEl)**[1,2]
         end if
 
       end do
@@ -377,7 +376,7 @@ module MCtopClass
     real (dp) function FunMatEl(x, wgt)
       real (dp), dimension(self%dimX), intent(in) :: x
       real (dp)                      , intent(in) :: wgt
-      real (dp)                                   :: ES
+      real (dp)                                   :: ES, ESNorm
       real (dp), dimension(0:n)                   :: ESLeg
       real (dp), dimension(self%dimP,4)           :: p
       integer                                     :: k
@@ -389,22 +388,22 @@ module MCtopClass
         FunMatEl = self%MatEl%SpinWeight(self%spin, self%current, p)
       end if
 
-      ESLeg = LegendreList(  n, 2 * ( Cparam(p) - self%ESmin(5) )/&
-                                ( self%ESmax(5) - self%ESmin(5) ) - 1  )
+      ESNorm = (ES - self%ESmin(5) )/(self%ESmax(5) - self%ESmin(5) )
+
+      ESLeg = LegendreList(  n, 2 * ESNorm - 1  )
 
       if ( ES < self%ESmin(5) .or. ES > self%ESmax(5) ) return
 
       list(:,1) = list(:,1) + wgt *  FunMatEl * ESLeg
       list(:,2) = list(:,2) + wgt * (FunMatEl * ESLeg)**2
 
-      k = Ceiling( self%Nbins * (ES - self%ESmin(5) )/(self%ESmax(5) - self%ESmin(5) ) )
+      k = Ceiling( self%Nbins * ESNorm )
 
       if ( k <= 0          ) k = 1
       if ( k >  self%Nbins ) k = self%Nbins
 
       if ( k > 0 ) then
-        dist(k,2) = dist(k,2) + wgt * FunMatEl
-        dist(k,3) = dist(k,3) + wgt * FunMatEl**2
+        dist(k,2:) = dist(k,2:) + wgt * FunMatEl**[1,2]
       end if
 
     end function FunMatEl
