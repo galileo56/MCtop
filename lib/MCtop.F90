@@ -144,10 +144,10 @@ module MCtopClass
      real (dp), dimension(8)             :: delta
      integer                             :: i
 
+     allocate( InMCtop%ES(Nbins, 8),  InMCtop%ESMin(8), InMCtop%ESMax(8), InMCtop%delta(8) )
+
      InMCtop%Nbins = Nbins ; InMCtop%Nevent  = Nevent ; InMCtop%Niter = Niter
      InMCtop%Spin  = Spin  ; InMCtop%current = current; InMCtop%ESmin = ESmin
-
-     allocate( InMCtop%ES(Nbins, 8),  InMCtop%ESMin(8), InMCtop%ESMax(8), InMCtop%delta(8) )
 
      select type (MatEl)
      type is (MatrixElements6)

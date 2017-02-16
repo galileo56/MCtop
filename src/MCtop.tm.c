@@ -1,6 +1,6 @@
 /*
- * This file automatically produced by /Applications/Mathematica.app/Contents/SystemFiles/Links/MathLink/DeveloperKit/MacOSX-x86-64/CompilerAdditions/mprep from:
- *	/Users/vicent/GitHubProjects/MCtop/src/MCtop.tm
+ * This file automatically produced by /Applications/Mathematica.app/SystemFiles/Links/MathLink/DeveloperKit/MacOSX-x86-64/CompilerAdditions/mprep from:
+ *	/Users/vmateu/GitHub/MCtop/src/MCtop.tm
  * mprep Revision 18 Copyright (c) Wolfram Research, Inc. 1990-2013
  */
 
@@ -289,7 +289,7 @@ MLYDEFN( devyield_result, MLDefaultYielder, ( MLINK mlp, MLYieldParameters yp))
 /********************************* end header *********************************/
 
 
-# line 264 "/Users/vicent/GitHubProjects/MCtop/src/MCtop.tm"
+# line 264 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm"
 #include "mathlink.h"
 #include "ftypes.h"
 #include <stdio.h>
@@ -663,7 +663,7 @@ static void vectors6(double x[], long clen, double mt, double mb, double mW, dou
 int main(int argc, char *argv[]){
     return MLMain(argc, argv);
 }
-# line 667 "/Users/vicent/GitHubProjects/MCtop/src/MCtop.tm.c"
+# line 667 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm.c"
 
 
 void esmin P(( double _tp1, double _tp2));
