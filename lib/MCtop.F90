@@ -13,30 +13,31 @@ module MCtopClass
 
 !ccccccccccccccc
 
-  type, abstract, public :: MCtop
-    integer                    , private              :: Nbins, Nevent, Niter
-    class (MatrixElements)     , private, allocatable :: MatEl
-    real (dp), dimension(:,:  ), private, allocatable :: ES
-    real (dp), dimension(:)    , private, allocatable :: ESmax, ESmin, delta
-    integer                    , private              :: dimX, dimP, dimES
+  type, abstract, public                            :: MCtop
+    private
+    integer                  , private              :: Nbins, Nevent, Niter
+    class (MatrixElements)   , private, allocatable :: MatEl
+    real (dp), dimension(:,:), private, allocatable :: ES
+    real (dp), dimension(:)  , private, allocatable :: ESmax, ESmin, delta
+    integer                  , private              :: dimX, dimP, dimES
 
   contains
 
-    procedure, private                                :: callVegas
-    procedure, public                                 :: List, ESlist
+    procedure, private                              :: callVegas
+    procedure, public                               :: List, ESlist
 
   end type MCtop
 
 !ccccccccccccccc
 
-  type, extends (MCtop), public :: MCtopUnstable
+  type, extends (MCtop), public                     :: MCtopUnstable
     private
-    character (len = 8)        , private              :: spin, current
+    character (len = 8), private                    :: spin, current
 
   contains
 
-    final                                             :: delete_object
-    procedure, public                                 :: callVegasCparam, CparamList, ListCparam
+    final                                           :: delete_object
+    procedure, public                               :: callVegasCparam, CparamList, ListCparam
 
   end type MCtopUnstable
 
@@ -44,7 +45,7 @@ module MCtopClass
 
   type, extends (MCtop), public :: MCStable
     private
-    integer                            , private    :: Nlog
+    integer                  , private              :: Nlog
     real (dp), dimension(:,:), private, allocatable :: ESlog
     real (dp), dimension(16 ), private              :: logMin, DeltaLog, logMax
 
@@ -236,7 +237,7 @@ module MCtopClass
 
     if ( method(:5) == 'vegas' ) list(0,:,1) = AVGI
 
-    do i = 0, n
+    do i = 0, m
       list(i,:,:) = (2 * i + 1) * list(i,:,:)
     end do
 
@@ -287,8 +288,8 @@ module MCtopClass
         if ( k(l) >  self%Nbins ) k(l) = self%Nbins
 
         if ( k(l) > 0 ) then
-          dist( k(l), l, 1 ) = dist( k(l), l, 1 ) + wgt * FunMatEl
-          dist( k(l), l, 2 ) = dist( k(l), l, 2 ) + wgt * FunMatEl**2
+          dist( k(l), l, 2 ) = dist( k(l), l, 2 ) + wgt * FunMatEl
+          dist( k(l), l, 3 ) = dist( k(l), l, 3 ) + wgt * FunMatEl**2
         end if
 
       end do
