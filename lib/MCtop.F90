@@ -17,7 +17,8 @@ module MCtopClass
     integer                    , private              :: Nbins, Nevent, Niter
     class (MatrixElements)     , private, allocatable :: MatEl
     real (dp), dimension(:,:  ), private, allocatable :: ES
-    real (dp), dimension(8    ), private              :: ESmax, ESmin, delta
+    real (dp), dimension(:)    , private, allocatable :: ESmax, ESmin, delta
+    ! real (dp), dimension(8    ), private              :: ESmax, ESmin, delta
     integer                    , private              :: dimX, dimP
 
   contains
@@ -43,9 +44,30 @@ module MCtopClass
 
 !ccccccccccccccc
 
+  type, extends (MCtop) :: MCStable
+    private
+    integer                            , private    :: Nlog
+    real (dp), dimension(:,:), private, allocatable :: ESlog
+    real (dp), dimension(16 ), private              :: logMin, DeltaLog, logMax
+
+   contains
+
+    final                                                   :: delete_stable
+    ! procedure                                               :: ListLinLog
+
+  end type MCStable
+
+!ccccccccccccccc
+
   interface MCtopUnstable
     module procedure InMCtop
   end interface MCtopUnstable
+
+!ccccccccccccccc
+
+  interface MCStable
+    module procedure InitEvent1
+  end interface MCStable
 
   contains
 
@@ -55,9 +77,63 @@ module MCtopClass
      type (MCtopUnstable) :: this
 
      if ( allocated(this%ES   ) ) deallocate(this%ES  )
+     if ( allocated(this%ESMin) ) deallocate(this%ESMin  )
+     if ( allocated(this%ESMax) ) deallocate(this%ESMax  )
      if ( allocated(this%MatEl) ) deallocate(this%MatEl  )
+     if ( allocated(this%delta) ) deallocate(this%delta  )
 
    end subroutine delete_object
+
+!ccccccccccccccc
+
+   subroutine delete_stable(this)
+     type (MCStable) :: this
+
+     if ( allocated(this%ES   ) ) deallocate(this%ES  )
+     if ( allocated(this%ESMin) ) deallocate(this%ESMin  )
+     if ( allocated(this%ESMax) ) deallocate(this%ESMax  )
+     if ( allocated(this%MatEl) ) deallocate(this%MatEl  )
+     if ( allocated(this%ESlog) ) deallocate(this%ESlog  )
+     if ( allocated(this%delta) ) deallocate(this%delta  )
+
+   end subroutine delete_stable
+
+!ccccccccccccccc
+
+   type (MCStable) function InitEvent1(MatEl, Nbins, Nlog, Nevent, Niter)
+     integer            , intent(in) ::  Nbins, Nlog, Nevent, Niter
+     type (MatrixStable), intent(in) ::  MatEl
+     real (dp)       , dimension(16) :: DeltaES, DeltaLog, ESMin, ESMax, LogMin, LogMax, delta
+     integer                         :: i
+
+     InitEvent1%Nbins  = Nbins   ; InitEvent1%Nlog  = Nlog
+     InitEvent1%Nevent = Nevent  ; InitEvent1%Niter = Niter
+
+     allocate( MatrixStable :: InitEvent1%MatEl )
+     select type (selector => InitEvent1%MatEl)
+       type is (MatrixStable);  selector = MatEl
+     end select
+
+     allocate( InitEvent1%ES(Nbins, 16), InitEvent1%ESlog(Nlog, 16) )
+     allocate( InitEvent1%ESMin(16), InitEvent1%ESMax(16), InitEvent1%delta(16) )
+
+     ESMin  = MatEl%ESMin();  ESmax  = MatEl%ESMax();  Delta    = (ESmax  - ESmin )/Nevent
+     LogMin = - 5          ;  LogMax = 1            ;  DeltaLog = (LogMax - LogMin)/Nlog
+
+     InitEvent1%Delta = Delta;  InitEvent1%DeltaLog = DeltaLog
+
+     do i = 1, Nevent
+       InitEvent1%ES(i,:) = ESMin  + Delta * (2 * i - 1)/2
+     end do
+
+     do i = 1, Nlog
+       InitEvent1%ESlog(i,:) = LogMin + DeltaLog * (2 * i - 1)/2
+     end do
+
+     InitEvent1%ESMin  = ESMin ; InitEvent1%ESmax  = ESmax
+     InitEvent1%LogMin = - 5   ; InitEvent1%LogMax = 1
+
+   end function InitEvent1
 
 !ccccccccccccccc
 
@@ -72,7 +148,7 @@ module MCtopClass
      InMCtop%Nbins = Nbins ; InMCtop%Nevent  = Nevent ; InMCtop%Niter = Niter
      InMCtop%Spin  = Spin  ; InMCtop%current = current; InMCtop%ESmin = ESmin
 
-     allocate( InMCtop%ES(Nbins, 8) )
+     allocate( InMCtop%ES(Nbins, 8),  InMCtop%ESMin(8), InMCtop%ESMax(8), InMCtop%delta(8) )
 
      select type (MatEl)
      type is (MatrixElements6)
