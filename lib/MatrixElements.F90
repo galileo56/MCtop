@@ -82,22 +82,18 @@ module MatrixElementsClass
 
 !ccccccccccccccc
 
-   type (MatrixStable) function InitStable(oriented, mt, Q)
-     real (dp)          , intent(in) :: mt, Q
+   type (MatrixStable) function InitStable(oriented, m, Q)
+     real (dp)          , intent(in) :: m, Q
      character (len = *), intent(in) :: oriented
-     real (dp)                       :: vT
+     real (dp)                       :: vT, mt2, mt4, mt
 
-    InitStable%mt = mt/Q; InitStable%mt2 = InitStable%mt**2
-    InitStable%mt4 = InitStable%mt2**2      ; InitStable%sizeX  = 2
-    InitStable%oriented = oriented          ; InitStable%sizeP  = 0
-    InitStable%vT = (1 - 4 * InitStable%mt2); InitStable%sizeES = 16
+    mt = m/Q; mt2 = mt**2; InitStable%mt2 = mt2; mt4 = mt2**2
+    InitStable%mt4 = mt4 ; InitStable%sizeX = 2; InitStable%sizeES = 16
+    InitStable%oriented = oriented ; InitStable%sizeP  = 0 ; InitStable%mt = mt
+    InitStable%vT = (1 - 4 * mt2); vT = Sqrt(InitStable%vT)
 
-    vT = Sqrt(InitStable%vT)
-
-    InitStable%Residue = - 4 * [  (1 + 2 * InitStable%mt2) * vT - &
-    2 * (1 - 4 * InitStable%mt4) * Log( (1 + vt)/2/InitStable%mt ),  &
-    sqrt(1 - 4 * InitStable%mt2)**3 - 2 * (1 - 6 * InitStable%mt2 + &
-    8 * InitStable%mt4) * Log( (1 + vt)/2/InitStable%mt ) ]
+    InitStable%Residue = - 4 * ( [ (1 + 2 * mt2) * vT, vt**3 ] - &
+    [ 2 * (1 - 4 * mt4), 2 * (1 - 6 * mt2 + 8 * mt4) ] * Log( (1 + vt)/2/mt ) )
 
    end function InitStable
 
