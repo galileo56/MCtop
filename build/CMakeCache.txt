@@ -68,7 +68,7 @@ CMAKE_EXPORT_COMPILE_COMMANDS:BOOL=OFF
 CMAKE_Fortran_COMPILER:FILEPATH=/usr/local/bin/gfortran
 
 //Flags used by the compiler during all build types.
-CMAKE_Fortran_FLAGS:STRING=
+CMAKE_Fortran_FLAGS:STRING=-Waliasing -Wampersand -Wconversion -Wc-binding-type -Wintrinsics-std -Wtabs -Wintrinsic-shadow -Wline-truncation -Wtarget-lifetime -Winteger-division -Wreal-q-constant -Wunused
 
 //Flags used by the compiler during debug builds.
 CMAKE_Fortran_FLAGS_DEBUG:STRING=-g
@@ -290,6 +290,12 @@ Mathematica_WolframLibrary_INCLUDE_DIR:PATH=/Applications/Mathematica.app/System
 
 //Mathematica Wolfram Runtime Library.
 Mathematica_WolframLibrary_LIBRARY:FILEPATH=/Applications/Mathematica.app/SystemFiles/Libraries/MacOSX-x86-64/libWolframRTL.dylib
+
+//C compiler flags for OpenMP parallization
+OpenMP_C_FLAGS:STRING=
+
+//Fortran compiler flags for OpenMP parallization
+OpenMP_Fortran_FLAGS:STRING=-fopenmp
 
 //Dependencies for target
 libMCtop_LIB_DEPENDS:STATIC=
@@ -535,6 +541,12 @@ Mathematica_WolframLibrary_INCLUDE_DIR-ADVANCED:INTERNAL=1
 Mathematica_WolframLibrary_LIBRARY-ADVANCED:INTERNAL=1
 //WolframLibrary version.
 Mathematica_WolframLibrary_VERSION:INTERNAL=3
+//C compiler's OpenMP specification date
+OpenMP_C_SPEC_DATE:INTERNAL=
+//Test OpenMP_FLAG_DETECTED
+OpenMP_FLAG_DETECTED:INTERNAL=
+//Fortran compiler's OpenMP specification date
+OpenMP_Fortran_SPEC_DATE:INTERNAL=201307
 //Result of TEST_BIG_ENDIAN
 _isBigEndian:INTERNAL=0
 

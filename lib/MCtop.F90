@@ -102,7 +102,7 @@ module MCtopClass
    type (MCStable) function InitStable(MatEl, Nbin, Nlog, Nevent, Niter)
      integer            , intent(in) :: Nbin, Nlog, Nevent, Niter
      type (MatrixStable), intent(in) :: MatEl
-     real (dp)       , dimension(16) :: DeltaES, DeltaLog, ESMin, ESMax, LogMin, LogMax, delta
+     real (dp)       , dimension(16) :: DeltaLog, ESMin, ESMax, LogMin, LogMax, delta
      integer                         :: i
 
      InitStable%Nbin   = Nbin   ; InitStable%Nlog  = Nlog; InitStable%dimES = 16

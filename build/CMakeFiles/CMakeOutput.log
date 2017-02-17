@@ -433,3 +433,22 @@ int main(int argc, char *argv[])
 }
 
 
+Performing Fortran SOURCE FILE Test OpenMP_FLAG_DETECTED succeeded with the following output:
+Change Dir: /Users/vmateu/GitHub/MCtop/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_0e16a/fast"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make -f CMakeFiles/cmTC_0e16a.dir/build.make CMakeFiles/cmTC_0e16a.dir/build
+Building Fortran object CMakeFiles/cmTC_0e16a.dir/src.F.o
+/usr/local/bin/gfortran    -Waliasing -Wampersand -Wconversion -Wc-binding-type -Wintrinsics-std -Wtabs -Wintrinsic-shadow -Wline-truncation -Wtarget-lifetime -Winteger-division -Wreal-q-constant -Wunused -DOpenMP_FLAG_DETECTED -fopenmp   -c /Users/vmateu/GitHub/MCtop/build/CMakeFiles/CMakeTmp/src.F -o CMakeFiles/cmTC_0e16a.dir/src.F.o
+Linking Fortran executable cmTC_0e16a
+/opt/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_0e16a.dir/link.txt --verbose=1
+/usr/local/bin/gfortran     -Waliasing -Wampersand -Wconversion -Wc-binding-type -Wintrinsics-std -Wtabs -Wintrinsic-shadow -Wline-truncation -Wtarget-lifetime -Winteger-division -Wreal-q-constant -Wunused -DOpenMP_FLAG_DETECTED -fopenmp CMakeFiles/cmTC_0e16a.dir/src.F.o  -o cmTC_0e16a  
+
+Source file was:
+
+      program test
+      use omp_lib
+      integer :: n
+      n = omp_get_num_threads()
+      end program test
+  
