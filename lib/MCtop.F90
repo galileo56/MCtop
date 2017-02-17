@@ -47,6 +47,7 @@ module MCtopClass
     integer                  , private              :: Nlog
     real (dp), dimension(:,:), private, allocatable :: ESlog
     real (dp), dimension(16 ), private              :: logMin, DeltaLog, logMax
+    real (dp), dimension(2  ), private              :: B1
 
    contains
 
@@ -64,7 +65,7 @@ module MCtopClass
 !ccccccccccccccc
 
   interface MCStable
-    module procedure InitEvent1
+    module procedure InitStable
   end interface MCStable
 
   contains
@@ -98,40 +99,40 @@ module MCtopClass
 
 !ccccccccccccccc
 
-   type (MCStable) function InitEvent1(MatEl, Nbin, Nlog, Nevent, Niter)
+   type (MCStable) function InitStable(MatEl, Nbin, Nlog, Nevent, Niter)
      integer            , intent(in) :: Nbin, Nlog, Nevent, Niter
      type (MatrixStable), intent(in) :: MatEl
      real (dp)       , dimension(16) :: DeltaES, DeltaLog, ESMin, ESMax, LogMin, LogMax, delta
      integer                         :: i
 
-     InitEvent1%Nbin   = Nbin   ; InitEvent1%Nlog  = Nlog; InitEvent1%dimES = 16
-     InitEvent1%Nevent = Nevent  ; InitEvent1%Niter = Niter
+     InitStable%Nbin   = Nbin   ; InitStable%Nlog  = Nlog; InitStable%dimES = 16
+     InitStable%Nevent = Nevent  ; InitStable%Niter = Niter
 
-     allocate( MatrixStable :: InitEvent1%MatEl )
-     select type (selector => InitEvent1%MatEl)
-       type is (MatrixStable);  selector = MatEl
+     allocate( MatrixStable :: InitStable%MatEl )
+     select type (selector => InitStable%MatEl)
+     type is (MatrixStable);  selector = MatEl; InitStable%B1 = selector%B1()
      end select
 
-     allocate( InitEvent1%ES(Nbin, 16), InitEvent1%ESlog(Nlog, 16) )
-     allocate( InitEvent1%ESMin(16), InitEvent1%ESMax(16), InitEvent1%delta(16) )
+     allocate( InitStable%ES(Nbin, 16), InitStable%ESlog(Nlog, 16) )
+     allocate( InitStable%ESMin(16), InitStable%ESMax(16), InitStable%delta(16) )
 
      ESMin  = MatEl%ESMin();  ESmax  = MatEl%ESMax();  Delta    = (ESmax  - ESmin )/Nbin
      LogMin = - 5          ;  LogMax = 1            ;  DeltaLog = (LogMax - LogMin)/Nlog
 
-     InitEvent1%Delta = Delta;  InitEvent1%DeltaLog = DeltaLog
+     InitStable%Delta = Delta;  InitStable%DeltaLog = DeltaLog
 
      do i = 1, Nbin
-       InitEvent1%ES(i,:) = ESMin + Delta * (2 * i - 1)/2
+       InitStable%ES(i,:) = ESMin + Delta * (2 * i - 1)/2
      end do
 
      do i = 1, Nlog
-       InitEvent1%ESlog(i,:) = LogMin + DeltaLog * (2 * i - 1)/2
+       InitStable%ESlog(i,:) = LogMin + DeltaLog * (2 * i - 1)/2
      end do
 
-     InitEvent1%ESMin  = ESMin ; InitEvent1%ESmax  = ESmax
-     InitEvent1%LogMin = - 5   ; InitEvent1%LogMax = 1
+     InitStable%ESMin  = ESMin ; InitStable%ESmax  = ESmax
+     InitStable%LogMin = - 5   ; InitStable%LogMax = 1
 
-   end function InitEvent1
+   end function InitStable
 
 !ccccccccccccccc
 
@@ -174,9 +175,9 @@ module MCtopClass
 
 !ccccccccccccccc
 
-  subroutine callVegasStable(self, method, distLin, distLog)
+  subroutine callVegasStable(self, method, operation, distLin, distLog)
     class (MCStable)                         , intent(in) :: self
-    character (len = *)                      , intent(in) :: method
+    character (len = *)                      , intent(in) :: method, operation
     real (dp), dimension(self%Nbin, 16, 5)  , intent(out) :: distLin
     real (dp), dimension(self%Nlog, 16, 5)  , intent(out) :: distLog
     real (dp), dimension(self%Nbin, 16, 2, self%Niter, 2) :: distTot
@@ -263,7 +264,7 @@ module MCtopClass
     real (dp) function FunMatEl(x, wgt)
       real (dp), dimension( 2), intent(in) :: x
       real (dp)               , intent(in) :: wgt
-      real (dp), dimension( 2)             :: MatEl
+      real (dp), dimension( 2)             :: MatEl, factor
       real (dp), dimension(16)             :: ES, ESlog
       integer  , dimension(16)             :: k, klog
       integer                              :: i
@@ -286,17 +287,25 @@ module MCtopClass
         if ( klog(i) <= 0         ) klog(i) = 1
         if ( klog(i) >  self%Nlog ) klog(i) = self%Nlog
 
+        if ( operation(:7) == 'product' ) then
+          factor = MatEl * ( ES(i) - self%ESMin(i) )
+        else if ( operation(:8) == 'subtract' ) then
+          factor = 1!/( ES(i) - self%ESMin(i) )!(  MatEl - self%B1/( ES(i) - self%ESMin(i) )  )
+        else
+          factor = MatEl
+        end if
+
         if ( k(i) > 0 ) then
 
-          distLin( k(i), i, 2:4:2 ) = distLin( k(i), i, 2:4:2 ) + wgt * MatEl
-          distLin( k(i), i, 3:5:2 ) = distLin( k(i), i, 3:5:2 ) + wgt * MatEl**2
+          distLin( k(i), i, 2:4:2 ) = distLin( k(i), i, 2:4:2 ) + wgt * factor
+          distLin( k(i), i, 3:5:2 ) = distLin( k(i), i, 3:5:2 ) + wgt * factor**2
 
         end if
 
         if ( klog(i) > 0 ) then
 
-          distLog( klog(i), i, 2:4:2 ) = distLog( klog(i), i, 2:4:2 ) + wgt * MatEl
-          distLog( klog(i), i, 3:5:2 ) = distLog( klog(i), i, 3:5:2 ) + wgt * MatEl**2
+          distLog( klog(i), i, 2:4:2 ) = distLog( klog(i), i, 2:4:2 ) + wgt * factor
+          distLog( klog(i), i, 3:5:2 ) = distLog( klog(i), i, 3:5:2 ) + wgt * factor**2
 
         end if
       end do

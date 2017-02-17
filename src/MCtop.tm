@@ -37,7 +37,7 @@
 :Evaluate:  ESMaxMin4::usage = "ESMaxMin4[eps, mt, mb, mW, Q] computes the maximum and minimim values and locations for Event shapes with 6-particle final state"
 :Evaluate:  ESMax::usage = "ESMax[m,Q] computes the maximal value of the event shape"
 :Evaluate:  ESMin::usage = "ESMin[m,Q] computes the minimal value of the event shape"
-:Evaluate:  StableDistributions::usage = "StableDistributions[mt, Q, oriented, method, Nlin, Nlog, Nevent, Niter] computes the distribution of the event-shape variables"
+:Evaluate:  StableDistributions::usage = "StableDistributions[mt, Q, oriented, method, operation, Nlin, Nlog, Nevent, Niter] computes the distribution of the event-shape variables"
 
 :Evaluate:  Begin["`Private`"]
 
@@ -144,10 +144,10 @@
 
 :Begin:
 :Function:      stabledistributions
-:Pattern:       StableDistributions[mt_, Q_, oriented_, method_, Nlin_,
+:Pattern:       StableDistributions[mt_, Q_, oriented_, method_, operation_, Nlin_,
                  Nlog_, Nevent_, Niter_]
-:Arguments:     {mt, Q, oriented, method, Nlin, Nlog, Nevent, Niter}
-:ArgumentTypes: {Real, Real, String, String, Integer, Integer, Integer, Integer}
+:Arguments:     {mt, Q, oriented, method, operation, Nlin, Nlog, Nevent, Niter}
+:ArgumentTypes: {Real, Real, String, String, String, Integer, Integer, Integer, Integer}
 :ReturnType:    Manual
 :End:
 
@@ -700,16 +700,17 @@ static void esdistributions(double mt, double mb, double mW, double Q,
 }
 
 extern double f90stabledistributions_(double* mt, double* Q, char const* oriented,
-  char const* method, int* Nlin, int* Nlog, int* Nevent, int* Niter, double* res1,
-  double* res2);
+  char const* method, char const* operation, int* Nlin, int* Nlog, int* Nevent,
+  int* Niter, double* res1, double* res2);
 
 static void stabledistributions(double mt, double Q, char const* oriented,
-  char const* method, int Nlin, int Nlog, int Nevent,int Niter){
+  char const* method, char const* operation, int Nlin, int Nlog, int Nevent,
+  int Niter){
   double res1[80 * Nlin];
   double res2[80 * Nlog];
 
-   f90stabledistributions_(&mt, &Q, oriented, method, &Nlin, &Nlog, &Nevent, &Niter,
-     res1, res2);
+   f90stabledistributions_(&mt, &Q, oriented, method, operation, &Nlin, &Nlog,
+                          &Nevent, &Niter, res1, res2);
 
    MLPutFunction(stdlink, "List", 2);
    MLPutFunction(stdlink, "Partition", 2);
