@@ -11,11 +11,11 @@ module MatrixElementsClass
 
   type, abstract                         ::  MatrixElements
     private
-    integer                              :: sizeX, sizeP
+    integer                              :: sizeX, sizeP, sizeES
     real (dp)                            :: mt, mt2, mt4, vt
   contains
 
-    procedure, pass (self), public       ::  dimX, dimP
+    procedure, pass (self), public       :: ESMinMax, dimX, dimP, ESMaxMin
 
   end type MatrixElements
 
@@ -25,10 +25,10 @@ module MatrixElementsClass
                                             mt6, mt8, mb6, Eb, EW, pb
   contains
 
-    procedure, pass (self), public       :: ESMinMax, CparamMinMax, GenerateVectors, &
-                                            SpinWeight, CparamBeta,      &
+    procedure, pass (self), public       :: CparamMinMax, GenerateVectors, &
+                                            SpinWeight, CparamBeta, CparamMaxMin,    &
                                             GenerateRestVectors, GenerateVectors2,   &
-                                            SetMasses, CparamMaxMin, ESMaxMin
+                                            SetMasses
   end type MatrixUnstable
 
 !ccccccccccccccc
@@ -54,8 +54,8 @@ module MatrixElementsClass
 
   contains
 
-    procedure                   :: MatElComputer, ESmin, ESmax, ZY
-    procedure, private          :: modulus, zPlusMinus
+    procedure                    :: MatElComputer, ESmin, ESmax, ZY
+    procedure, private           :: modulus, zPlusMinus
 
   end type MatrixStable
 
@@ -86,9 +86,9 @@ module MatrixElementsClass
      character (len = *), intent(in) :: oriented
 
     InitStable%mt = mt/Q; InitStable%mt2 = InitStable%mt**2
-    InitStable%mt4 = InitStable%mt2**2 ; InitStable%sizeX = 2
-    InitStable%oriented = oriented     ; InitStable%sizeP = 0
-    InitStable%vT = (1 - 4 * InitStable%mt2)
+    InitStable%mt4 = InitStable%mt2**2      ; InitStable%sizeX  = 2
+    InitStable%oriented = oriented          ; InitStable%sizeP  = 0
+    InitStable%vT = (1 - 4 * InitStable%mt2); InitStable%sizeES = 16
 
    end function InitStable
 
@@ -123,7 +123,7 @@ module MatrixElementsClass
     self%mb6 = self%mb2**3;  self%vT = sqrt(1 - 4 * self%mt2)
     self%Eb = (self%mt2 + self%mb2 - self%mW2)/2/self%mt
     self%EW = (self%mt2 + self%mW2 - self%mb2)/2/self%mt
-    self%pb = sqrt(self%Eb**2 - self%mb2)
+    self%pb = sqrt(self%Eb**2 - self%mb2); self%sizeES = 8
 
   end subroutine SetMasses
 
@@ -449,16 +449,16 @@ module MatrixElementsClass
  !ccccccccccccccc
 
   function ESMaxMin(self, eps) result(res)
-    class (MatrixUnstable)    , intent(in) :: self
+    class (MatrixElements)    , intent(in) :: self
     real (dp)                 , intent(in) :: eps
-    real (dp), dimension(0:self%sizeX,8,2) :: res
+    real (dp), dimension(0:self%sizeX, self%sizeES, 2) :: res
     real (dp), dimension(self%sizeX)       :: x
     real (dp)                              :: delta_init
     integer                                :: ktot, kmax, signo, i
 
     DELTA_INIT = 1.d-2;  KMAX = 100000000
 
-    do i = 1, 8
+    do i = 1, self%sizeES
 
       x = 0.2_dp; signo = 1
 
@@ -475,9 +475,17 @@ module MatrixElementsClass
     real (dp) function fun(n, x)
       integer                         , intent(in) :: n
       real (dp), dimension(self%sizeX), intent(in) :: x
-      real (dp), dimension(8)                      :: ES
+      real (dp), dimension(self%sizeES)            :: ES
+      real (dp), dimension(2)                      :: ME
 
-      ES = EScomputer( self%GenerateVectors(x) );  fun = signo * ES(i)
+      select type (self)
+      class is (MatrixUnstable)
+        ES = EScomputer( self%GenerateVectors(x) )
+      type is (MatrixStable)
+        call self%MatElComputer(x(1), x(2), ME, ES)
+      end select
+
+      fun = signo * ES(i)
 
     end function fun
 
@@ -509,25 +517,25 @@ module MatrixElementsClass
 !ccccccccccccccc
 
   function ESMinMax(self, n) result(res)
-    class (MatrixUnstable), intent(in)   :: self
+    class (MatrixElements), intent(in)   :: self
     integer               , intent(in)   :: n
-    real (dp), dimension(2,8)            :: res
-    real (dp), dimension(8)              :: ES
-    real (dp), allocatable, dimension(:) :: x
+    real (dp), dimension(2,self%sizeES)  :: res
+    real (dp), dimension(self%sizeES)    :: ES
+    real (dp), dimension(self%sizeX)     :: x
+    real (dp), dimension(2)              :: ME
     integer                              :: i, j
 
     res(1,:) = 10; res(2,:) = 0
 
-    select type (self)
-    type is (MatrixElements4)
-      allocate( x(3) )
-    type is (MatrixElements6)
-      allocate( x(7) )
-    end select
-
     do i = 1, n
 
-      call Random_number(x); ES = EScomputer( self%GenerateVectors(x) )
+      call Random_number(x)
+      select type(self)
+      class is (MatrixUnstable)
+        ES = EScomputer( self%GenerateVectors(x) )
+      type is (MatrixStable)
+        call self%MatElComputer(x(1), x(2), ME, ES)
+      end select
 
       do j = 1, 8
         if ( ES(j) > res(2,j) ) res(2,j) = ES(j)
@@ -535,8 +543,6 @@ module MatrixElementsClass
       end do
 
     end do
-
-    deallocate(x)
 
   end function ESMinMax
 
@@ -602,7 +608,6 @@ module MatrixElementsClass
 
     ES(:6) = [ thrust, HJM, LJM, HJM + LJM, Cparam(p), B ]
     ES(7:8) = [ max(B1, B2), min(B1, B2) ]/2
-    ! ES(:3) = eje
     ! ES(1) = 1 - sqrt(1 - 2 * (HJM + LJM) + (HJM - LJM)**2 )
 
   end function EScomputer
@@ -668,16 +673,14 @@ module MatrixElementsClass
 !ccccccccccccccc
 
   subroutine MatElComputer(self, h1, h2, MatEl, ES)
-    class(MatrixStable), intent(in) :: self
-    real (dp)          , intent(in) :: h1, h2
-
-    real (dp), dimension(2)         :: zPlusMinus
-    real (dp)                       :: y, z, z2, y3, y1, y2, mod1, mod2, DeltaZ, &
+    class (MatrixStable)    , intent(in)  :: self
+    real (dp)               , intent(in)  :: h1, h2
+    real (dp), dimension( 2), intent(out) :: MatEl
+    real (dp), dimension(16), intent(out) :: ES
+    real (dp), dimension(2)               :: zPlusMinus
+    real (dp)                             :: y, z, z2, y3, y1, y2, mod1, DeltaZ, &
     tauQ, tauE, tauJ, CJ, CE, CQ, CP, rho, rhoE , rhoQ, rhoP, rhoSum, Broadening, &
-    BroadeningE, PNorm, z3, tau, BroadeningQ
-
-    real (dp), dimension( 2), intent(out)     :: MatEl
-    real (dp), dimension(16), intent(out)     :: ES
+    BroadeningE, PNorm, z3, tau, BroadeningQ, mod2
 
     y = self%vt * h1; zPlusMinus = self%zPlusMinus(y)
     DeltaZ = zPlusMinus(1) - zPlusMinus(2); z = zPlusMinus(2) + DeltaZ * h2
