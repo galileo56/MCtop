@@ -23,7 +23,7 @@ module MCtopClass
 
   contains
 
-    procedure, public                               :: List, ESlist, callVegas
+    procedure, pass (self), public                  :: List, ESlist, callVegas
 
   end type MCtop
 
@@ -36,7 +36,7 @@ module MCtopClass
   contains
 
     final                                           :: delete_object
-    procedure, public                               :: callVegasCparam, CparamList, ListCparam
+    procedure, public, pass (self)                  :: callVegasCparam, CparamList, ListCparam
 
   end type MCUnstable
 
@@ -50,8 +50,8 @@ module MCtopClass
 
    contains
 
-    final                                                   :: delete_stable
-    ! procedure                                               :: ListLinLog
+    final                                           :: delete_stable
+    procedure, pass (self)                          :: callVegasStable
 
   end type MCStable
 
@@ -74,11 +74,11 @@ module MCtopClass
    subroutine delete_object(this)
      type (MCUnstable) :: this
 
-     if ( allocated(this%ES   ) ) deallocate(this%ES  )
-     if ( allocated(this%ESMin) ) deallocate(this%ESMin  )
-     if ( allocated(this%ESMax) ) deallocate(this%ESMax  )
-     if ( allocated(this%MatEl) ) deallocate(this%MatEl  )
-     if ( allocated(this%delta) ) deallocate(this%delta  )
+     if ( allocated(this%ES   ) ) deallocate(this%ES   )
+     if ( allocated(this%ESMin) ) deallocate(this%ESMin)
+     if ( allocated(this%ESMax) ) deallocate(this%ESMax)
+     if ( allocated(this%MatEl) ) deallocate(this%MatEl)
+     if ( allocated(this%delta) ) deallocate(this%delta)
 
    end subroutine delete_object
 
@@ -87,12 +87,12 @@ module MCtopClass
    subroutine delete_stable(this)
      type (MCStable) :: this
 
-     if ( allocated(this%ES   ) ) deallocate(this%ES  )
-     if ( allocated(this%ESMin) ) deallocate(this%ESMin  )
-     if ( allocated(this%ESMax) ) deallocate(this%ESMax  )
-     if ( allocated(this%MatEl) ) deallocate(this%MatEl  )
-     if ( allocated(this%delta) ) deallocate(this%delta  )
-     if ( allocated(this%ESlog) ) deallocate(this%ESlog  )
+     if ( allocated(this%ES   ) ) deallocate(this%ES   )
+     if ( allocated(this%ESMin) ) deallocate(this%ESMin)
+     if ( allocated(this%ESMax) ) deallocate(this%ESMax)
+     if ( allocated(this%MatEl) ) deallocate(this%MatEl)
+     if ( allocated(this%delta) ) deallocate(this%delta)
+     if ( allocated(this%ESlog) ) deallocate(this%ESlog)
 
    end subroutine delete_stable
 
@@ -175,14 +175,14 @@ module MCtopClass
 !ccccccccccccccc
 
   subroutine callVegasStable(self, method, distLin, distLog)
-    class (MCStable)                         , intent(in)  :: self
-    character (len = *)                      , intent(in)  :: method
+    class (MCStable)                         , intent(in) :: self
+    character (len = *)                      , intent(in) :: method
     real (dp), dimension(self%Nbin, 16, 5)  , intent(out) :: distLin
-    real (dp), dimension(self%Nlog , 16, 5)  , intent(out) :: distLog
+    real (dp), dimension(self%Nlog, 16, 5)  , intent(out) :: distLog
     real (dp), dimension(self%Nbin, 16, 2, self%Niter, 2) :: distTot
-    real (dp), dimension(self%Nlog , 16, 2, self%Niter, 2) :: distTotL
-    real (dp)                                        :: AVGI, SD, CHI2A
-    integer                                                :: i, j
+    real (dp), dimension(self%Nlog, 16, 2, self%Niter, 2) :: distTotL
+    real (dp)                                             :: AVGI, SD, CHI2A
+    integer                                               :: i, j
 
     NPRN = - 1; ITMX = 1; Ncall = self%Nevent; distTot = 0;  distTotL = 0
     distLin(:,:,1) = self%ES; distLog(:,:,1) = self%ESlog
@@ -566,7 +566,7 @@ module MCtopClass
 
   function CparamList(self) result(dist)
     class (MCUnstable) , intent(in) :: self
-    real (dp), dimension(self%Nbin)   :: dist
+    real (dp), dimension(self%Nbin) :: dist
 
     dist = self%ES(:,5)
 
