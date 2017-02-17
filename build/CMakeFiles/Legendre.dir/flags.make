@@ -6,5 +6,5 @@ Fortran_FLAGS =
 
 Fortran_DEFINES = 
 
-Fortran_INCLUDES = -I/Users/vicent/GitHubProjects/MCtop -I/Applications/Mathematica.app/Contents/SystemFiles/Links/MathLink/DeveloperKit/MacOSX-x86-64/CompilerAdditions/mathlink.framework/Headers 
+Fortran_INCLUDES = -I/Users/vmateu/GitHub/MCtop -I/Applications/Mathematica.app/SystemFiles/Links/MathLink/DeveloperKit/MacOSX-x86-64/CompilerAdditions/mathlink.framework/Headers 
 

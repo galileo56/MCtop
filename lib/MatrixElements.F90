@@ -51,6 +51,7 @@ module MatrixElementsClass
     private
 
     character (len = 6), private :: oriented
+    real (dp), dimension(2)      :: Residue
 
   contains
 
@@ -84,11 +85,19 @@ module MatrixElementsClass
    type (MatrixStable) function InitStable(oriented, mt, Q)
      real (dp)          , intent(in) :: mt, Q
      character (len = *), intent(in) :: oriented
+     real (dp)                       :: vT
 
     InitStable%mt = mt/Q; InitStable%mt2 = InitStable%mt**2
     InitStable%mt4 = InitStable%mt2**2      ; InitStable%sizeX  = 2
     InitStable%oriented = oriented          ; InitStable%sizeP  = 0
     InitStable%vT = (1 - 4 * InitStable%mt2); InitStable%sizeES = 16
+
+    vT = Sqrt(InitStable%vT)
+
+    InitStable%Residue = - 4 * [  (1 + 2 * InitStable%mt2) * vT - &
+    2 * (1 - 4 * InitStable%mt4) * Log( (1 + vt)/2/InitStable%mt ),  &
+    sqrt(1 - 4 * InitStable%mt2)**3 - 2 * (1 - 6 * InitStable%mt2 + &
+    8 * InitStable%mt4) * Log( (1 + vt)/2/InitStable%mt ) ]
 
    end function InitStable
 
