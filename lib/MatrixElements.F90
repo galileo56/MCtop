@@ -553,7 +553,7 @@ module MatrixElementsClass
         do k = 1, npart
           if (k /= i .and. k /= j) then
             vecprod = sum( q1 * p(k,2:) )
-            q2 = q2 + p(k,:) * int( vecprod/abs(vecprod) )
+            if ( abs(vecprod) > 0 ) q2 = q2 + p(k,:) * int( vecprod/abs(vecprod) )
           end if
         end do
 
@@ -594,6 +594,7 @@ module MatrixElementsClass
 
     ES(:6) = [ thrust, HJM, LJM, HJM + LJM, Cparam(p), B ]
     ES(7:8) = [ max(B1, B2), min(B1, B2) ]/2
+    ! ES(:3) = eje
     ! ES(1) = 1 - sqrt(1 - 2 * (HJM + LJM) + (HJM - LJM)**2 )
 
   end function EScomputer
