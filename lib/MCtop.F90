@@ -136,7 +136,7 @@ module MCtopClass
 !ccccccccccccccc
 
    type (MCtopUnstable) function InMCtop(MatEl, Spin, current, ESmin, ESmax, Nbins, Nevent, Niter)
-     class (MatrixElements) , intent(in) :: MatEl
+     class (MatrixUnstable) , intent(in) :: MatEl
      character (len = *)    , intent(in) :: Spin, current
      integer                , intent(in) :: Nbins, Nevent, Niter
      real (dp), dimension(8), intent(in) :: ESmin, ESmax
@@ -273,8 +273,11 @@ module MCtopClass
 
       select type (self)
       type is (MCtopUnstable)
-        p = self%MatEl%GenerateVectors(x); ES = EScomputer(p)
-        FunMatEl = self%MatEl%SpinWeight(self%spin, self%current, p)
+        select type (selector => self%MatEl)
+        class is (MatrixUnstable)
+          p = selector%GenerateVectors(x); ES = EScomputer(p)
+          FunMatEl = selector%SpinWeight(self%spin, self%current, p)
+        end select
       end select
 
       ESNorm = (ES - self%ESmin)/(self%ESmax - self%ESmin)
@@ -389,12 +392,18 @@ module MCtopClass
       real (dp), dimension(self%dimP,4)           :: p
       integer                                     :: k
 
-      if ( expand(:6) == 'expand' ) then
-        ES = self%MatEl%CparamBeta(x); FunMatEl = 1
-      else
-        p = self%MatEl%GenerateVectors(x); ES = Cparam(p)
-        FunMatEl = self%MatEl%SpinWeight(self%spin, self%current, p)
-      end if
+      select type (self)
+      type is (MCtopUnstable)
+        select type (selector => self%MatEl)
+        class is (MatrixUnstable)
+          if ( expand(:6) == 'expand' ) then
+            ES = selector%CparamBeta(x); FunMatEl = 1
+          else
+            p = selector%GenerateVectors(x); ES = Cparam(p)
+            FunMatEl = selector%SpinWeight(self%spin, self%current, p)
+          end if
+        end select
+      end select
 
       ESNorm = ( ES - self%ESmin(5) )/( self%ESmax(5) - self%ESmin(5) )
 

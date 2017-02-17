@@ -97,7 +97,7 @@ subroutine f90ESDistributions(mt, mb, mW, Q, method, Spin, decay, current, ESmin
   real (dp), dimension(8)          , intent(in)  :: ESmin, ESmax
   real (dp), dimension(Nbins, 8, 3), intent(out) :: list
   type (MCtopUnstable)                           :: MC
-  class (MatrixElements), allocatable            :: MatEl
+  class (MatrixUnstable), allocatable            :: MatEl
 
   if ( decay(:6) == 'stable') then
     allocate( MatrixElements4 :: MatEl )
@@ -128,7 +128,7 @@ subroutine f90ESLegendre(mt, mb, mW, Q, method, Spin, decay, current, ESmin, &
   real (dp), dimension(0:n, 8, 2)  , intent(out) :: list
   real (dp), dimension(1  , 8, 3)                :: list2
   type (MCtopUnstable)                           :: MC
-  class (MatrixElements), allocatable            :: MatEl
+  class (MatrixUnstable), allocatable            :: MatEl
 
   if ( decay(:6) == 'stable') then
     allocate( MatrixElements4 :: MatEl )
@@ -158,7 +158,7 @@ subroutine f90CparamDistribution(mt, mb, mW, Q, expand, method, spin, decay, cur
   real (dp)                     , intent(in)  :: Cmin, Cmax
   real (dp), dimension(Nbins, 3), intent(out) :: list
   type (MCtopUnstable)                                :: MC
-  class (MatrixElements), allocatable         :: MatEl
+  class (MatrixUnstable), allocatable         :: MatEl
 
   if ( decay(:6) == 'stable') then
     allocate( MatrixElements4 :: MatEl )
@@ -190,7 +190,7 @@ subroutine f90CparamLegendreDistro(mt, mb, mW, Q, expand, method, spin, decay, c
   real (dp), dimension(Nbins, 3), intent(out) :: list
   real (dp), dimension(0:n  , 2), intent(out) :: list2
   type (MCtopUnstable)                        :: MC
-  class (MatrixElements), allocatable         :: MatEl
+  class (MatrixUnstable), allocatable         :: MatEl
 
   if ( decay(:6) == 'stable') then
     allocate( MatrixElements4 :: MatEl )
@@ -222,7 +222,7 @@ subroutine f90CparamLegendre(n, mt, mb, mW, Q, expand, method, spin, decay, curr
   real (dp), dimension(2,0:n), intent(out) :: list
   real (dp), dimension(1,3)                :: list2
   type (MCtopUnstable)                     :: MC
-  class (MatrixElements), allocatable      :: MatEl
+  class (MatrixUnstable), allocatable      :: MatEl
 
   if ( decay(:6) == 'stable') then
     allocate( MatrixElements4 :: MatEl )

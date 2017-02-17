@@ -12,26 +12,35 @@ module MatrixElementsClass
   type, abstract                         ::  MatrixElements
     private
     integer                              :: sizeX, sizeP
-    real (dp)                            :: mt, mb, mW, mb4, mt2, mW2, mW4, mW6, mW8,&
-                                            mb2, mt4, mt6, mt8, mb6, Eb, EW, pb, vt
+    real (dp)                            :: mt, mt2, mt4, vt
+  contains
+
+    procedure, pass (self), public       ::  dimX, dimP
+
+  end type MatrixElements
+
+  type, extends(MatrixElements), public, abstract   ::  MatrixUnstable
+    private
+    real (dp)                            :: mb, mb2, mb4, mW, mW2, mW4, mW6, mW8,&
+                                            mt6, mt8, mb6, Eb, EW, pb
   contains
 
     procedure, pass (self), public       :: ESMinMax, CparamMinMax, GenerateVectors, &
-                                            SpinWeight, dimX, dimP, CparamBeta,      &
+                                            SpinWeight, CparamBeta,      &
                                             GenerateRestVectors, GenerateVectors2,   &
                                             SetMasses, CparamMaxMin, ESMaxMin
-  end type MatrixElements
+  end type MatrixUnstable
 
 !ccccccccccccccc
 
-  type, extends (MatrixElements), public :: MatrixElements4
+  type, extends (MatrixUnstable), public :: MatrixElements4
     private
 
   end type MatrixElements4
 
 !ccccccccccccccc
 
-  type, extends (MatrixElements), public :: MatrixElements6
+  type, extends (MatrixUnstable), public :: MatrixElements6
     private
 
   end type MatrixElements6
@@ -41,7 +50,6 @@ module MatrixElementsClass
   type, extends (MatrixElements), public :: MatrixStable
     private
 
-    real(dp)           , private :: Jacob
     character (len = 6), private :: oriented
 
   contains
@@ -80,7 +88,7 @@ module MatrixElementsClass
     InitStable%mt = mt/Q; InitStable%mt2 = InitStable%mt**2
     InitStable%mt4 = InitStable%mt2**2 ; InitStable%sizeX = 2
     InitStable%oriented = oriented     ; InitStable%sizeP = 0
-    InitStable%Jacob = (1 - 4 * InitStable%mt2)
+    InitStable%vT = (1 - 4 * InitStable%mt2)
 
    end function InitStable
 
@@ -105,7 +113,7 @@ module MatrixElementsClass
 !ccccccccccccccc
 
   subroutine SetMasses(self, mt, mb, mW, Q)
-    class (MatrixElements), intent(inout) :: self
+    class (MatrixUnstable), intent(inout) :: self
     real (dp)             , intent(in)    :: mt, mW, mb, Q
 
     self%mt = mt/Q;  self%mW = mW/Q;  self%mb = mb/Q; self%mt2 = self%mt**2
@@ -139,7 +147,7 @@ module MatrixElementsClass
 ! In the case of stable W, there are no correlations within the top decay products
 
   real (dp) function SpinWeight(self, spin, current, p)
-    class (MatrixElements), intent(in) :: self
+    class (MatrixUnstable), intent(in) :: self
     character (len = *)   , intent(in) :: spin, current
     real (dp)             , intent(in) :: p(self%sizeP,0:3)
     real (dp)                          :: p1p2, p1p4, p1p5, p1p6, p2p4, p2p6, a, &
@@ -267,7 +275,7 @@ module MatrixElementsClass
 !ccccccccccccccc
 
   function GenerateRestVectors(self, x) result(p)
-    class (MatrixElements)          , intent(in) :: self
+    class (MatrixUnstable)          , intent(in) :: self
     real (dp), dimension(self%sizeX), intent(in) :: x
     real (dp), dimension(self%sizeP,0:3)         :: p
     real (dp), dimension(0:3)                    :: p1, q
@@ -322,7 +330,7 @@ module MatrixElementsClass
 !ccccccccccccccc
 
   function GenerateVectors2(self, x) result(p)
-    class (MatrixElements)          , intent(in) :: self
+    class (MatrixUnstable)          , intent(in) :: self
     real (dp), dimension(self%sizeX), intent(in) :: x
     real (dp), dimension(self%sizeP,0:3)         :: p
     real (dp), dimension(0:3)                    :: p1, q
@@ -392,7 +400,7 @@ module MatrixElementsClass
 !ccccccccccccccc
 
   function GenerateVectors(self, x) result(p)
-    class (MatrixElements)          , intent(in) :: self
+    class (MatrixUnstable)          , intent(in) :: self
     real (dp), dimension(self%sizeX), intent(in) :: x
     real (dp), dimension(self%sizeP,0:3)         :: p
     integer                                      :: i
@@ -412,7 +420,7 @@ module MatrixElementsClass
  !ccccccccccccccc
 
   function CparamMaxMin(self, eps) result(res)
-    class (MatrixElements)  , intent(in) :: self
+    class (MatrixUnstable)  , intent(in) :: self
     real (dp)               , intent(in) :: eps
     real (dp), dimension(0:self%sizeX,2) :: res
     real (dp), dimension(self%sizeX)     :: x
@@ -441,7 +449,7 @@ module MatrixElementsClass
  !ccccccccccccccc
 
   function ESMaxMin(self, eps) result(res)
-    class (MatrixElements)    , intent(in) :: self
+    class (MatrixUnstable)    , intent(in) :: self
     real (dp)                 , intent(in) :: eps
     real (dp), dimension(0:self%sizeX,8,2) :: res
     real (dp), dimension(self%sizeX)       :: x
@@ -478,7 +486,7 @@ module MatrixElementsClass
  !ccccccccccccccc
 
   function CparamMinMax(self, n) result(res)
-    class (MatrixElements)  , intent(in) :: self
+    class (MatrixUnstable)  , intent(in) :: self
     integer                 , intent(in) :: n
     real (dp), dimension(0:self%sizeX,2) :: res
     real (dp), dimension(self%sizeX)     :: x
@@ -501,7 +509,7 @@ module MatrixElementsClass
 !ccccccccccccccc
 
   function ESMinMax(self, n) result(res)
-    class (MatrixElements), intent(in)   :: self
+    class (MatrixUnstable), intent(in)   :: self
     integer               , intent(in)   :: n
     real (dp), dimension(2,8)            :: res
     real (dp), dimension(8)              :: ES
@@ -620,7 +628,7 @@ module MatrixElementsClass
 !ccccccccccccccc
 
   real (dp) function CparamBeta(self, x)
-    class (MatrixElements)              , intent(in) :: self
+    class (MatrixUnstable)              , intent(in) :: self
     real (dp), dimension(self%sizeX)    , intent(in) :: x ! cartesian coordinates, top and anti-top rest frame
     real (dp), dimension(self%sizeP,0:3)             :: p ! cartesian coordinates, top and anti-top rest frame
     real (dp), dimension(self%sizeP,2)               :: q ! + and - light-cone coordinates
@@ -671,7 +679,7 @@ module MatrixElementsClass
     real (dp), dimension( 2), intent(out)     :: MatEl
     real (dp), dimension(16), intent(out)     :: ES
 
-    y = self%Jacob * h1; zPlusMinus = self%zPlusMinus(y)
+    y = self%vt * h1; zPlusMinus = self%zPlusMinus(y)
     DeltaZ = zPlusMinus(1) - zPlusMinus(2); z = zPlusMinus(2) + DeltaZ * h2
 
     z2 = 1 - z; z3 = z * z2;  y3 = 1 - y; MatEl = 0
@@ -709,7 +717,7 @@ module MatrixElementsClass
 
 ! (1 - 4 * m**2) jacobian factor included in matrix elements
 
-    MatEl = DeltaZ * self%Jacob * MatEl
+    MatEl = DeltaZ * self%vt * MatEl
 
     if (z >= 0.5_dp .and. y < y1) then
 
@@ -790,7 +798,7 @@ module MatrixElementsClass
     real (dp), dimension(2), intent(out) :: res
     real (dp), dimension(2)              :: zPlusMinus
 
-    res(1) = self%Jacob * h1; zPlusMinus = self%zPlusMinus( res(1) )
+    res(1) = self%vt * h1; zPlusMinus = self%zPlusMinus( res(1) )
     res(2) = zPlusMinus(2) + ( zPlusMinus(1) - zPlusMinus(2) ) * h2
 
   end subroutine ZY
@@ -843,7 +851,7 @@ module MatrixElementsClass
     real (dp), dimension(16)        :: ES
 
     ES      =   0; ES(9) = self%mt2; ES(13)  = 2 * self%mt2
-    ES(4:5) = [ 1 - sqrt(self%Jacob), 12 * self%mt2 * (1 - self%mt2)/6 ]
+    ES(4:5) = [ 1 - sqrt(self%vt), 12 * self%mt2 * (1 - self%mt2)/6 ]
 
   end function ESmin
 
