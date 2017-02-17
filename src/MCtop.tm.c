@@ -671,16 +671,17 @@ static void esdistributions(double mt, double mb, double mW, double Q,
 }
 
 extern double f90stabledistributions_(double* mt, double* Q, char const* oriented,
-  char const* method, int* Nlin, int* Nlog, int* Nevent, int* Niter, double* res1,
-  double* res2);
+  char const* method, char const* operation, int* Nlin, int* Nlog, int* Nevent,
+  int* Niter, double* res1, double* res2);
 
 static void stabledistributions(double mt, double Q, char const* oriented,
-  char const* method, int Nlin, int Nlog, int Nevent,int Niter){
+  char const* method, char const* operation, int Nlin, int Nlog, int Nevent,
+  int Niter){
   double res1[80 * Nlin];
   double res2[80 * Nlog];
 
-   f90stabledistributions_(&mt, &Q, oriented, method, &Nlin, &Nlog, &Nevent, &Niter,
-     res1, res2);
+   f90stabledistributions_(&mt, &Q, oriented, method, operation, &Nlin, &Nlog,
+                          &Nevent, &Niter, res1, res2);
 
    MLPutFunction(stdlink, "List", 2);
    MLPutFunction(stdlink, "Partition", 2);
@@ -782,7 +783,7 @@ static void vectors6(double x[], long clen, double mt, double mb, double mW, dou
 int main(int argc, char *argv[]){
     return MLMain(argc, argv);
 }
-# line 786 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm.c"
+# line 787 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm.c"
 
 
 void b1 P(( double _tp1, double _tp2));
@@ -1173,7 +1174,7 @@ L0:	return res;
 } /* _tr10 */
 
 
-void stabledistributions P(( double _tp1, double _tp2, const char * _tp3, const char * _tp4, int _tp5, int _tp6, int _tp7, int _tp8));
+void stabledistributions P(( double _tp1, double _tp2, const char * _tp3, const char * _tp4, const char * _tp5, int _tp6, int _tp7, int _tp8, int _tp9));
 
 #if MLPROTOTYPES
 static int _tr11( MLINK mlp)
@@ -1186,24 +1187,27 @@ static int _tr11(mlp) MLINK mlp;
 	double _tp2;
 	const char * _tp3;
 	const char * _tp4;
-	int _tp5;
+	const char * _tp5;
 	int _tp6;
 	int _tp7;
 	int _tp8;
+	int _tp9;
 	if ( ! MLGetReal( mlp, &_tp1) ) goto L0;
 	if ( ! MLGetReal( mlp, &_tp2) ) goto L1;
 	if ( ! MLGetString( mlp, &_tp3) ) goto L2;
 	if ( ! MLGetString( mlp, &_tp4) ) goto L3;
-	if ( ! MLGetInteger( mlp, &_tp5) ) goto L4;
+	if ( ! MLGetString( mlp, &_tp5) ) goto L4;
 	if ( ! MLGetInteger( mlp, &_tp6) ) goto L5;
 	if ( ! MLGetInteger( mlp, &_tp7) ) goto L6;
 	if ( ! MLGetInteger( mlp, &_tp8) ) goto L7;
-	if ( ! MLNewPacket(mlp) ) goto L8;
+	if ( ! MLGetInteger( mlp, &_tp9) ) goto L8;
+	if ( ! MLNewPacket(mlp) ) goto L9;
 
-	stabledistributions(_tp1, _tp2, _tp3, _tp4, _tp5, _tp6, _tp7, _tp8);
+	stabledistributions(_tp1, _tp2, _tp3, _tp4, _tp5, _tp6, _tp7, _tp8, _tp9);
 
 	res = 1;
-L8: L7: L6: L5: L4:	MLReleaseString(mlp, _tp4);
+L9: L8: L7: L6: L5:	MLReleaseString(mlp, _tp5);
+L4:	MLReleaseString(mlp, _tp4);
 L3:	MLReleaseString(mlp, _tp3);
 L2: L1: 
 L0:	return res;
@@ -1853,7 +1857,7 @@ static struct func {
 		{15, 0, _tr8, "cparamlegendredistro" },
 		{14, 0, _tr9, "cparamlegendre" },
 		{13, 0, _tr10, "esdistributions" },
-		{ 8, 0, _tr11, "stabledistributions" },
+		{ 9, 0, _tr11, "stabledistributions" },
 		{13, 0, _tr12, "eslegendre" },
 		{ 7, 0, _tr13, "eslist" },
 		{ 3, 0, _tr14, "esliststable" },
@@ -1999,8 +2003,8 @@ static const char* evalstrs[] = {
 	"nt shape\"",
 	(const char*)0,
 	"StableDistributions::usage = \"StableDistributions[mt, Q, oriente",
-	"d, method, Nlin, Nlog, Nevent, Niter] computes the distribution ",
-	"of the event-shape variables\"",
+	"d, method, operation, Nlin, Nlog, Nevent, Niter] computes the di",
+	"stribution of the event-shape variables\"",
 	(const char*)0,
 	"Begin[\"`Private`\"]",
 	(const char*)0,
@@ -2083,7 +2087,7 @@ int MLInstall(mlp) MLINK mlp;
 	if (_res) _res = _definepattern(mlp, (char *)"CparamLegendreDistro[mt_, mb_, mW_, Q_, expand_, method_, spin_,                  decay_, current_, Cmin_, Cmax_, n_, Nbins_, Nevent_, Niter_]", (char *)"{mt, mb, mW, Q, expand, method, spin, decay, current, Cmin, Cmax,                  n, Nbins, Nevent, Niter}", 8);
 	if (_res) _res = _definepattern(mlp, (char *)"CparamLegendre[n_, mt_, mb_, mW_, Q_, expand_, method_, spin_, decay_,                  current_, Cmin_, Cmax_, Nevent_, Niter_]", (char *)"{n, mt, mb, mW, Q, expand, method, spin, decay, current, Cmin, Cmax,                  Nevent, Niter}", 9);
 	if (_res) _res = _definepattern(mlp, (char *)"ESDistributions[mt_, mb_, mW_, Q_, method_, spin_, decay_, current_,                  Cmin_, Cmax_, Nbins_, Nevent_, Niter_]", (char *)"{mt, mb, mW, Q, method, spin, decay, current, Cmin, Cmax, Nbins, Nevent, Niter}", 10);
-	if (_res) _res = _definepattern(mlp, (char *)"StableDistributions[mt_, Q_, oriented_, method_, Nlin_,                  Nlog_, Nevent_, Niter_]", (char *)"{mt, Q, oriented, method, Nlin, Nlog, Nevent, Niter}", 11);
+	if (_res) _res = _definepattern(mlp, (char *)"StableDistributions[mt_, Q_, oriented_, method_, operation_, Nlin_,                  Nlog_, Nevent_, Niter_]", (char *)"{mt, Q, oriented, method, operation, Nlin, Nlog, Nevent, Niter}", 11);
 	if (_res) _res = _definepattern(mlp, (char *)"ESLegendre[mt_, mb_, mW_, Q_, method_, spin_, decay_, current_,                  Cmin_, Cmax_, n_, Nevent_, Niter_]", (char *)"{mt, mb, mW, Q, method, spin, decay, current, Cmin, Cmax, n, Nevent, Niter}", 12);
 	if (_res) _res = _definepattern(mlp, (char *)"ESList[mt_, mb_, mW_, Q_, ESmin_, ESmax_, Nbins_]", (char *)"{mt, mb, mW, Q, ESmin, ESmax, Nbins}", 13);
 	if (_res) _res = _definepattern(mlp, (char *)"ESListStable[mt_, Q_, Nbins_]", (char *)"{mt, Q, Nbins}", 14);

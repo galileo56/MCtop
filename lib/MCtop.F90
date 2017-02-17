@@ -264,8 +264,7 @@ module MCtopClass
     real (dp) function FunMatEl(x, wgt)
       real (dp), dimension( 2), intent(in) :: x
       real (dp)               , intent(in) :: wgt
-      real (dp)                            :: factor
-      real (dp), dimension( 2)             :: MatEl
+      real (dp), dimension( 2)             :: MatEl, factor
       real (dp), dimension(16)             :: ES, ESlog
       integer  , dimension(16)             :: k, klog
       integer                              :: i
@@ -289,24 +288,24 @@ module MCtopClass
         if ( klog(i) >  self%Nlog ) klog(i) = self%Nlog
 
         if ( operation(:7) == 'product' ) then
-          factor = ES(i) - self%ESMin(i)
+          factor = MatEl * ( ES(i) - self%ESMin(i) )
         else if ( operation(:8) == 'subtract' ) then
-          factor = 1
+          factor = 1!/( ES(i) - self%ESMin(i) )!(  MatEl - self%B1/( ES(i) - self%ESMin(i) )  )
         else
-          factor = 1
+          factor = MatEl
         end if
 
         if ( k(i) > 0 ) then
 
-          distLin( k(i), i, 2:4:2 ) = distLin( k(i), i, 2:4:2 ) + wgt *  MatEl * factor
-          distLin( k(i), i, 3:5:2 ) = distLin( k(i), i, 3:5:2 ) + wgt * (MatEl * factor)**2
+          distLin( k(i), i, 2:4:2 ) = distLin( k(i), i, 2:4:2 ) + wgt * factor
+          distLin( k(i), i, 3:5:2 ) = distLin( k(i), i, 3:5:2 ) + wgt * factor**2
 
         end if
 
         if ( klog(i) > 0 ) then
 
-          distLog( klog(i), i, 2:4:2 ) = distLog( klog(i), i, 2:4:2 ) + wgt * MatEl * factor
-          distLog( klog(i), i, 3:5:2 ) = distLog( klog(i), i, 3:5:2 ) + wgt * (MatEl * factor)**2
+          distLog( klog(i), i, 2:4:2 ) = distLog( klog(i), i, 2:4:2 ) + wgt * factor
+          distLog( klog(i), i, 3:5:2 ) = distLog( klog(i), i, 3:5:2 ) + wgt * factor**2
 
         end if
       end do
