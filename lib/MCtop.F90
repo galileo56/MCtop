@@ -278,6 +278,7 @@ module MCtopClass
       do l = 1, 8
 
         if ( ES(l) < self%ESmin(l) .or. ES(l) > self%ESmax(l) ) cycle
+        if ( ISNAN( ES(l) ) .or. ES(l) + 1 == ES(l) ) cycle
 
         ESLeg = LegendreList(  m, 2 * ESNorm(l) - 1  )
 
