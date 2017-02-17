@@ -5,6 +5,8 @@
 :Evaluate:   Print["     Last modification: 08 - 01 - 2017        "]
 :Evaluate:   Print["     Version:           test 2                "]
 
+:Evaluate:  MatrixElements::usage = "MatrixElements[m, Q, h1, h2, oriented] computes the matrix elements for vector and axial current"
+:Evaluate:  EShape::usage = "EShape[m, Q, h1, h2] computes the value of the event shape"
 :Evaluate:  CparamLegendreDistro::usage = "CparamLegendreDistro[mt, mb, mW, Q, expand, method, Spin, decay, current, Cmin, Cmax, n, Nbins, Nevent, Niter] computes the Legendre expansion and distribution for the C-parameter event shape"
 :Evaluate:  CparamLegendre::usage = "CparamLegendre[n, mt, mb, mW, Q, expand, method, Spin, decay, current, Cmin, Cmax, Nevent, Niter] computes the integration against Legendre Polynomial"
 :Evaluate:  LegendreList::usage = "LegendreList[n, x] computes the of the first n + 1 Legendre Polynomial"
@@ -38,6 +40,22 @@
 :Evaluate:  Begin["`Private`"]
 
 :Evaluate:  Print["You can access the complete function list typing '?MCtop`*' "]
+
+:Begin:
+:Function:      matrixelements
+:Pattern:       MatrixElements[m_, Q_, h1_, h2_, oriented_]
+:Arguments:     {m, Q, h1, h2, oriented}
+:ArgumentTypes: {Real, Real, Real, Real, String}
+:ReturnType:    Manual
+:End:
+
+:Begin:
+:Function:      eshape
+:Pattern:       EShape[m_, Q_, h1_, h2_]
+:Arguments:     {m, Q, h1, h2}
+:ArgumentTypes: {Real, Real, Real, Real}
+:ReturnType:    Manual
+:End:
 
 :Begin:
 :Function:      esmin
@@ -294,6 +312,29 @@
 #include "ftypes.h"
 #include <stdio.h>
 #include <unistd.h>
+
+extern double f90eshape_(double* m, double* Q, double* h1, double* h2, double* res);
+
+static void eshape(double m, double Q, double h1, double h2){
+  double res[16];
+
+   f90eshape_(&m, &Q, &h1, &h2, res);
+
+   MLPutRealList(stdlink, res, 16);
+   MLEndPacket(stdlink);
+}
+
+extern double f90matrixelements_(double* m, double* Q, double* h1, double* h2, char const* oriented,
+                                 double* res);
+
+static void matrixelements(double m, double Q, double h1, double h2, char const* oriented){
+  double res[2];
+
+   f90matrixelements_(&m, &Q, &h1, &h2, oriented, res);
+
+   MLPutRealList(stdlink, res, 2);
+   MLEndPacket(stdlink);
+}
 
 extern double f90esmin_(double* m, double* Q, double* res);
 
