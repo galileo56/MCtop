@@ -228,6 +228,15 @@ module MCtopClass
     list(:,:,2:4:2) = 1/list(:,:,2:4:2);  list(:,:,1:3:2) = list(:,:,1:3:2) * list(:,:,2:4:2)
     list(:,:,2:4:2) = sqrt( list(:,:,2:4:2) )
 
+    do i = 0, m
+      list(i,:,:) = (2 * i + 1) * list(i,:,:)
+    end do
+
+    do i = 1, 16
+      list(:,i,:) = list(:,i,:)/(self%ESmax(i) - self%ESmin(i) )
+      ! if (  ISNAN( list(0,i,2) ) .or. list(0,i,2) + 1 == list(0,i,2)  ) list(0,i,2) = 0
+    end do
+
   contains
 
 !ccccccccccccccc
@@ -245,16 +254,14 @@ module MCtopClass
         call selector%MatElComputer( x(1), x(2), MatEl, ES )
       end select
 
-      FunMatEl = MatEl(1); ESNorm = (ES - self%ESmin)/(self%ESmax  - self%ESmin)
+      FunMatEl = MatEl(1); ESNorm = (ES - self%ESmin)/(self%ESmax - self%ESmin)
 
       do l = 1, 16
 
         if ( ES(l) < self%ESmin(l) .or. ES(l) > self%ESmax(l) ) cycle
         if ( ISNAN( ES(l) ) .or. ES(l) + 1 == ES(l) )           cycle
 
-        ESLeg = LegendreList(  m, 2 * ESNorm(l) - 1  )
-
-        factor = MatEl
+        ESLeg = LegendreList(  m, 2 * ESNorm(l) - 1  ); factor = MatEl
 
         if ( self%orient(:2) == 'no') factor = factor * ( ES(l) - self%ESmin(l) )
 
