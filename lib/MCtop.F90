@@ -198,10 +198,10 @@ module MCtopClass
         distTot (:,i,:,j,1)  = distLin(:,i,2:4:2)/self%Delta(i)
         distTotL(:,i,:,j,1)  = distLog(:,i,2:4:2)/self%DeltaLog(i)
 
-        distTot(:,i,:,j,2)  = sqrt(  ( distLin(:,i,3:5:3)/self%Delta(i)**2 - &
+        distTot(:,i,:,j,2)  = sqrt(  ( distLin(:,i,3:5:2)/self%Delta(i)**2 - &
                                distTot(:,i,:,j,1)**2 )/self%Nevent  )
 
-        distTotL(:,i,:,j,2) = sqrt(  ( distLog(:,i,3:5:3)/self%DeltaLog(i)**2 - &
+        distTotL(:,i,:,j,2) = sqrt(  ( distLog(:,i,3:5:2)/self%DeltaLog(i)**2 - &
                                distTotL(:,i,:,j,1)**2 )/self%Nevent  )
 
       end do
