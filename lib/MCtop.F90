@@ -48,6 +48,7 @@ module MCtopClass
     real (dp), dimension(:,:), private, allocatable :: ESlog
     real (dp), dimension(16 ), private              :: logMin, DeltaLog, logMax
     real (dp), dimension(2  ), private              :: B1
+    character (len = 3)      , private              :: orient
 
    contains
 
@@ -111,6 +112,7 @@ module MCtopClass
      allocate( MatrixStable :: InitStable%MatEl )
      select type (selector => InitStable%MatEl)
      type is (MatrixStable);  selector = MatEl; InitStable%B1 = selector%B1()
+       InitStable%orient = selector%orientation()
      end select
 
      allocate( InitStable%ES(Nbin, 16), InitStable%ESlog(Nlog, 16) )
@@ -252,7 +254,9 @@ module MCtopClass
 
         ESLeg = LegendreList(  m, 2 * ESNorm(l) - 1  )
 
-        factor = MatEl * ( ES(l) - self%ESmin(l) )
+        factor = MatEl
+
+        if ( self%orient(:2) == 'no') factor = factor * ( ES(l) - self%ESmin(l) )
 
         list(:,l,1) = list(:,l,1) + wgt * factor(1) * ESLeg
         list(:,l,3) = list(:,l,3) + wgt * factor(2) * ESLeg

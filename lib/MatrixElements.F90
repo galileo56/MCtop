@@ -55,7 +55,7 @@ module MatrixElementsClass
 
   contains
 
-    procedure, pass (self), public  :: MatElComputer, ESmin, ESmax, B1
+    procedure, pass (self), public  :: MatElComputer, ESmin, ESmax, B1, orientation
     procedure, pass (self), private :: modulus, zPlusMinus, ZY
 
   end type MatrixStable
@@ -153,6 +153,14 @@ module MatrixElementsClass
     real (dp), dimension(2)          :: res
     res = self%Residue
   end function B1
+
+!ccccccccccccccc
+
+  function Orientation(self) result(res)
+    class (MatrixStable), intent(in)  :: self
+    character (len = 3)               :: res
+    res = self%oriented
+  end function Orientation
 
 !ccccccccccccccc
 
