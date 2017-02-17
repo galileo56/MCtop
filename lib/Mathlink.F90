@@ -36,7 +36,7 @@ subroutine f90ESMax(m, Q, ES)
   use constants, only: dp; use MatrixElementsClass; implicit none
   real (dp)               , intent(in ) :: m, Q
   real (dp), dimension(16), intent(out) :: ES
-  type (MatrixStable)                 :: MatEl
+  type (MatrixStable)                   :: MatEl
 
   MatEl = MatrixStable('no', m, Q);  ES = MatEl%ESMax()
 
@@ -74,7 +74,7 @@ subroutine f90ESList(mt, mb, mW, Q, ESmin, ESmax, Nbins, list)
   integer                       , intent(in)  :: Nbins
   real (dp), dimension(8)       , intent(in)  :: ESmin, ESmax
   real (dp), dimension(Nbins, 8), intent(out) :: list
-  type (MCtopUnstable)                                :: MC
+  type (MCtopUnstable)                        :: MC
   type (MatrixElements4)                      :: MatEl
 
   MatEl = MatrixElements4(mt, mb, mW, Q)
