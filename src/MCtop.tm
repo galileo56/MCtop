@@ -36,6 +36,7 @@
 :Evaluate:  ESMaxMin4::usage = "ESMaxMin4[eps, mt, mb, mW, Q] computes the maximum and minimim values and locations for Event shapes with 6-particle final state"
 :Evaluate:  ESMax::usage = "ESMax[m,Q] computes the maximal value of the event shape"
 :Evaluate:  ESMin::usage = "ESMin[m,Q] computes the minimal value of the event shape"
+:Evaluate:  StableDistributions::usage = "StableDistributions[mt, Q, oriented, method, Nlin, Nlog, Nevent, Niter] computes the distribution of the event-shape variables"
 
 :Evaluate:  Begin["`Private`"]
 
@@ -137,6 +138,15 @@
 :Arguments:     {mt, mb, mW, Q, method, spin, decay, current, Cmin, Cmax, Nbins, Nevent, Niter}
 :ArgumentTypes: {Real, Real, Real, Real, String, String, String, String, RealList, RealList,
                  Integer, Integer, Integer}
+:ReturnType:    Manual
+:End:
+
+:Begin:
+:Function:      stabledistributions
+:Pattern:       StableDistributions[mt_, Q_, oriented_, method_, Nlin_,
+                 Nlog_, Nevent_, Niter_]
+:Arguments:     {mt, Q, oriented, method, Nlin, Nlog, Nevent, Niter}
+:ArgumentTypes: {Real, Real, String, String, Integer, Integer, Integer, Integer}
 :ReturnType:    Manual
 :End:
 
@@ -673,6 +683,35 @@ static void esdistributions(double mt, double mb, double mW, double Q,
    MLPutRealList(stdlink, res, 24*Nbins);
    MLPutInteger(stdlink, 8*Nbins);
    MLPutInteger(stdlink,   Nbins);
+   MLEndPacket(stdlink);
+
+}
+
+extern double f90stabledistributions_(double* mt, double* Q, char const* oriented,
+  char const* method, int* Nlin, int* Nlog, int* Nevent, int* Niter, double* res1,
+  double* res2);
+
+static void stabledistributions(double mt, double Q, char const* oriented,
+  char const* method, int Nlin, int Nlog, int Nevent,int Niter){
+  double res1[80 * Nlin];
+  double res2[80 * Nlog];
+
+   f90stabledistributions_(&mt, &Q, oriented, method, &Nlin, &Nlog, &Nevent, &Niter,
+     res1, res2);
+
+   MLPutFunction(stdlink, "List", 2);
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutFunction(stdlink, "Transpose", 1);
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutRealList(stdlink, res1, 80*Nlin);
+   MLPutInteger(stdlink,  16*Nlin);
+   MLPutInteger(stdlink,   Nlin);
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutFunction(stdlink, "Transpose", 1);
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutRealList(stdlink, res2, 80*Nlog);
+   MLPutInteger(stdlink,  16*Nlog);
+   MLPutInteger(stdlink,   Nlog);
    MLEndPacket(stdlink);
 
 }
