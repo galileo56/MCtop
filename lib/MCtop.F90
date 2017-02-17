@@ -175,11 +175,11 @@ module MCtopClass
 
 !ccccccccccccccc
 
-  subroutine LegendreStable(self, m, method, operation, list)
+  function LegendreStable(self, m, method) result(list)
     class (MCStable)                  , intent(in)  :: self
-    character (len = *)               , intent(in)  :: method, operation
+    character (len = *)               , intent(in)  :: method
     integer                           , intent(in)  :: m
-    real (dp), dimension(0:m, 16, 4)  , intent(out) :: list
+    real (dp), dimension(0:m, 16, 4)                :: list
     real (dp), dimension(0:m, 16, self%Niter, 4)    :: listTot
     real (dp), dimension(2)                         :: y
     real (dp)                                       :: AVGI, SD, CHI2A
@@ -191,7 +191,7 @@ module MCtopClass
 
       list = 0
 
-      if ( method(:5) == 'vegas') then
+      if ( method(:5) == 'vegas' ) then
         call VEGAS(2, FunMatEl, AVGI, SD, CHI2A)
       else
 
@@ -264,7 +264,7 @@ module MCtopClass
 
     end function FunMatEl
 
-  end subroutine LegendreStable
+  end function LegendreStable
 
 !ccccccccccccccc
 
