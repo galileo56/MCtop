@@ -104,7 +104,7 @@ module MCtopClass
      real (dp)       , dimension(16) :: DeltaES, DeltaLog, ESMin, ESMax, LogMin, LogMax, delta
      integer                         :: i
 
-     InitEvent1%Nbin  = Nbin   ; InitEvent1%Nlog  = Nlog; InitEvent1%dimES = 16
+     InitEvent1%Nbin   = Nbin   ; InitEvent1%Nlog  = Nlog; InitEvent1%dimES = 16
      InitEvent1%Nevent = Nevent  ; InitEvent1%Niter = Niter
 
      allocate( MatrixStable :: InitEvent1%MatEl )

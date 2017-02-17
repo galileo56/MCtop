@@ -1,6 +1,26 @@
 
 !ccccccccccccccc
 
+subroutine f90StableDistributions(mt, Q, oriented, method, Nlin, Nlog, Nevent, &
+                                  Niter, listLin, listLog)
+  use constants, only: dp; use MatrixElementsClass; use MCtopClass; implicit none
+  real (dp)                        , intent(in)  :: mt, Q
+  integer                          , intent(in)  :: Nlin, Nlog, Nevent, Niter
+  character (len = *)              , intent(in)  :: oriented, method
+  real (dp), dimension(Nlin, 8, 5) , intent(out) :: listlin
+  real (dp), dimension(Nlog, 8, 5) , intent(out) :: listlog
+  type (MCStable)                                :: MC
+  type (MatrixStable)                            :: MatEl
+
+  MatEl = MatrixStable(oriented(:3), mt, Q)
+
+  MC   = MCStable(MatEl, Nlin, Nlog, Nevent, Niter)
+  call MC%callVegasStable(method(:5), listLin, listLog)
+
+end subroutine f90StableDistributions
+
+!ccccccccccccccc
+
 subroutine f90MatrixElements(m, Q, h1, h2, oriented, ME)
   use constants, only: dp; use MatrixElementsClass; implicit none
   real (dp)              , intent(in ) :: m, Q, h1, h2
