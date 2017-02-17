@@ -289,7 +289,7 @@ MLYDEFN( devyield_result, MLDefaultYielder, ( MLINK mlp, MLYieldParameters yp))
 /********************************* end header *********************************/
 
 
-# line 321 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm"
+# line 322 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm"
 #include "mathlink.h"
 #include "ftypes.h"
 #include <stdio.h>
@@ -313,6 +313,17 @@ static void matrixelements(double m, double Q, double h1, double h2, char const*
   double res[2];
 
    f90matrixelements_(&m, &Q, &h1, &h2, oriented, res);
+
+   MLPutRealList(stdlink, res, 2);
+   MLEndPacket(stdlink);
+}
+
+extern double f90residue_(double* m, double* Q, double* res);
+
+static void b1(double m, double Q){
+  double res[2];
+
+   f90residue_(&m, &Q, res);
 
    MLPutRealList(stdlink, res, 2);
    MLEndPacket(stdlink);
@@ -771,10 +782,10 @@ static void vectors6(double x[], long clen, double mt, double mb, double mW, dou
 int main(int argc, char *argv[]){
     return MLMain(argc, argv);
 }
-# line 775 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm.c"
+# line 786 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm.c"
 
 
-void matrixelements P(( double _tp1, double _tp2, double _tp3, double _tp4, const char * _tp5));
+void b1 P(( double _tp1, double _tp2));
 
 #if MLPROTOTYPES
 static int _tr0( MLINK mlp)
@@ -785,21 +796,14 @@ static int _tr0(mlp) MLINK mlp;
 	int	res = 0;
 	double _tp1;
 	double _tp2;
-	double _tp3;
-	double _tp4;
-	const char * _tp5;
 	if ( ! MLGetReal( mlp, &_tp1) ) goto L0;
 	if ( ! MLGetReal( mlp, &_tp2) ) goto L1;
-	if ( ! MLGetReal( mlp, &_tp3) ) goto L2;
-	if ( ! MLGetReal( mlp, &_tp4) ) goto L3;
-	if ( ! MLGetString( mlp, &_tp5) ) goto L4;
-	if ( ! MLNewPacket(mlp) ) goto L5;
+	if ( ! MLNewPacket(mlp) ) goto L2;
 
-	matrixelements(_tp1, _tp2, _tp3, _tp4, _tp5);
+	b1(_tp1, _tp2);
 
 	res = 1;
-L5:	MLReleaseString(mlp, _tp5);
-L4: L3: L2: L1: 
+L2: L1: 
 L0:	return res;
 } /* _tr0 */
 
@@ -1838,7 +1842,7 @@ static struct func {
 	int   (*f_func)P((MLINK));
 	const char  *f_name;
 	} _tramps[32] = {
-		{ 5, 0, _tr0, "matrixelements" },
+		{ 2, 0, _tr0, "b1" },
 		{ 4, 0, _tr1, "eshape" },
 		{ 2, 0, _tr2, "esmin" },
 		{ 2, 0, _tr3, "esmax" },
@@ -1883,6 +1887,9 @@ static const char* evalstrs[] = {
 	"Print[\"     Last modification: 08 - 01 - 2017        \"]",
 	(const char*)0,
 	"Print[\"     Version:           test 2                \"]",
+	(const char*)0,
+	"B1::usage = \"B1[m, Q] computes the residue for vector and axial ",
+	"current\"",
 	(const char*)0,
 	"MatrixElements::usage = \"MatrixElements[m, Q, h1, h2, oriented] ",
 	"computes the matrix elements for vector and axial current\"",
@@ -2008,7 +2015,7 @@ static const char* evalstrs[] = {
 	(const char*)0,
 	(const char*)0
 };
-#define CARDOF_EVALSTRS 42
+#define CARDOF_EVALSTRS 43
 
 static int _definepattern P(( MLINK, char*, char*, int));
 
@@ -2064,7 +2071,8 @@ int MLInstall(mlp) MLINK mlp;
 	if (_res) _res = _doevalstr( mlp, 36);
 	if (_res) _res = _doevalstr( mlp, 37);
 	if (_res) _res = _doevalstr( mlp, 38);
-	if (_res) _res = _definepattern(mlp, (char *)"MatrixElements[m_, Q_, h1_, h2_, oriented_]", (char *)"{m, Q, h1, h2, oriented}", 0);
+	if (_res) _res = _doevalstr( mlp, 39);
+	if (_res) _res = _definepattern(mlp, (char *)"B1[m_, Q_]", (char *)"{m, Q}", 0);
 	if (_res) _res = _definepattern(mlp, (char *)"EShape[m_, Q_, h1_, h2_]", (char *)"{m, Q, h1, h2}", 1);
 	if (_res) _res = _definepattern(mlp, (char *)"ESMin[m_, Q_]", (char *)"{m, Q}", 2);
 	if (_res) _res = _definepattern(mlp, (char *)"ESMax[m_, Q_]", (char *)"{m, Q}", 3);
@@ -2096,9 +2104,9 @@ int MLInstall(mlp) MLINK mlp;
 	if (_res) _res = _definepattern(mlp, (char *)"Vectors6[x_, mt_, mb_, mW_, Q_]", (char *)"{x, mt, mb, mW, Q}", 29);
 	if (_res) _res = _definepattern(mlp, (char *)"RestVectors4[x_, mt_, mb_, mW_, Q_]", (char *)"{x, mt, mb, mW, Q}", 30);
 	if (_res) _res = _definepattern(mlp, (char *)"RestVectors6[x_, mt_, mb_, mW_, Q_]", (char *)"{x, mt, mb, mW, Q}", 31);
-	if (_res) _res = _doevalstr( mlp, 39);
 	if (_res) _res = _doevalstr( mlp, 40);
 	if (_res) _res = _doevalstr( mlp, 41);
+	if (_res) _res = _doevalstr( mlp, 42);
 	if (_res) _res = MLPutSymbol( mlp, "End");
 	if (_res) _res = MLFlush( mlp);
 	return _res;

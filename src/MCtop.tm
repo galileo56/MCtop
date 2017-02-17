@@ -5,6 +5,7 @@
 :Evaluate:   Print["     Last modification: 08 - 01 - 2017        "]
 :Evaluate:   Print["     Version:           test 2                "]
 
+:Evaluate:  B1::usage = "B1[m, Q] computes the residue for vector and axial current"
 :Evaluate:  MatrixElements::usage = "MatrixElements[m, Q, h1, h2, oriented] computes the matrix elements for vector and axial current"
 :Evaluate:  EShape::usage = "EShape[m, Q, h1, h2] computes the value of the event shape"
 :Evaluate:  CparamLegendreDistro::usage = "CparamLegendreDistro[mt, mb, mW, Q, expand, method, Spin, decay, current, Cmin, Cmax, n, Nbins, Nevent, Niter] computes the Legendre expansion and distribution for the C-parameter event shape"
@@ -43,10 +44,10 @@
 :Evaluate:  Print["You can access the complete function list typing '?MCtop`*' "]
 
 :Begin:
-:Function:      matrixelements
-:Pattern:       MatrixElements[m_, Q_, h1_, h2_, oriented_]
-:Arguments:     {m, Q, h1, h2, oriented}
-:ArgumentTypes: {Real, Real, Real, Real, String}
+:Function:      b1
+:Pattern:       B1[m_, Q_]
+:Arguments:     {m, Q}
+:ArgumentTypes: {Real, Real}
 :ReturnType:    Manual
 :End:
 
@@ -341,6 +342,17 @@ static void matrixelements(double m, double Q, double h1, double h2, char const*
   double res[2];
 
    f90matrixelements_(&m, &Q, &h1, &h2, oriented, res);
+
+   MLPutRealList(stdlink, res, 2);
+   MLEndPacket(stdlink);
+}
+
+extern double f90residue_(double* m, double* Q, double* res);
+
+static void b1(double m, double Q){
+  double res[2];
+
+   f90residue_(&m, &Q, res);
 
    MLPutRealList(stdlink, res, 2);
    MLEndPacket(stdlink);
