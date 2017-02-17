@@ -48,11 +48,12 @@ module MCtopClass
     real (dp), dimension(:,:), private, allocatable :: ESlog
     real (dp), dimension(16 ), private              :: logMin, DeltaLog, logMax
     real (dp), dimension(2  ), private              :: B1
+    character (len = 3)      , private              :: orient
 
    contains
 
     final                                           :: delete_stable
-    procedure, pass (self)                          :: callVegasStable
+    procedure, pass (self)                          :: callVegasStable, LegendreStable
 
   end type MCStable
 
@@ -111,6 +112,7 @@ module MCtopClass
      allocate( MatrixStable :: InitStable%MatEl )
      select type (selector => InitStable%MatEl)
      type is (MatrixStable);  selector = MatEl; InitStable%B1 = selector%B1()
+       InitStable%orient = selector%orientation()
      end select
 
      allocate( InitStable%ES(Nbin, 16), InitStable%ESlog(Nlog, 16) )
@@ -175,6 +177,108 @@ module MCtopClass
 
 !ccccccccccccccc
 
+  function LegendreStable(self, m, method) result(list)
+    class (MCStable)                  , intent(in)  :: self
+    character (len = *)               , intent(in)  :: method
+    integer                           , intent(in)  :: m
+    real (dp), dimension(0:m, 16, 4)                :: list
+    real (dp), dimension(0:m, 16, self%Niter, 4)    :: listTot
+    real (dp), dimension(2)                         :: y
+    real (dp)                                       :: AVGI, SD, CHI2A
+    integer                                         :: i, j, n
+
+    NPRN = - 1; ITMX = 1; Ncall = self%Nevent; listTot = 0
+
+    do j = 1, self%Niter
+
+      list = 0
+
+      if ( method(:5) == 'vegas' ) then
+        call VEGAS(2, FunMatEl, AVGI, SD, CHI2A)
+      else
+
+  !##$OMP PARALLEL DO
+        do n = 1, NCall
+          call Random_number(y)
+          AVGI = AVGI + FunMatEl(y, 1._dp)
+        end do
+  !##$OMP END PARALLEL DO
+
+        AVGI = AVGI/self%Nevent; list = list/self%Nevent
+
+      end if
+
+      do i = 1, 16
+
+        listTot(:,i,j,1:3:2)  = list(:,i,1:3:2)
+        listTot(:,i,j,2:4:2)  = sqrt(  ( list(:,i,2:4:2) - listTot(:,i,j,1:3:2)**2 )/self%Nevent  )
+
+      end do
+    end do
+
+    list = 0;  listTot(:,:,:,2:4:2) = 1/listTot(:,:,:,2:4:2)**2
+
+    do j = 1, self%Niter
+
+      list(:,:,1:3:2) = list(:,:,1:3:2) + listTot(:,:,j,1:3:2) * listTot(:,:,j,2:4:2)
+      list(:,:,2:4:2) = list(:,:,2:4:2) + listTot(:,:,j,2:4:2)
+
+    end do
+
+    list(:,:,2:4:2) = 1/list(:,:,2:4:2);  list(:,:,1:3:2) = list(:,:,1:3:2) * list(:,:,2:4:2)
+    list(:,:,2:4:2) = sqrt( list(:,:,2:4:2) )
+
+    do i = 0, m
+      list(i,:,:) = (2 * i + 1) * list(i,:,:)
+    end do
+
+    do i = 1, 16
+      list(:,i,:) = list(:,i,:)/(self%ESmax(i) - self%ESmin(i) )
+      ! if (  ISNAN( list(0,i,2) ) .or. list(0,i,2) + 1 == list(0,i,2)  ) list(0,i,2) = 0
+    end do
+
+  contains
+
+!ccccccccccccccc
+
+    real (dp) function FunMatEl(x, wgt)
+      real (dp), dimension( 2), intent(in) :: x
+      real (dp)               , intent(in) :: wgt
+      real (dp), dimension( 2)             :: MatEl, factor
+      real (dp), dimension(0:m)            :: ESLeg
+      real (dp), dimension(16)             :: ES, ESNorm
+      integer                              :: l
+
+      select type (selector => self%MatEl)
+      type is (MatrixStable)
+        call selector%MatElComputer( x(1), x(2), MatEl, ES )
+      end select
+
+      FunMatEl = MatEl(1); ESNorm = (ES - self%ESmin)/(self%ESmax - self%ESmin)
+
+      do l = 1, 16
+
+        if ( ES(l) < self%ESmin(l) .or. ES(l) > self%ESmax(l) ) cycle
+        if ( ISNAN( ES(l) ) .or. ES(l) + 1 == ES(l) )           cycle
+
+        ESLeg = LegendreList(  m, 2 * ESNorm(l) - 1  ); factor = MatEl
+
+        if ( self%orient(:2) == 'no') factor = factor * ( ES(l) - self%ESmin(l) )
+
+        list(:,l,1) = list(:,l,1) + wgt * factor(1) * ESLeg
+        list(:,l,3) = list(:,l,3) + wgt * factor(2) * ESLeg
+
+        list(:,l,2) = list(:,l,2) + wgt * ( factor(1) * ESLeg )**2
+        list(:,l,4) = list(:,l,4) + wgt * ( factor(2) * ESLeg )**2
+
+      end do
+
+    end function FunMatEl
+
+  end function LegendreStable
+
+!ccccccccccccccc
+
   subroutine callVegasStable(self, method, operation, distLin, distLog)
     class (MCStable)                         , intent(in) :: self
     character (len = *)                      , intent(in) :: method, operation
@@ -203,6 +307,7 @@ module MCtopClass
           AVGI = AVGI + FunMatEl(y, 1._dp)
         end do
   !##$OMP END PARALLEL DO
+
         AVGI = AVGI/self%Nevent; distLin(:,:,2:) = distLin(:,:,2:)/self%Nevent
         distLog(:,:,2:) = distLog(:,:,2:)/self%Nevent
       end if
@@ -322,16 +427,16 @@ module MCtopClass
 !ccccccccccccccc
 
   subroutine callVegas(self, m, method, dist, list)
-    class (MCtop)                         , intent(in)  :: self
-    integer                               , intent(in)  :: m
-    character (len = *)                   , intent(in)  :: method
+    class (MCtop)                         , intent(in) :: self
+    integer                               , intent(in) :: m
+    character (len = *)                   , intent(in) :: method
     real (dp), dimension(self%Nbin, 8, 3), intent(out) :: dist
-    real (dp), dimension(0:m       , 8, 2), intent(out) :: list
+    real (dp), dimension(0:m      , 8, 2), intent(out) :: list
     real (dp), dimension(self%Nbin, 8, self%Niter, 2)  :: distTot
-    real (dp), dimension(0:m       , 8, self%Niter, 2)  :: listTot
-    real (dp), dimension(self%dimX)                     :: y
-    real (dp)                                           :: AVGI, SD, CHI2A
-    integer                                             :: i, j, n, iter
+    real (dp), dimension(0:m      , 8, self%Niter, 2)  :: listTot
+    real (dp), dimension(self%dimX)                    :: y
+    real (dp)                                          :: AVGI, SD, CHI2A
+    integer                                            :: i, j, n, iter
 
     NPRN = - 1; ITMX = 1; NCall = self%Nevent; iter = 1; listTot = 0
     if (self%dimX <= 3) iter = 0; distTot = 0; dist(:,:,1) = self%ES

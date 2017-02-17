@@ -38,6 +38,7 @@
 :Evaluate:  ESMax::usage = "ESMax[m,Q] computes the maximal value of the event shape"
 :Evaluate:  ESMin::usage = "ESMin[m,Q] computes the minimal value of the event shape"
 :Evaluate:  StableDistributions::usage = "StableDistributions[mt, Q, oriented, method, operation, Nlin, Nlog, Nevent, Niter] computes the distribution of the event-shape variables"
+:Evaluate:  LegendreStable::usage = "LegendreStable[mt, Q, oriented, method, n, Nevent, Niter] computes the legendre coefficients of the event-shape distributions"
 
 :Evaluate:  Begin["`Private`"]
 
@@ -123,10 +124,10 @@
 
 :Begin:
 :Function:      cparamlegendre
-:Pattern:       CparamLegendre[n_, mt_, mb_, mW_, Q_, expand_, method_, spin_, decay_,
-                 current_, Cmin_, Cmax_, Nevent_, Niter_]
-:Arguments:     {n, mt, mb, mW, Q, expand, method, spin, decay, current, Cmin, Cmax,
-                 Nevent, Niter}
+:Pattern:       CparamLegendre[n_, mt_, mb_, mW_, Q_, expand_, method_, spin_,
+                 decay_, current_, Cmin_, Cmax_, Nevent_, Niter_]
+:Arguments:     {n, mt, mb, mW, Q, expand, method, spin, decay, current, Cmin,
+                 Cmax, Nevent, Niter}
 :ArgumentTypes: {Integer, Real, Real, Real, Real, String, String, String, String,
                  String, Real, Real, Integer, Integer}
 :ReturnType:    Manual
@@ -148,6 +149,14 @@
                  Nlog_, Nevent_, Niter_]
 :Arguments:     {mt, Q, oriented, method, operation, Nlin, Nlog, Nevent, Niter}
 :ArgumentTypes: {Real, Real, String, String, String, Integer, Integer, Integer, Integer}
+:ReturnType:    Manual
+:End:
+
+:Begin:
+:Function:      legendrestable
+:Pattern:       LegendreStable[mt_, Q_, oriented_, operation_, n_, Nevent_, Niter_]
+:Arguments:     {mt, Q, oriented, method, n, Nevent, Niter}
+:ArgumentTypes: {Real, Real, String, String, Integer, Integer, Integer}
 :ReturnType:    Manual
 :End:
 
@@ -726,6 +735,24 @@ static void stabledistributions(double mt, double Q, char const* oriented,
    MLPutInteger(stdlink,  16*Nlog);
    MLPutInteger(stdlink,   Nlog);
    MLEndPacket(stdlink);
+
+}
+
+extern double f90legendrestable_(double* mt, double* Q, char const* oriented,
+  char const* method, int* n, int* Nevent, int* Niter, double* res);
+
+static void legendrestable(double mt, double Q, char const* oriented,
+  char const* method, int n, int Nevent, int Niter){
+  double res[64 * (n + 1)];
+
+   f90legendrestable_(&mt, &Q, oriented, method, &n, &Nevent, &Niter, res);
+
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutFunction(stdlink, "Transpose", 1);
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutRealList(stdlink, res, 64 * (n + 1) );
+   MLPutInteger(stdlink,  16 * (n + 1));
+   MLPutInteger(stdlink,  n + 1);
 
 }
 
