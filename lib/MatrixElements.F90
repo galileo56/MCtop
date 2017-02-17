@@ -55,8 +55,8 @@ module MatrixElementsClass
 
   contains
 
-    procedure                    :: MatElComputer, ESmin, ESmax, ZY
-    procedure, private           :: modulus, zPlusMinus
+    procedure, pass (self), public  :: MatElComputer, ESmin, ESmax, B1
+    procedure, pass (self), private :: modulus, zPlusMinus, ZY
 
   end type MatrixStable
 
@@ -149,6 +149,14 @@ module MatrixElementsClass
     class (MatrixElements), intent(in) :: self
     dimP = self%sizeP
   end function dimP
+
+!ccccccccccccccc
+
+  function B1(self) result(res)
+    class (MatrixStable), intent(in) :: self
+    real (dp), dimension(2)          :: res
+    res = self%Residue
+  end function B1
 
 !ccccccccccccccc
 

@@ -37,6 +37,18 @@ end subroutine f90MatrixElements
 
 !ccccccccccccccc
 
+subroutine f90Residue(m, Q, res)
+  use constants, only: dp; use MatrixElementsClass; implicit none
+  real (dp)              , intent(in ) :: m, Q
+  real (dp), dimension(2), intent(out) :: res
+  type (MatrixStable)                  :: MatEl
+
+  MatEl = MatrixStable( 'no' , m, Q); res = MatEl%B1()
+
+end subroutine f90Residue
+
+!ccccccccccccccc
+
 subroutine f90EShape(m, Q, h1, h2, ES)
   use constants, only: dp; use MatrixElementsClass; implicit none
   real (dp)               , intent(in ) :: m, Q, h1, h2
