@@ -229,13 +229,19 @@ module MCtopClass
 
     dist(:,:,3) = 1/dist(:,:,3);  dist(:,:,2) = dist(:,:,2) * dist(:,:,3)
     dist(:,:,3) = sqrt( dist(:,:,3) ); list(1:,:,2) = 1/list(1:,:,2)
-    list(1:,:,1) = list(1:,:,1) * list(1:,:,2); list(1:,:,2) = sqrt( list(1:,:,2) )
 
-    do j = 1, 8
-      list(0,j,:) = [ sum( listTot(0,j,:,1) )/self%Niter, 1/sqrt( sum( listTot(0,j,:,2) ) ) ]
-    end do
-
-    if ( method(:5) == 'vegas' ) list(0,:,1) = AVGI
+    if ( method(:5) == 'vegas' ) then
+      list(0,:,1) = AVGI; list(1:,:,1) = list(1:,:,1) * list(1:,:,2)
+      list(1:,:,2) = sqrt( list(1:,:,2) )
+    else
+      do j = 1, 8
+        do i = 0, m
+          list(i,j,:) = [ sum( listTot(i,j,:,1) )/self%Niter, &
+                  1/sqrt( sum( listTot(i,j,:,2),  mask = listTot(i,j,:,2) > 0 ) ) ]
+          if ( IsNAN(list(i,j,2)) .or. list(i,j,2) + 1 == list(i,j,2) ) list(i,j,2) = 0
+        end do
+      end do
+    end if
 
     do i = 0, m
       list(i,:,:) = (2 * i + 1) * list(i,:,:)
@@ -271,14 +277,14 @@ module MCtopClass
         FunMatEl = self%MatEl%SpinWeight(self%spin, self%current, p)
       end select
 
-      ESNorm = (ES - self%ESmin )/(self%ESmax - self%ESmin )
+      ESNorm = (ES - self%ESmin)/(self%ESmax - self%ESmin)
 
       k = Ceiling( self%Nbins * ESNorm )
 
-      do l = 1, 8
+      ESloop: do l = 1, 8
 
-        if ( ES(l) < self%ESmin(l) .or. ES(l) > self%ESmax(l) ) cycle
-        if ( ISNAN( ES(l) ) .or. ES(l) + 1 == ES(l) ) cycle
+        if ( ES(l) < self%ESmin(l) .or. ES(l) > self%ESmax(l) ) cycle ESloop
+        if ( ISNAN( ES(l) ) .or. ES(l) + 1 == ES(l) )           cycle ESloop
 
         ESLeg = LegendreList(  m, 2 * ESNorm(l) - 1  )
 
@@ -292,7 +298,7 @@ module MCtopClass
           dist( k(l), l, 2: ) = dist( k(l), l, 2: ) + wgt * FunMatEl**[1,2]
         end if
 
-      end do
+      end do ESloop
 
     end function FunMatEl
 
@@ -390,7 +396,7 @@ module MCtopClass
         FunMatEl = self%MatEl%SpinWeight(self%spin, self%current, p)
       end if
 
-      ESNorm = (ES - self%ESmin(5) )/(self%ESmax(5) - self%ESmin(5) )
+      ESNorm = ( ES - self%ESmin(5) )/( self%ESmax(5) - self%ESmin(5) )
 
       ESLeg = LegendreList(  n, 2 * ESNorm - 1  )
 
