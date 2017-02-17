@@ -182,7 +182,8 @@ module MCtopClass
     real (dp), dimension(self%Nbin, 16, 2, self%Niter, 2) :: distTot
     real (dp), dimension(self%Nlog, 16, 2, self%Niter, 2) :: distTotL
     real (dp)                                             :: AVGI, SD, CHI2A
-    integer                                               :: i, j
+    real (dp), dimension(2)                               :: y
+    integer                                               :: i, j, n
 
     NPRN = - 1; ITMX = 1; Ncall = self%Nevent; distTot = 0;  distTotL = 0
     distLin(:,:,1) = self%ES; distLog(:,:,1) = self%ESlog
@@ -191,7 +192,16 @@ module MCtopClass
 
       distLin(:,:,2:) = 0;  distLog(:,:,2:) = 0
 
-      call VEGAS(2, FunMatEl, AVGI, SD, CHI2A)
+      if ( method(:5) == 'vegas') then
+        call VEGAS(2, FunMatEl, AVGI, SD, CHI2A)
+      else
+        do n = 1, NCall
+          call Random_number(y)
+          AVGI = AVGI + FunMatEl(y, 1._dp)
+        end do
+        AVGI = AVGI/self%Nevent; distLin(:,:,2:) = distLin(:,:,2:)/self%Nevent
+        distLog(:,:,2:) = distLog(:,:,2:)/self%Nevent
+      end if
 
       do i = 1, 16
 
