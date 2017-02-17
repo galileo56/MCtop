@@ -9,7 +9,7 @@ module MatrixElementsClass
 
 !ccccccccccccccc
 
-  type, abstract                         ::  MatrixElements
+  type, abstract                         :: MatrixElements
     private
     integer                              :: sizeX, sizeP, sizeES
     real (dp)                            :: mt, mt2, mt4, vt
@@ -21,13 +21,13 @@ module MatrixElementsClass
 
   type, extends(MatrixElements), public, abstract   ::  MatrixUnstable
     private
-    real (dp)                            :: mb, mb2, mb4, mW, mW2, mW4, mW6, mW8,&
-                                            mt6, mt8, mb6, Eb, EW, pb
+    real (dp)                            :: mb, mb2, mb4, mW, mW2, mW4, mW6,&
+                                            mt6, mt8, mb6, Eb, EW, pb, mW8
   contains
 
     procedure, pass (self), public       :: CparamMinMax, GenerateVectors, &
-                                            SpinWeight, CparamBeta, CparamMaxMin,    &
-                                            GenerateRestVectors, GenerateVectors2,   &
+                                            SpinWeight, CparamBeta, CparamMaxMin,  &
+                                            GenerateRestVectors, GenerateVectors2, &
                                             SetMasses
   end type MatrixUnstable
 
@@ -116,14 +116,14 @@ module MatrixElementsClass
     class (MatrixUnstable), intent(inout) :: self
     real (dp)             , intent(in)    :: mt, mW, mb, Q
 
-    self%mt = mt/Q;  self%mW = mW/Q;  self%mb = mb/Q; self%mt2 = self%mt**2
+    self%mt  = mt/Q;  self%mW = mW/Q; self%mb = mb/Q; self%mt2 = self%mt**2
     self%mW2 = self%mW**2 ;  self%mb2 = self%mb**2;   self%mt4 = self%mt2**2
     self%mt6 = self%mt2**3;  self%mb4 = self%mb2**2;  self%mt8 = self%mt4**2
     self%mW4 = self%mW2**2;  self%mW6 = self%mW2**3;  self%mW8 = self%mW4**2
     self%mb6 = self%mb2**3;  self%vT = sqrt(1 - 4 * self%mt2)
-    self%Eb = (self%mt2 + self%mb2 - self%mW2)/2/self%mt
-    self%EW = (self%mt2 + self%mW2 - self%mb2)/2/self%mt
-    self%pb = sqrt(self%Eb**2 - self%mb2); self%sizeES = 8
+    self%Eb  = (self%mt2 + self%mb2 - self%mW2)/2/self%mt
+    self%EW  = (self%mt2 + self%mW2 - self%mb2)/2/self%mt
+    self%pb  = sqrt(self%Eb**2 - self%mb2); self%sizeES = 8
 
   end subroutine SetMasses
 
