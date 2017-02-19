@@ -20,6 +20,8 @@ program Event1Run
                                       Nevent, Niter, distLin, distLog)
 
     print*, Nevent, Niter, Nlin, Nlog, 16, mt; print*, ; print*, 'linear binning'
+    write(*,'(I8,4I4,F8.3)') Nevent, Niter, Nlin, Nlog, 16, mt
+    print*, ; print*, 'linear binning'
 
     do k = 1, 16
 
