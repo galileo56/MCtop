@@ -53,11 +53,9 @@ set(CMAKE_MAKEFILE_PRODUCTS
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
-  "CMakeFiles/Distributions.dir/DependInfo.cmake"
-  "CMakeFiles/Legendre.dir/DependInfo.cmake"
-  "CMakeFiles/subdir_mods.dir/DependInfo.cmake"
-  "CMakeFiles/LegendreDistro.dir/DependInfo.cmake"
+  "CMakeFiles/Stable.dir/DependInfo.cmake"
+  "CMakeFiles/Unstable.dir/DependInfo.cmake"
   "CMakeFiles/MCtop.dir/DependInfo.cmake"
-  "CMakeFiles/Event1.dir/DependInfo.cmake"
+  "CMakeFiles/subdir_mods.dir/DependInfo.cmake"
   "lib/CMakeFiles/libMCtop.dir/DependInfo.cmake"
   )

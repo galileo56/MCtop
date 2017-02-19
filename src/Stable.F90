@@ -1,5 +1,5 @@
 
-program Event1Run
+program Stable
   use constants, only: dp; use MCtopClass; implicit none
 
   character (len = 13)                     :: oriented, method, operation
@@ -69,4 +69,4 @@ program Event1Run
 
   end if
 
- end program Event1Run
+ end program Stable

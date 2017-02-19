@@ -1,0 +1,1 @@
+/usr/local/bin/gfortran    -Waliasing -Wampersand -Wconversion -Wc-binding-type -Wintrinsics-std -Wtabs -Wintrinsic-shadow -Wline-truncation -Wtarget-lifetime -Winteger-division -Wreal-q-constant -Wunused CMakeFiles/Unstable.dir/src/Unstable.F90.o  -o Unstable  lib/liblibMCtop.a libsubdir_mods.a 
