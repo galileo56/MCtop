@@ -234,7 +234,6 @@ module MCtopClass
 
     do i = 1, 16
       list(:,i,:) = list(:,i,:)/(self%ESmax(i) - self%ESmin(i) )
-      ! if (  ISNAN( list(0,i,2) ) .or. list(0,i,2) + 1 == list(0,i,2)  ) list(0,i,2) = 0
     end do
 
   contains
@@ -279,9 +278,10 @@ module MCtopClass
 
 !ccccccccccccccc
 
-  subroutine callVegasStable(self, method, operation, distLin, distLog)
+  subroutine callVegasStable(self, method, power, distLin, distLog)
     class (MCStable)                         , intent(in) :: self
-    character (len = *)                      , intent(in) :: method, operation
+    character (len = *)                      , intent(in) :: method
+    integer                                  , intent(in) :: power
     real (dp), dimension(self%Nbin, 16, 5)  , intent(out) :: distLin
     real (dp), dimension(self%Nlog, 16, 5)  , intent(out) :: distLog
     real (dp), dimension(self%Nbin, 16, 2, self%Niter, 2) :: distTot
@@ -395,13 +395,7 @@ module MCtopClass
         if ( klog(i) <= 0         ) klog(i) = 1
         if ( klog(i) >  self%Nlog ) klog(i) = self%Nlog
 
-        if ( operation(:7) == 'product' ) then
-          factor = MatEl * ( ES(i) - self%ESMin(i) )
-        else if ( operation(:8) == 'subtract' ) then
-          factor = 1!/( ES(i) - self%ESMin(i) )!(  MatEl - self%B1/( ES(i) - self%ESMin(i) )  )
-        else
-          factor = MatEl
-        end if
+        factor = MatEl * ( ES(i) - self%ESMin(i) )**power
 
         if ( k(i) > 0 ) then
 
