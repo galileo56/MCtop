@@ -90,6 +90,8 @@ Event1_EXTERNAL_OBJECTS =
 
 Event1: CMakeFiles/Event1.dir/src/Event1.F90.o
 Event1: CMakeFiles/Event1.dir/build.make
+Event1: lib/liblibMCtop.a
+Event1: libsubdir_mods.a
 Event1: CMakeFiles/Event1.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/vmateu/GitHub/MCtop/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking Fortran executable Event1"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/Event1.dir/link.txt --verbose=$(VERBOSE)

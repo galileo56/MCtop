@@ -255,7 +255,8 @@ clean: CMakeFiles/MCtop.dir/clean
 # Target rules for target CMakeFiles/Event1.dir
 
 # All Build rule for target.
-CMakeFiles/Event1.dir/all:
+CMakeFiles/Event1.dir/all: CMakeFiles/subdir_mods.dir/all
+CMakeFiles/Event1.dir/all: lib/CMakeFiles/libMCtop.dir/all
 	$(MAKE) -f CMakeFiles/Event1.dir/build.make CMakeFiles/Event1.dir/depend
 	$(MAKE) -f CMakeFiles/Event1.dir/build.make CMakeFiles/Event1.dir/requires
 	$(MAKE) -f CMakeFiles/Event1.dir/build.make CMakeFiles/Event1.dir/build
@@ -269,7 +270,7 @@ all: CMakeFiles/Event1.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/Event1.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/vmateu/GitHub/MCtop/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/vmateu/GitHub/MCtop/build/CMakeFiles 14
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/Event1.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/vmateu/GitHub/MCtop/build/CMakeFiles 0
 .PHONY : CMakeFiles/Event1.dir/rule
