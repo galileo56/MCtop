@@ -56,17 +56,6 @@ CMAKE_BINARY_DIR = /Users/vmateu/GitHub/MCtop/build
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target install/strip
-install/strip: preinstall
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
-	/opt/local/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
-.PHONY : install/strip
-
-# Special rule for the target install/strip
-install/strip/fast: install/strip
-
-.PHONY : install/strip/fast
-
 # Special rule for the target install/local
 install/local: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
@@ -77,6 +66,17 @@ install/local: preinstall
 install/local/fast: install/local
 
 .PHONY : install/local/fast
+
+# Special rule for the target install/strip
+install/strip: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
+	/opt/local/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip
+
+# Special rule for the target install/strip
+install/strip/fast: install/strip
+
+.PHONY : install/strip/fast
 
 # Special rule for the target install
 install: preinstall
@@ -155,56 +155,30 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named Distributions
+# Target rules for targets named Stable
 
 # Build rule for target.
-Distributions: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 Distributions
-.PHONY : Distributions
+Stable: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 Stable
+.PHONY : Stable
 
 # fast build rule for target.
-Distributions/fast:
-	$(MAKE) -f CMakeFiles/Distributions.dir/build.make CMakeFiles/Distributions.dir/build
-.PHONY : Distributions/fast
+Stable/fast:
+	$(MAKE) -f CMakeFiles/Stable.dir/build.make CMakeFiles/Stable.dir/build
+.PHONY : Stable/fast
 
 #=============================================================================
-# Target rules for targets named Legendre
+# Target rules for targets named Unstable
 
 # Build rule for target.
-Legendre: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 Legendre
-.PHONY : Legendre
+Unstable: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 Unstable
+.PHONY : Unstable
 
 # fast build rule for target.
-Legendre/fast:
-	$(MAKE) -f CMakeFiles/Legendre.dir/build.make CMakeFiles/Legendre.dir/build
-.PHONY : Legendre/fast
-
-#=============================================================================
-# Target rules for targets named subdir_mods
-
-# Build rule for target.
-subdir_mods: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 subdir_mods
-.PHONY : subdir_mods
-
-# fast build rule for target.
-subdir_mods/fast:
-	$(MAKE) -f CMakeFiles/subdir_mods.dir/build.make CMakeFiles/subdir_mods.dir/build
-.PHONY : subdir_mods/fast
-
-#=============================================================================
-# Target rules for targets named LegendreDistro
-
-# Build rule for target.
-LegendreDistro: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 LegendreDistro
-.PHONY : LegendreDistro
-
-# fast build rule for target.
-LegendreDistro/fast:
-	$(MAKE) -f CMakeFiles/LegendreDistro.dir/build.make CMakeFiles/LegendreDistro.dir/build
-.PHONY : LegendreDistro/fast
+Unstable/fast:
+	$(MAKE) -f CMakeFiles/Unstable.dir/build.make CMakeFiles/Unstable.dir/build
+.PHONY : Unstable/fast
 
 #=============================================================================
 # Target rules for targets named MCtop
@@ -220,17 +194,17 @@ MCtop/fast:
 .PHONY : MCtop/fast
 
 #=============================================================================
-# Target rules for targets named Event1
+# Target rules for targets named subdir_mods
 
 # Build rule for target.
-Event1: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 Event1
-.PHONY : Event1
+subdir_mods: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 subdir_mods
+.PHONY : subdir_mods
 
 # fast build rule for target.
-Event1/fast:
-	$(MAKE) -f CMakeFiles/Event1.dir/build.make CMakeFiles/Event1.dir/build
-.PHONY : Event1/fast
+subdir_mods/fast:
+	$(MAKE) -f CMakeFiles/subdir_mods.dir/build.make CMakeFiles/subdir_mods.dir/build
+.PHONY : subdir_mods/fast
 
 #=============================================================================
 # Target rules for targets named libMCtop
@@ -380,114 +354,6 @@ lib/Vegas.F90.s:
 	$(MAKE) -f CMakeFiles/subdir_mods.dir/build.make CMakeFiles/subdir_mods.dir/lib/Vegas.F90.s
 .PHONY : lib/Vegas.F90.s
 
-src/Distributions.o: src/Distributions.F90.o
-
-.PHONY : src/Distributions.o
-
-# target to build an object file
-src/Distributions.F90.o:
-	$(MAKE) -f CMakeFiles/Distributions.dir/build.make CMakeFiles/Distributions.dir/src/Distributions.F90.o
-.PHONY : src/Distributions.F90.o
-
-src/Distributions.i: src/Distributions.F90.i
-
-.PHONY : src/Distributions.i
-
-# target to preprocess a source file
-src/Distributions.F90.i:
-	$(MAKE) -f CMakeFiles/Distributions.dir/build.make CMakeFiles/Distributions.dir/src/Distributions.F90.i
-.PHONY : src/Distributions.F90.i
-
-src/Distributions.s: src/Distributions.F90.s
-
-.PHONY : src/Distributions.s
-
-# target to generate assembly for a file
-src/Distributions.F90.s:
-	$(MAKE) -f CMakeFiles/Distributions.dir/build.make CMakeFiles/Distributions.dir/src/Distributions.F90.s
-.PHONY : src/Distributions.F90.s
-
-src/Event1.o: src/Event1.F90.o
-
-.PHONY : src/Event1.o
-
-# target to build an object file
-src/Event1.F90.o:
-	$(MAKE) -f CMakeFiles/Event1.dir/build.make CMakeFiles/Event1.dir/src/Event1.F90.o
-.PHONY : src/Event1.F90.o
-
-src/Event1.i: src/Event1.F90.i
-
-.PHONY : src/Event1.i
-
-# target to preprocess a source file
-src/Event1.F90.i:
-	$(MAKE) -f CMakeFiles/Event1.dir/build.make CMakeFiles/Event1.dir/src/Event1.F90.i
-.PHONY : src/Event1.F90.i
-
-src/Event1.s: src/Event1.F90.s
-
-.PHONY : src/Event1.s
-
-# target to generate assembly for a file
-src/Event1.F90.s:
-	$(MAKE) -f CMakeFiles/Event1.dir/build.make CMakeFiles/Event1.dir/src/Event1.F90.s
-.PHONY : src/Event1.F90.s
-
-src/Legendre.o: src/Legendre.F90.o
-
-.PHONY : src/Legendre.o
-
-# target to build an object file
-src/Legendre.F90.o:
-	$(MAKE) -f CMakeFiles/Legendre.dir/build.make CMakeFiles/Legendre.dir/src/Legendre.F90.o
-.PHONY : src/Legendre.F90.o
-
-src/Legendre.i: src/Legendre.F90.i
-
-.PHONY : src/Legendre.i
-
-# target to preprocess a source file
-src/Legendre.F90.i:
-	$(MAKE) -f CMakeFiles/Legendre.dir/build.make CMakeFiles/Legendre.dir/src/Legendre.F90.i
-.PHONY : src/Legendre.F90.i
-
-src/Legendre.s: src/Legendre.F90.s
-
-.PHONY : src/Legendre.s
-
-# target to generate assembly for a file
-src/Legendre.F90.s:
-	$(MAKE) -f CMakeFiles/Legendre.dir/build.make CMakeFiles/Legendre.dir/src/Legendre.F90.s
-.PHONY : src/Legendre.F90.s
-
-src/LegendreDistro.o: src/LegendreDistro.F90.o
-
-.PHONY : src/LegendreDistro.o
-
-# target to build an object file
-src/LegendreDistro.F90.o:
-	$(MAKE) -f CMakeFiles/LegendreDistro.dir/build.make CMakeFiles/LegendreDistro.dir/src/LegendreDistro.F90.o
-.PHONY : src/LegendreDistro.F90.o
-
-src/LegendreDistro.i: src/LegendreDistro.F90.i
-
-.PHONY : src/LegendreDistro.i
-
-# target to preprocess a source file
-src/LegendreDistro.F90.i:
-	$(MAKE) -f CMakeFiles/LegendreDistro.dir/build.make CMakeFiles/LegendreDistro.dir/src/LegendreDistro.F90.i
-.PHONY : src/LegendreDistro.F90.i
-
-src/LegendreDistro.s: src/LegendreDistro.F90.s
-
-.PHONY : src/LegendreDistro.s
-
-# target to generate assembly for a file
-src/LegendreDistro.F90.s:
-	$(MAKE) -f CMakeFiles/LegendreDistro.dir/build.make CMakeFiles/LegendreDistro.dir/src/LegendreDistro.F90.s
-.PHONY : src/LegendreDistro.F90.s
-
 src/MCtop.tm.o: src/MCtop.tm.c.o
 
 .PHONY : src/MCtop.tm.o
@@ -515,24 +381,76 @@ src/MCtop.tm.c.s:
 	$(MAKE) -f CMakeFiles/MCtop.dir/build.make CMakeFiles/MCtop.dir/src/MCtop.tm.c.s
 .PHONY : src/MCtop.tm.c.s
 
+src/Stable.o: src/Stable.F90.o
+
+.PHONY : src/Stable.o
+
+# target to build an object file
+src/Stable.F90.o:
+	$(MAKE) -f CMakeFiles/Stable.dir/build.make CMakeFiles/Stable.dir/src/Stable.F90.o
+.PHONY : src/Stable.F90.o
+
+src/Stable.i: src/Stable.F90.i
+
+.PHONY : src/Stable.i
+
+# target to preprocess a source file
+src/Stable.F90.i:
+	$(MAKE) -f CMakeFiles/Stable.dir/build.make CMakeFiles/Stable.dir/src/Stable.F90.i
+.PHONY : src/Stable.F90.i
+
+src/Stable.s: src/Stable.F90.s
+
+.PHONY : src/Stable.s
+
+# target to generate assembly for a file
+src/Stable.F90.s:
+	$(MAKE) -f CMakeFiles/Stable.dir/build.make CMakeFiles/Stable.dir/src/Stable.F90.s
+.PHONY : src/Stable.F90.s
+
+src/Unstable.o: src/Unstable.F90.o
+
+.PHONY : src/Unstable.o
+
+# target to build an object file
+src/Unstable.F90.o:
+	$(MAKE) -f CMakeFiles/Unstable.dir/build.make CMakeFiles/Unstable.dir/src/Unstable.F90.o
+.PHONY : src/Unstable.F90.o
+
+src/Unstable.i: src/Unstable.F90.i
+
+.PHONY : src/Unstable.i
+
+# target to preprocess a source file
+src/Unstable.F90.i:
+	$(MAKE) -f CMakeFiles/Unstable.dir/build.make CMakeFiles/Unstable.dir/src/Unstable.F90.i
+.PHONY : src/Unstable.F90.i
+
+src/Unstable.s: src/Unstable.F90.s
+
+.PHONY : src/Unstable.s
+
+# target to generate assembly for a file
+src/Unstable.F90.s:
+	$(MAKE) -f CMakeFiles/Unstable.dir/build.make CMakeFiles/Unstable.dir/src/Unstable.F90.s
+.PHONY : src/Unstable.F90.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... install/strip"
 	@echo "... install/local"
+	@echo "... install/strip"
 	@echo "... install"
 	@echo "... list_install_components"
+	@echo "... Stable"
 	@echo "... edit_cache"
-	@echo "... Distributions"
-	@echo "... Legendre"
-	@echo "... subdir_mods"
-	@echo "... LegendreDistro"
 	@echo "... rebuild_cache"
+	@echo "... Unstable"
 	@echo "... MCtop"
-	@echo "... Event1"
+	@echo "... subdir_mods"
 	@echo "... libMCtop"
 	@echo "... lib/MCtop.o"
 	@echo "... lib/MCtop.i"
@@ -549,21 +467,15 @@ help:
 	@echo "... lib/Vegas.o"
 	@echo "... lib/Vegas.i"
 	@echo "... lib/Vegas.s"
-	@echo "... src/Distributions.o"
-	@echo "... src/Distributions.i"
-	@echo "... src/Distributions.s"
-	@echo "... src/Event1.o"
-	@echo "... src/Event1.i"
-	@echo "... src/Event1.s"
-	@echo "... src/Legendre.o"
-	@echo "... src/Legendre.i"
-	@echo "... src/Legendre.s"
-	@echo "... src/LegendreDistro.o"
-	@echo "... src/LegendreDistro.i"
-	@echo "... src/LegendreDistro.s"
 	@echo "... src/MCtop.tm.o"
 	@echo "... src/MCtop.tm.i"
 	@echo "... src/MCtop.tm.s"
+	@echo "... src/Stable.o"
+	@echo "... src/Stable.i"
+	@echo "... src/Stable.s"
+	@echo "... src/Unstable.o"
+	@echo "... src/Unstable.i"
+	@echo "... src/Unstable.s"
 .PHONY : help
 
 
