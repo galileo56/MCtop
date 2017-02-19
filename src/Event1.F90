@@ -1,50 +1,44 @@
 
 program Event1Run
-  use MatrixElementsClass; use Event1Class; implicit none
+  use constants, only: dp; use MCtopClass, only: StableNames; implicit none
 
-  character (len = 2)        , dimension(6)      :: oriented
-  integer                                        :: i, k
-  real (kind = 8), allocatable, dimension(:,:,:) :: distLin, distLog
-  real (kind = 8)                                :: m
-  integer                                        :: Nevent, Niter, Nlin, Nlog
+  character (len = 5)                      :: oriented, method
+  integer                                  :: i, k, power
+  real (dp), allocatable, dimension(:,:,:) :: distLin, distLog
+  real (dp)                                :: mt, Q
+  integer                                  :: Nevent, Niter, Nlin, Nlog
 
-  type (MatrixElements)                          :: MatEl
-  type (Event1        )                          :: MC
-
-  read *, arg
-  read *, m, Q
+  read *, oriented
+  read *, mt, Q
   read *, Nevent, Niter, Nlin, Nlog
 
   allocate( distLin(Nlin, 16, 5), distLog(Nlog, 16, 5) )
 
-  MatEl = MatrixElements(arg(6)(:3), m);  MC = Event1(MatEl, Nlin, Nlog, Nevent, Niter)
+  call f90StableDistributions(mt, Q, oriented(:3), method(:5), power, Nlin, Nlog, &
+                                    Nevent, Niter, distLin, distLog)
 
-  distLin = MC%ListLin();  distLog = MC%ListLog()
-
-  print*, Nevent, Niter, Nlin, Nlog, 16, m; print*, ; print*, 'linear binning'
+  print*, Nevent, Niter, Nlin, Nlog, 16, mt; print*, ; print*, 'linear binning'
 
   do k = 1, 16
 
-    print*, ; print*, ESNames(k); print*,
+    print*, ; print*, StableNames(k); print*,
 
     do i = 1, Nlin
-
       write(*,'(5F18.6)') distLin(i, k, :)
-
     end do
+
   end do
 
   print*, 'log binning'
 
   do k = 1, 16
 
-    print*, ; print*, ESNames(k); print*,
+    print*, ; print*, StableNames(k); print*,
 
     do i = 1, Nlog
-
       write(*,'(5F18.6)') distLog(i, k, :)
-
     end do
+
   end do
 
   deallocate(distLin, distLog)

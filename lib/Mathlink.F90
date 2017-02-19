@@ -7,8 +7,8 @@ subroutine f90StableDistributions(mt, Q, oriented, method, power, Nlin, Nlog, &
   real (dp)                        , intent(in)  :: mt, Q
   integer                          , intent(in)  :: Nlin, Nlog, Nevent, Niter, power
   character (len = *)              , intent(in)  :: oriented, method
-  real (dp), dimension(Nlin, 16, 5) , intent(out) :: listlin
-  real (dp), dimension(Nlog, 16, 5) , intent(out) :: listlog
+  real (dp), dimension(Nlin, 16, 5) , intent(out) :: listLin
+  real (dp), dimension(Nlog, 16, 5) , intent(out) :: listLog
   type (MCStable)                                 :: MC
   type (MatrixStable)                             :: MatEl
 

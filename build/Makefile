@@ -56,17 +56,6 @@ CMAKE_BINARY_DIR = /Users/vmateu/GitHub/MCtop/build
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target install/local
-install/local: preinstall
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
-	/opt/local/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
-.PHONY : install/local
-
-# Special rule for the target install/local
-install/local/fast: install/local
-
-.PHONY : install/local/fast
-
 # Special rule for the target install/strip
 install/strip: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
@@ -77,6 +66,17 @@ install/strip: preinstall
 install/strip/fast: install/strip
 
 .PHONY : install/strip/fast
+
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/opt/local/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
+
+# Special rule for the target install/local
+install/local/fast: install/local
+
+.PHONY : install/local/fast
 
 # Special rule for the target install
 install: preinstall
@@ -155,19 +155,6 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named Legendre
-
-# Build rule for target.
-Legendre: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 Legendre
-.PHONY : Legendre
-
-# fast build rule for target.
-Legendre/fast:
-	$(MAKE) -f CMakeFiles/Legendre.dir/build.make CMakeFiles/Legendre.dir/build
-.PHONY : Legendre/fast
-
-#=============================================================================
 # Target rules for targets named Distributions
 
 # Build rule for target.
@@ -179,6 +166,19 @@ Distributions: cmake_check_build_system
 Distributions/fast:
 	$(MAKE) -f CMakeFiles/Distributions.dir/build.make CMakeFiles/Distributions.dir/build
 .PHONY : Distributions/fast
+
+#=============================================================================
+# Target rules for targets named Legendre
+
+# Build rule for target.
+Legendre: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 Legendre
+.PHONY : Legendre
+
+# fast build rule for target.
+Legendre/fast:
+	$(MAKE) -f CMakeFiles/Legendre.dir/build.make CMakeFiles/Legendre.dir/build
+.PHONY : Legendre/fast
 
 #=============================================================================
 # Target rules for targets named subdir_mods
@@ -218,6 +218,19 @@ MCtop: cmake_check_build_system
 MCtop/fast:
 	$(MAKE) -f CMakeFiles/MCtop.dir/build.make CMakeFiles/MCtop.dir/build
 .PHONY : MCtop/fast
+
+#=============================================================================
+# Target rules for targets named Event1
+
+# Build rule for target.
+Event1: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 Event1
+.PHONY : Event1
+
+# fast build rule for target.
+Event1/fast:
+	$(MAKE) -f CMakeFiles/Event1.dir/build.make CMakeFiles/Event1.dir/build
+.PHONY : Event1/fast
 
 #=============================================================================
 # Target rules for targets named libMCtop
@@ -394,6 +407,33 @@ src/Distributions.F90.s:
 	$(MAKE) -f CMakeFiles/Distributions.dir/build.make CMakeFiles/Distributions.dir/src/Distributions.F90.s
 .PHONY : src/Distributions.F90.s
 
+src/Event1.o: src/Event1.F90.o
+
+.PHONY : src/Event1.o
+
+# target to build an object file
+src/Event1.F90.o:
+	$(MAKE) -f CMakeFiles/Event1.dir/build.make CMakeFiles/Event1.dir/src/Event1.F90.o
+.PHONY : src/Event1.F90.o
+
+src/Event1.i: src/Event1.F90.i
+
+.PHONY : src/Event1.i
+
+# target to preprocess a source file
+src/Event1.F90.i:
+	$(MAKE) -f CMakeFiles/Event1.dir/build.make CMakeFiles/Event1.dir/src/Event1.F90.i
+.PHONY : src/Event1.F90.i
+
+src/Event1.s: src/Event1.F90.s
+
+.PHONY : src/Event1.s
+
+# target to generate assembly for a file
+src/Event1.F90.s:
+	$(MAKE) -f CMakeFiles/Event1.dir/build.make CMakeFiles/Event1.dir/src/Event1.F90.s
+.PHONY : src/Event1.F90.s
+
 src/Legendre.o: src/Legendre.F90.o
 
 .PHONY : src/Legendre.o
@@ -481,17 +521,18 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... install/local"
 	@echo "... install/strip"
+	@echo "... install/local"
 	@echo "... install"
 	@echo "... list_install_components"
 	@echo "... edit_cache"
-	@echo "... Legendre"
 	@echo "... Distributions"
+	@echo "... Legendre"
 	@echo "... subdir_mods"
 	@echo "... LegendreDistro"
 	@echo "... rebuild_cache"
 	@echo "... MCtop"
+	@echo "... Event1"
 	@echo "... libMCtop"
 	@echo "... lib/MCtop.o"
 	@echo "... lib/MCtop.i"
@@ -511,6 +552,9 @@ help:
 	@echo "... src/Distributions.o"
 	@echo "... src/Distributions.i"
 	@echo "... src/Distributions.s"
+	@echo "... src/Event1.o"
+	@echo "... src/Event1.i"
+	@echo "... src/Event1.s"
 	@echo "... src/Legendre.o"
 	@echo "... src/Legendre.i"
 	@echo "... src/Legendre.s"
