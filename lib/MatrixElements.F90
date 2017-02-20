@@ -22,13 +22,14 @@ module MatrixElementsClass
   type, extends(MatrixElements), public, abstract   ::  MatrixUnstable
     private
     real (dp)                            :: mb, mb2, mb4, mW, mW2, mW4, mW6,&
-                                            mt6, mt8, mb6, Eb, EW, pb, mW8
+                                            mt6, mt8, mb6, Eb, EW, pb, mW8, &
+                                            deltaThrust
   contains
 
     procedure, pass (self), public       :: CparamMinMax, GenerateVectors, &
                                             SpinWeight, CparamBeta, CparamMaxMin,  &
                                             GenerateRestVectors, GenerateVectors2, &
-                                            SetMasses
+                                            SetMasses, deltaThrustPos
   end type MatrixUnstable
 
 !ccccccccccccccc
@@ -129,6 +130,7 @@ module MatrixElementsClass
     self%Eb  = (self%mt2 + self%mb2 - self%mW2)/2/self%mt
     self%EW  = (self%mt2 + self%mW2 - self%mb2)/2/self%mt
     self%pb  = sqrt(self%Eb**2 - self%mb2); self%sizeES = 8
+    self%deltaThrust = 1 - self%vt
 
   end subroutine SetMasses
 
@@ -801,6 +803,15 @@ module MatrixElementsClass
            rhoP, rhoSum, Broadening, BroadeningQ, BroadeningE ]
 
   end subroutine MatElComputer
+
+!ccccccccccccccc
+
+  real (dp) function deltaThrustPos(self)
+    class (MatrixUnstable) , intent(in) :: self
+
+    deltaThrustPos = self%deltaThrust
+
+  end function deltaThrustPos
 
 !ccccccccccccccc
 

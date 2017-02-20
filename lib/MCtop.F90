@@ -32,12 +32,13 @@ module MCtopClass
   type, extends (MCtop), public                     :: MCUnstable
     private
     character (len = 8), private                    :: spin, current
+    real (dp)          , private                    :: deltaThrust
 
   contains
 
     final                                           :: delete_object
-    procedure, public, pass (self)                  :: callVegasCparam, CparamList, ListCparam
-
+    procedure, public, pass (self)                  :: callVegasCparam, CparamList, &
+                                                       ListCparam, callVegasThrust
   end type MCUnstable
 
 !ccccccccccccccc
@@ -107,7 +108,7 @@ module MCtopClass
      integer                         :: i
 
      InitStable%Nbin   = Nbin   ; InitStable%Nlog  = Nlog; InitStable%dimES = 16
-     InitStable%Nevent = Nevent  ; InitStable%Niter = Niter
+     InitStable%Nevent = Nevent ; InitStable%Niter = Niter
 
      allocate( MatrixStable :: InitStable%MatEl )
      select type (selector => InitStable%MatEl)
@@ -148,19 +149,21 @@ module MCtopClass
 
      allocate( InMCtop%ES(Nbin, 8),  InMCtop%ESMin(8), InMCtop%ESMax(8), InMCtop%delta(8) )
 
-     InMCtop%Nbin = Nbin ; InMCtop%Nevent  = Nevent ; InMCtop%Niter = Niter
-     InMCtop%Spin  = Spin  ; InMCtop%current = current; InMCtop%ESmin = ESmin
+     InMCtop%Nbin = Nbin  ; InMCtop%Nevent  = Nevent ; InMCtop%Niter = Niter
+     InMCtop%Spin  = Spin ; InMCtop%current = current; InMCtop%ESmin = ESmin
 
      select type (MatEl)
      type is (MatrixElements6)
        allocate( MatrixElements6 :: InMCtop%MatEl )
        select type (selector => InMCtop%MatEl)
          type is (MatrixElements6);  selector = MatEl
+         InMCtop%deltaThrust = MatEl%deltaThrustPos()
        end select
      type is (MatrixElements4)
        allocate( MatrixElements4 :: InMCtop%MatEl )
        select type (selector => InMCtop%MatEl)
        type is (MatrixElements4);  selector = MatEl
+       InMCtop%deltaThrust = MatEl%deltaThrustPos()
        end select
      end select
 
@@ -197,12 +200,9 @@ module MCtopClass
         call VEGAS(2, FunMatEl, AVGI, SD, CHI2A)
       else
 
-  !##$OMP PARALLEL DO
         do n = 1, NCall
-          call Random_number(y)
-          AVGI = AVGI + FunMatEl(y, 1._dp)
+          call Random_number(y);  AVGI = AVGI + FunMatEl(y, 1._dp)
         end do
-  !##$OMP END PARALLEL DO
 
         AVGI = AVGI/self%Nevent; list = list/self%Nevent
 
@@ -301,12 +301,9 @@ module MCtopClass
         call VEGAS(2, FunMatEl, AVGI, SD, CHI2A)
       else
 
-  !##$OMP PARALLEL DO
         do n = 1, NCall
-          call Random_number(y)
-          AVGI = AVGI + FunMatEl(y, 1._dp)
+          call Random_number(y);  AVGI = AVGI + FunMatEl(y, 1._dp)
         end do
-  !##$OMP END PARALLEL DO
 
         AVGI = AVGI/self%Nevent; distLin(:,:,2:) = distLin(:,:,2:)/self%Nevent
         distLog(:,:,2:) = distLog(:,:,2:)/self%Nevent
@@ -333,8 +330,8 @@ module MCtopClass
 
     do j = 1, self%Niter
 
-      distLin(:,:,2:4:2) = distLin(:,:,2:4:2) + distTot(:,:,:,j,1) * distTot (:,:,:,j,2)
-      distLog(:,:,2:4:2) = distLog(:,:,2:4:2) + distTot(:,:,:,j,2) * distTotL(:,:,:,j,2)
+      distLin(:,:,2:4:2) = distLin(:,:,2:4:2) + distTot (:,:,:,j,1) * distTot (:,:,:,j,2)
+      distLog(:,:,2:4:2) = distLog(:,:,2:4:2) + distTotL(:,:,:,j,2) * distTotL(:,:,:,j,2)
 
       distLin(:,:,3:5:2) = distLin(:,:,3:5:2) + distTot (:,:,:,j,2)
       distLog(:,:,3:5:2) = distLog(:,:,3:5:2) + distTotL(:,:,:,j,2)
@@ -420,6 +417,100 @@ module MCtopClass
 
 !ccccccccccccccc
 
+  subroutine callVegasThrust(self, m, method, list, delta)
+    class (MCUnstable)          , intent(in)  :: self
+    integer                     , intent(in)  :: m
+    character (len = *)         , intent(in)  :: method
+    real (dp), dimension(2)     , intent(out) :: delta
+    real (dp), dimension(0:m, 2), intent(out) :: list
+    real (dp), dimension(0:m, self%Niter, 2)  :: listTot
+    real (dp), dimension(self%Niter, 2)       :: deltaTot
+    real (dp), dimension(self%dimX)           :: y
+    real (dp)                                 :: AVGI, SD, CHI2A
+    integer                                   :: i, j, iter
+
+    NPRN = - 1; ITMX = 1; NCall = self%Nevent; iter = 1; list = 0; delta = 0
+    if (self%dimX <= 3) iter = 0; listTot = 0; deltaTot = 0
+
+    do j = 1, self%Niter
+
+      list = 0; delta = 0
+
+      if ( method(:5) == 'vegas' ) then
+        if (j > 1 .and. self%dimX > 3) iter = 2
+        call VEGAS(self%dimX, FunMatEl, AVGI, SD, CHI2A, iter)
+      else
+        do i = 1, NCall
+          call Random_number(y);  AVGI = AVGI + FunMatEl(y, 1._dp)
+        end do
+        AVGI = AVGI/self%Nevent; list = list/self%Nevent;  delta = delta/self%Nevent
+      end if
+
+      listTot(:,j,1) = list(:,1);  deltaTot(j,1) = delta(1)
+
+      listTot(:,j,2) = sqrt(  ( list(:,2) - listTot(:,j,1)**2 )/self%Nevent  )
+      deltaTot( j,2) = sqrt(  ( delta( 2) - deltaTot( j,1)**2 )/self%Nevent  )
+
+    end do
+
+
+    list  = 0;  listTot(:,:,2) = 1/listTot(:,:,2)**2
+    delta = 0;  deltaTot( :,2) = 1/deltaTot( :,2)**2
+
+    do j = 1, self%Niter
+      list(:,1) = list(:,1) + listTot(:,j,1) * listTot(:,j,2)
+      list(:,2) = list(:,2) + listTot(:,j,2)
+      delta(1)  = delta(1)  + deltaTot(j, 1) * deltaTot(j, 2)
+      delta(2)  = delta(2)  + deltaTot(j, 2)
+    end do
+
+    list(:,2) = 1/list(:,2);  list(:,1) = list(:,1) * list(:,2)
+    list(:,2) = sqrt( list(:,2) ); delta(2) = 1/delta(2)
+    delta(1)  = delta(1) * delta(2); delta(2) = sqrt( delta(2) )
+
+    list = list/(self%ESmax(1) - self%ESmin(1) )
+
+    do i = 0, m
+      list(i,:) = (2 * i + 1) * list(i,:)
+      if (list(i,2) < d1mach(1) ) list(i,:) = 0
+    end do
+
+  contains
+
+!ccccccccccccccc
+
+    real (dp) function FunMatEl(x, wgt)
+      real (dp), dimension(self%dimX), intent(in) :: x
+      real (dp)                      , intent(in) :: wgt
+      real (dp), dimension(8)                     :: ES
+      real (dp)                                   :: ESNorm
+      real (dp), dimension(0:m)                   :: ESLeg
+      real (dp), dimension(self%dimP,4)           :: p
+
+      select type (self)
+      type is (MCUnstable)
+        select type (selector => self%MatEl)
+        class is (MatrixUnstable)
+          p = selector%GenerateVectors(x); ES = EScomputer(p)
+          FunMatEl = selector%SpinWeight(self%spin, self%current, p)
+        end select
+      end select
+
+      if ( abs( ES(1) - self%deltaThrust) <= 1e-10_dp ) then
+        delta = delta + wgt * FunMatEl**[1,2]
+      else
+        ESNorm = ( ES(1) - self%ESmin(1) )/( self%ESmax(1) - self%ESmin(1) )
+        ESLeg = LegendreList(  m, 2 * ESNorm - 1  )
+        list(:,1) = list(:,1) + wgt *  FunMatEl * ESLeg
+        list(:,2) = list(:,2) + wgt * (FunMatEl * ESLeg)**2
+      end if
+
+    end function FunMatEl
+
+  end subroutine callVegasThrust
+
+!ccccccccccccccc
+
   subroutine callVegas(self, m, method, dist, list)
     class (MCtop)                         , intent(in) :: self
     integer                               , intent(in) :: m
@@ -444,8 +535,7 @@ module MCtopClass
         call VEGAS(self%dimX, FunMatEl, AVGI, SD, CHI2A, iter)
       else
         do n = 1, NCall
-          call Random_number(y)
-          AVGI = AVGI + FunMatEl(y, 1._dp)
+          call Random_number(y);  AVGI = AVGI + FunMatEl(y, 1._dp)
         end do
         AVGI = AVGI/self%Nevent; dist(:,:,2:) = dist(:,:,2:)/self%Nevent
         list = list/self%Nevent
@@ -558,18 +648,18 @@ module MCtopClass
 !ccccccccccccccc
 
  subroutine callVegasCparam(self, n, expand, method, dist, list)
-    class (MCUnstable)             , intent(in)  :: self
+    class (MCUnstable)                , intent(in)  :: self
     integer                           , intent(in)  :: n
     character (len = *)               , intent(in)  :: expand, method
-    real (dp), dimension(self%Nbin,3), intent(out) :: dist
+    real (dp), dimension(self%Nbin,3) , intent(out) :: dist
     real (dp), dimension(0:n       ,2), intent(out) :: list
-    real (dp), dimension(self%Nbin, self%Niter,2)  :: distTot
+    real (dp), dimension(self%Nbin, self%Niter,2)   :: distTot
     real (dp), dimension(0:n       , self%Niter,2)  :: listTot
     real (dp), dimension(self%dimX)                 :: y
     real (dp)                                       :: AVGI, SD, CHI2A
     integer                                         :: i, j, iter
 
-    NPRN = - 1; ITMX = 1; NCall = self%Nevent; iter = 1; list = 0
+    NPRN = - 1; ITMX = 1; NCall = self%Nevent; iter = 1; list = 0; listTot = 0
     if (self%dimX <= 3) iter = 0; distTot = 0; dist(:,1) = self%ES(:,5)
 
     do j = 1, self%Niter
@@ -581,8 +671,7 @@ module MCtopClass
         call VEGAS(self%dimX, FunMatEl, AVGI, SD, CHI2A, iter)
       else
         do i = 1, NCall
-          call Random_number(y)
-          AVGI = AVGI + FunMatEl(y, 1._dp)
+          call Random_number(y);  AVGI = AVGI + FunMatEl(y, 1._dp)
         end do
         AVGI = AVGI/self%Nevent; list  = list/self%Nevent
         dist(:,2:) = dist(:,2:)/self%Nevent
@@ -696,10 +785,10 @@ module MCtopClass
 !ccccccccccccccc
 
   function List(self, method) result(dist)
-    class (MCtop)                      , intent(in) :: self
-    character (len = *)                , intent(in) :: method
+    class (MCtop)                     , intent(in) :: self
+    character (len = *)               , intent(in) :: method
     real (dp), dimension(self%Nbin, self%dimES, 3) :: dist
-    real (dp), dimension(1,8,2)                     :: lista
+    real (dp), dimension(1,8,2)                    :: lista
 
     call self%callVegas( 0, method, dist, lista )
 

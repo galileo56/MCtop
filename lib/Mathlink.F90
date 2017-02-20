@@ -177,7 +177,7 @@ subroutine f90ESDistributions(mt, mb, mW, Q, method, Spin, decay, current, ESmin
   character (len = *)              , intent(in)  :: Spin, decay, method, current
   real (dp), dimension(8)          , intent(in)  :: ESmin, ESmax
   real (dp), dimension(Nbins, 8, 3), intent(out) :: list
-  type (MCUnstable)                           :: MC
+  type (MCUnstable)                              :: MC
   class (MatrixUnstable), allocatable            :: MatEl
 
   if ( decay(:6) == 'stable') then
@@ -300,7 +300,7 @@ subroutine f90CparamLegendre(n, mt, mb, mW, Q, expand, method, spin, decay, curr
   integer                    , intent(in)  :: n, Nevent, Niter
   character (len = *)        , intent(in)  :: spin, decay, current, method, expand
   real (dp)                  , intent(in)  :: Cmin, Cmax
-  real (dp), dimension(2,0:n), intent(out) :: list
+  real (dp), dimension(0:n,2), intent(out) :: list
   real (dp), dimension(1,3)                :: list2
   type (MCUnstable)                     :: MC
   class (MatrixUnstable), allocatable      :: MatEl
@@ -322,6 +322,38 @@ subroutine f90CparamLegendre(n, mt, mb, mW, Q, expand, method, spin, decay, curr
   call MC%callVegasCparam( n, expand(:6), method(:5), list2, list )
 
 end subroutine f90CparamLegendre
+
+!ccccccccccccccc
+
+subroutine f90VegasThrust(n, mt, mb, mW, Q, method, spin, decay, current, &
+                             Cmin, Cmax, Nevent, Niter, list, delta)
+  use constants, only: dp; use MatrixElementsClass; use MCtopClass; implicit none
+  real (dp)                  , intent(in)  :: mt, mW, mb, Q
+  integer                    , intent(in)  :: n, Nevent, Niter
+  character (len = *)        , intent(in)  :: spin, decay, current, method
+  real (dp)                  , intent(in)  :: Cmin, Cmax
+  real (dp), dimension(0:n,2), intent(out) :: list
+  real (dp), dimension(2)    , intent(out) :: delta
+  type (MCUnstable)                        :: MC
+  class (MatrixUnstable), allocatable      :: MatEl
+
+  if ( decay(:6) == 'stable') then
+    allocate( MatrixElements4 :: MatEl )
+    select type (MatEl)
+    type is (MatrixElements4);  MatEl = MatrixElements4(mt, mb, mW, Q)
+    end select
+  else
+    allocate( MatrixElements6 :: MatEl )
+    select type (MatEl)
+    type is (MatrixElements6);  MatEl = MatrixElements6(mt, mb, mW, Q)
+    end select
+  end if
+
+  MC   = MCUnstable(MatEl, spin(:8), current(:8), [1,1,1,1,1,1,1,1] * Cmin, &
+               [1,1,1,1,1,1,1,1] * Cmax, 1, Nevent, Niter)
+  call MC%callVegasThrust( n, method(:5), list, delta )
+
+end subroutine f90VegasThrust
 
 !ccccccccccccccc
 
