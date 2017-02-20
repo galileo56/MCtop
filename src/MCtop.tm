@@ -5,11 +5,11 @@
 :Evaluate:   Print["     Last modification: 08 - 01 - 2017        "]
 :Evaluate:   Print["     Version:           test 2                "]
 
+:Evaluate:  VegasThrust::usage = "VegasThrust[n, mt, mb, mW, Q, method, Spin, decay, current, Cmin, Cmax, Nevent, Niter] computes the integration against Legendre Polynomial plus the delta coefficient for thrust"
 :Evaluate:  B1::usage = "B1[m, Q] computes the residue for vector and axial current"
 :Evaluate:  MatrixElements::usage = "MatrixElements[m, Q, h1, h2, oriented] computes the matrix elements for vector and axial current"
 :Evaluate:  EShape::usage = "EShape[m, Q, h1, h2] computes the value of the event shape"
 :Evaluate:  CparamLegendreDistro::usage = "CparamLegendreDistro[mt, mb, mW, Q, expand, method, Spin, decay, current, Cmin, Cmax, n, Nbins, Nevent, Niter] computes the Legendre expansion and distribution for the C-parameter event shape"
-:Evaluate:  CparamLegendre::usage = "CparamLegendre[n, mt, mb, mW, Q, expand, method, Spin, decay, current, Cmin, Cmax, Nevent, Niter] computes the integration against Legendre Polynomial"
 :Evaluate:  LegendreList::usage = "LegendreList[n, x] computes the of the first n + 1 Legendre Polynomial"
 :Evaluate:  Cparam4::usage = "Cparam4[x, mt, mb, mW, Q] computes the value of C-parameter for top decay into 2 particles"
 :Evaluate:  Cparam6::usage = "Cparam6[x, mt, mb, mW, Q] computes the value of C-parameter for top decay into 3 particles"
@@ -129,6 +129,17 @@
 :Arguments:     {n, mt, mb, mW, Q, expand, method, spin, decay, current, Cmin,
                  Cmax, Nevent, Niter}
 :ArgumentTypes: {Integer, Real, Real, Real, Real, String, String, String, String,
+                 String, Real, Real, Integer, Integer}
+:ReturnType:    Manual
+:End:
+
+:Begin:
+:Function:      vegasthrust
+:Pattern:       VegasThrust[n_, mt_, mb_, mW_, Q_, method_, spin_,
+                 decay_, current_, Cmin_, Cmax_, Nevent_, Niter_]
+:Arguments:     {n, mt, mb, mW, Q, method, spin, decay, current, Cmin,
+                 Cmax, Nevent, Niter}
+:ArgumentTypes: {Integer, Real, Real, Real, Real, String, String, String,
                  String, Real, Real, Integer, Integer}
 :ReturnType:    Manual
 :End:
@@ -682,6 +693,28 @@ static void cparamlegendre(int n, double mt, double mb, double mW, double Q,
    MLPutFunction(stdlink, "Partition", 2);
    MLPutRealList(stdlink, res, 2 * (n + 1) );
    MLPutInteger(stdlink, (n + 1));
+   MLEndPacket(stdlink);
+
+}
+
+extern double f90vegasthrust_(int* n, double* mt, double* mb, double* mW, double* Q,
+  char const* method, char const* spin, char const* decay, char const* current,
+  double* Cmin, double* Cmax, int* Nevent, int* Niter, double* res, double* delta);
+
+static void vegasthrust(int n, double mt, double mb, double mW, double Q,
+  char const* method, char const* spin, char const* decay, char const* current,
+  double Cmin, double Cmax, int Nevent, int Niter){
+  double res[2 * (n + 1)]; double delta[2];
+
+   f90vegasthrust_(&n, &mt, &mb, &mW, &Q, method, spin, decay, current,
+   &Cmin, &Cmax, &Nevent, &Niter, res, delta);
+
+   MLPutFunction(stdlink, "List", 2);
+   MLPutFunction(stdlink, "Transpose", 1);
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutRealList(stdlink, res, 2 * (n + 1) );
+   MLPutInteger(stdlink, (n + 1));
+   MLPutRealList(stdlink, delta, 2 );
    MLEndPacket(stdlink);
 
 }
