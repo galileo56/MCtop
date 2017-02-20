@@ -38,7 +38,7 @@ module MCtopClass
 
     final                                           :: delete_object
     procedure, public, pass (self)                  :: callVegasCparam, CparamList, &
-                                        ListCparam, callVegasThrust, callVegasDelta
+                     ListCparam, callVegasThrust, callVegasDelta, callDistroThrust
   end type MCUnstable
 
 !ccccccccccccccc
@@ -417,6 +417,100 @@ module MCtopClass
 
 !ccccccccccccccc
 
+  subroutine callDistroThrust(self, method, dist, delta)
+    class (MCUnstable)          , intent(in)  :: self
+    character (len = *)         , intent(in)  :: method
+    real (dp), dimension(2)     , intent(out) :: delta
+    real (dp), dimension(self%Nbin, 3), intent(out) :: dist
+    real (dp), dimension(self%Nbin, self%Niter, 2)  :: distTot
+    real (dp), dimension(self%Niter, 2)       :: deltaTot
+    real (dp), dimension(self%dimX)           :: y
+    real (dp)                                 :: AVGI, SD, CHI2A
+    integer                                   :: i, j, iter
+
+    NPRN = - 1; ITMX = 1; NCall = self%Nevent; iter = 1; dist(:,1) = self%ES(:,1)
+    if (self%dimX <= 3) iter = 0; distTot = 0; deltaTot = 0
+
+    do j = 1, self%Niter
+
+      dist = 0; delta = 0
+
+      if ( method(:5) == 'vegas' ) then
+        if (j > 1 .and. self%dimX > 3) iter = 2
+        call VEGAS(self%dimX, FunMatEl, AVGI, SD, CHI2A, iter)
+      else
+        do i = 1, NCall
+          call Random_number(y);  AVGI = AVGI + FunMatEl(y, 1._dp)
+        end do
+        AVGI = AVGI/self%Nevent; dist(:,2:) = dist(:,2:)/self%Nevent;  delta = delta/self%Nevent
+      end if
+
+      distTot(:,j,1) = dist(:,2)/self%Delta(1);  deltaTot(j,1) = delta(1)
+
+      distTot(:,j,2) = sqrt(  ( dist(:,3)/self%Delta(1)**2 - distTot(:,j,1)**2 )/self%Nevent  )
+      deltaTot( j,2) = sqrt(  ( delta( 2) - deltaTot( j,1)**2 )/self%Nevent  )
+
+    end do
+
+    dist(:,2:) = 0;  distTot(:,:,2) = 1/distTot(:,:,2)**2
+    delta      = 0;  deltaTot( :,2) = 1/deltaTot( :,2)**2
+
+    do j = 1, self%Niter
+      dist(:,2) = dist(:,2) + distTot(:,j,1) * distTot(:,j,2)
+      dist(:,3) = dist(:,3) + distTot(:,j,2)
+      delta(1)  = delta(1)  + deltaTot(j, 1) * deltaTot(j, 2)
+      delta(2)  = delta(2)  + deltaTot(j, 2)
+    end do
+
+    dist(:,3) = 1/dist(:,3);  dist(:,2) = dist(:,2) * dist(:,3)
+    dist(:,3) = sqrt( dist(:,3) ); delta(2) = 1/delta(2)
+    delta(1)  = delta(1) * delta(2); delta(2) = sqrt( delta(2) )
+
+    do i = 1, self%Nbin
+      if ( dist(i,3) < d1mach(1) ) dist(i,2:) = 0
+    end do
+
+  contains
+
+!ccccccccccccccc
+
+    real (dp) function FunMatEl(x, wgt)
+      real (dp), dimension(self%dimX), intent(in) :: x
+      real (dp)                      , intent(in) :: wgt
+      real (dp), dimension(8)                     :: ES
+      real (dp)                                   :: ESNorm
+      real (dp), dimension(self%dimP,4)           :: p
+      integer                                     :: k
+
+      select type (self)
+      type is (MCUnstable)
+        select type (selector => self%MatEl)
+        class is (MatrixUnstable)
+          p = selector%GenerateVectors(x); ES = EScomputer(p)
+          FunMatEl = selector%SpinWeight(self%spin, self%current, p)
+        end select
+      end select
+
+      if (  abs( ES(1) - self%deltaPos(1) ) <= 1e-9_dp  ) then
+        delta = delta + wgt * FunMatEl**[1,2]
+      else
+        ESNorm = ( ES(1) - self%ESmin(1) )/( self%ESmax(1) - self%ESmin(1) )
+        k = Ceiling( self%Nbin * ESNorm )
+        if ( k <= 0          ) k = 1
+        if ( k >  self%Nbin  ) k = self%Nbin
+
+        if ( k > 0 ) then
+          dist(k,2:) = dist(k,2:) + wgt * FunMatEl**[1,2]
+        end if
+
+      end if
+
+    end function FunMatEl
+
+  end subroutine callDistroThrust
+
+!ccccccccccccccc
+
   subroutine callVegasThrust(self, m, method, list, delta)
     class (MCUnstable)          , intent(in)  :: self
     integer                     , intent(in)  :: m
@@ -429,7 +523,7 @@ module MCtopClass
     real (dp)                                 :: AVGI, SD, CHI2A
     integer                                   :: i, j, iter
 
-    NPRN = - 1; ITMX = 1; NCall = self%Nevent; iter = 1; list = 0; delta = 0
+    NPRN = - 1; ITMX = 1; NCall = self%Nevent; iter = 1
     if (self%dimX <= 3) iter = 0; listTot = 0; deltaTot = 0
 
     do j = 1, self%Niter
@@ -694,7 +788,7 @@ module MCtopClass
 
     do i = 1, 8
       do j = 1, self%Nbin
-        if ( dist(j,i,3) <= tiny(1._dp) ) dist(j,i,2) = 0
+        if ( dist(j,i,3) <= d1mach(1) ) dist(j,i,2) = 0
       enddo
     end do
 
