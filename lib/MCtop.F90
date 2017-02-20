@@ -31,14 +31,14 @@ module MCtopClass
 
   type, extends (MCtop), public                     :: MCUnstable
     private
-    character (len = 8), private                    :: spin, current
-    real (dp)          , private                    :: deltaThrust
+    character (len = 8)    , private                :: spin, current
+    real (dp), dimension(8), private                :: deltaPos
 
   contains
 
     final                                           :: delete_object
     procedure, public, pass (self)                  :: callVegasCparam, CparamList, &
-                                                       ListCparam, callVegasThrust
+                                        ListCparam, callVegasThrust, callVegasDelta
   end type MCUnstable
 
 !ccccccccccccccc
@@ -157,13 +157,13 @@ module MCtopClass
        allocate( MatrixElements6 :: InMCtop%MatEl )
        select type (selector => InMCtop%MatEl)
          type is (MatrixElements6);  selector = MatEl
-         deltaPos = MatEl%deltaPos(); InMCtop%deltaThrust = deltaPos(5)
+         deltaPos = MatEl%deltaPos()
        end select
      type is (MatrixElements4)
        allocate( MatrixElements4 :: InMCtop%MatEl )
        select type (selector => InMCtop%MatEl)
        type is (MatrixElements4);  selector = MatEl
-         deltaPos = MatEl%deltaPos(); InMCtop%deltaThrust = deltaPos(5)
+         deltaPos = MatEl%deltaPos()
        end select
      end select
 
@@ -453,7 +453,6 @@ module MCtopClass
 
     end do
 
-
     list  = 0;  listTot(:,:,2) = 1/listTot(:,:,2)**2
     delta = 0;  deltaTot( :,2) = 1/deltaTot( :,2)**2
 
@@ -496,7 +495,7 @@ module MCtopClass
         end select
       end select
 
-      if ( abs( ES(1) - self%deltaThrust) <= 1e-9_dp ) then
+      if (  abs( ES(1) - self%deltaPos(1) ) <= 1e-9_dp  ) then
         delta = delta + wgt * FunMatEl**[1,2]
       else
         ESNorm = ( ES(1) - self%ESmin(1) )/( self%ESmax(1) - self%ESmin(1) )
@@ -508,6 +507,111 @@ module MCtopClass
     end function FunMatEl
 
   end subroutine callVegasThrust
+
+!ccccccccccccccc
+
+  subroutine callVegasDelta(self, m, method, list, delta)
+    class (MCUnstable)             , intent(in)  :: self
+    integer                        , intent(in)  :: m
+    character (len = *)            , intent(in)  :: method
+    real (dp), dimension(3,2)      , intent(out) :: delta
+    real (dp), dimension(0:m, 3, 2), intent(out) :: list
+    real (dp), dimension(0:m, 3, self%Niter, 2)  :: listTot
+    real (dp), dimension(     3, self%Niter, 2)  :: deltaTot
+    real (dp), dimension(self%dimX)              :: y
+    real (dp)                                    :: AVGI, SD, CHI2A
+    integer                                      :: i, j, iter
+    integer, dimension(3), parameter             :: intk = [1,2,4]
+
+    NPRN = - 1; ITMX = 1; NCall = self%Nevent; iter = 1; list = 0; delta = 0
+    if (self%dimX <= 3) iter = 0; listTot = 0; deltaTot = 0
+
+    do j = 1, self%Niter
+
+      list = 0; delta = 0
+
+      if ( method(:5) == 'vegas' ) then
+        if (j > 1 .and. self%dimX > 3) iter = 2
+        call VEGAS(self%dimX, FunMatEl, AVGI, SD, CHI2A, iter)
+      else
+        do i = 1, NCall
+          call Random_number(y);  AVGI = AVGI + FunMatEl(y, 1._dp)
+        end do
+        AVGI = AVGI/self%Nevent; list = list/self%Nevent;  delta = delta/self%Nevent
+      end if
+
+      listTot(:,:,j,1) = list(:,:,1);  deltaTot(:,j,1) = delta(:,1)
+
+      listTot(:,:,j,2) = sqrt(  ( list(:,:,2) - listTot(:,:,j,1)**2 )/self%Nevent  )
+      deltaTot( :,j,2) = sqrt(  ( delta( :,2) - deltaTot( :,j,1)**2 )/self%Nevent  )
+
+    end do
+
+    list  = 0;  listTot(:,:,:,2) = 1/listTot(:,:,:,2)**2
+    delta = 0;  deltaTot( :,:,2) = 1/deltaTot( :,:,2)**2
+
+    do j = 1, self%Niter
+      list(:,:,1) = list(:,:,1) + listTot(:,:,j,1) * listTot(:,:,j,2)
+      list(:,:,2) = list(:,:,2) + listTot(:,:,j,2)
+      delta(:,1)  = delta(:,1)  + deltaTot( :,j,1) * deltaTot(:,j, 2)
+      delta(:,2)  = delta(:,2)  + deltaTot( :,j,2)
+    end do
+
+    list(:,:,2) = 1/list(:,:,2);  list(:,:,1) = list(:,:,1) * list(:,:,2)
+    list(:,:,2) = sqrt( list(:,:,2) ); delta(:,2) = 1/delta(:,2)
+    delta(:,1)  = delta(:,1) * delta(:,2); delta(:,2) = sqrt( delta(:,2) )
+
+    do i = 1, 3
+      j = intk(i);  list(:,i,:) = list(:,i,:)/(self%ESmax(j) - self%ESmin(j) )
+    end do
+
+    do i = 0, m
+      list(:,i,:) = (2 * i + 1) * list(:,i,:)
+      do j = 1, 3
+        if (list(j,i,2) < d1mach(1) ) list(j,i,:) = 0
+      end do
+    end do
+
+  contains
+
+!ccccccccccccccc
+
+    real (dp) function FunMatEl(x, wgt)
+      real (dp), dimension(self%dimX), intent(in) :: x
+      real (dp)                      , intent(in) :: wgt
+      real (dp), dimension(8)                     :: ES
+      real (dp)                                   :: ESNorm
+      real (dp), dimension(0:m)                   :: ESLeg
+      real (dp), dimension(self%dimP,4)           :: p
+      integer                                     :: k, l
+
+      select type (self)
+      type is (MCUnstable)
+        select type (selector => self%MatEl)
+        class is (MatrixUnstable)
+          p = selector%GenerateVectors(x); ES = EScomputer(p)
+          FunMatEl = selector%SpinWeight(self%spin, self%current, p)
+        end select
+      end select
+
+      do k = 1, 3
+        l = intk(l)
+
+        if (  abs( ES(l) - self%deltaPos(l) ) <= 1e-9_dp  ) then
+          delta(k,1) = delta(k,1) + wgt * FunMatEl
+          delta(k,2) = delta(k,2) + wgt * FunMatEl**2
+        else
+          ESNorm = ( ES(l) - self%ESmin(l) )/( self%ESmax(l) - self%ESmin(l) )
+          ESLeg = LegendreList(  m, 2 * ESNorm - 1  )
+          list(k,:,1) = list(k,:,1) + wgt *  FunMatEl * ESLeg
+          list(k,:,2) = list(k,:,2) + wgt * (FunMatEl * ESLeg)**2
+        end if
+
+      end do
+
+    end function FunMatEl
+
+  end subroutine callVegasDelta
 
 !ccccccccccccccc
 
