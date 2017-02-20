@@ -38,7 +38,7 @@ module MCtopClass
 
     final                                           :: delete_object
     procedure, public, pass (self)                  :: callVegasCparam, CparamList, &
-                     ListCparam, callVegasThrust, callVegasDelta, callDistroThrust
+                         ListCparam, callVegasThrust, callVegasDelta, DistroThrust
   end type MCUnstable
 
 !ccccccccccccccc
@@ -417,7 +417,7 @@ module MCtopClass
 
 !ccccccccccccccc
 
-  subroutine callDistroThrust(self, method, dist, delta)
+  subroutine DistroThrust(self, method, dist, delta)
     class (MCUnstable)          , intent(in)  :: self
     character (len = *)         , intent(in)  :: method
     real (dp), dimension(2)     , intent(out) :: delta
@@ -507,7 +507,7 @@ module MCtopClass
 
     end function FunMatEl
 
-  end subroutine callDistroThrust
+  end subroutine DistroThrust
 
 !ccccccccccccccc
 

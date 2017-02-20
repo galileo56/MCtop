@@ -357,6 +357,38 @@ end subroutine f90VegasThrust
 
 !ccccccccccccccc
 
+subroutine f90DistroThrust(mt, mb, mW, Q, method, spin, decay, current, Cmin, &
+  Cmax, Nbins, Nevent, Niter, list, delta)
+  use constants, only: dp; use MatrixElementsClass; use MCtopClass; implicit none
+  real (dp)                    , intent(in)  :: mt, mW, mb, Q
+  integer                      , intent(in)  :: Nbins, Nevent, Niter
+  character (len = *)          , intent(in)  :: spin, decay, current, method
+  real (dp)                    , intent(in)  :: Cmin, Cmax
+  real (dp), dimension(Nbins,3), intent(out) :: list
+  real (dp), dimension(2)      , intent(out) :: delta
+  type (MCUnstable)                          :: MC
+  class (MatrixUnstable), allocatable        :: MatEl
+
+  if ( decay(:6) == 'stable') then
+    allocate( MatrixElements4 :: MatEl )
+    select type (MatEl)
+    type is (MatrixElements4);  MatEl = MatrixElements4(mt, mb, mW, Q)
+    end select
+  else
+    allocate( MatrixElements6 :: MatEl )
+    select type (MatEl)
+    type is (MatrixElements6);  MatEl = MatrixElements6(mt, mb, mW, Q)
+    end select
+  end if
+
+  MC   = MCUnstable(MatEl, spin(:8), current(:8), [1,1,1,1,1,1,1,1] * Cmin, &
+               [1,1,1,1,1,1,1,1] * Cmax, Nbins, Nevent, Niter)
+  call MC%DistroThrust( method(:5), list, delta )
+
+end subroutine f90DistroThrust
+
+!ccccccccccccccc
+
 subroutine f90CparamComputer(p, len, ES)
   use constants, only: dp; use MatrixElementsClass, only: Cparam; implicit none
   integer                     , intent(in)  :: len

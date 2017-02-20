@@ -5,6 +5,7 @@
 :Evaluate:   Print["     Last modification: 08 - 01 - 2017        "]
 :Evaluate:   Print["     Version:           test 2                "]
 
+:Evaluate:  DistroThrust::usage = "DistroThrust[mt, mb, mW, Q, method, Spin, decay, current, Cmin, Cmax, Nbins, Nevent, Niter] computes the thrust distribution plus the delta coefficient"
 :Evaluate:  VegasThrust::usage = "VegasThrust[n, mt, mb, mW, Q, method, Spin, decay, current, Cmin, Cmax, Nevent, Niter] computes the integration against Legendre Polynomial plus the delta coefficient for thrust"
 :Evaluate:  B1::usage = "B1[m, Q] computes the residue for vector and axial current"
 :Evaluate:  MatrixElements::usage = "MatrixElements[m, Q, h1, h2, oriented] computes the matrix elements for vector and axial current"
@@ -141,6 +142,17 @@
                  Cmax, Nevent, Niter}
 :ArgumentTypes: {Integer, Real, Real, Real, Real, String, String, String,
                  String, Real, Real, Integer, Integer}
+:ReturnType:    Manual
+:End:
+
+:Begin:
+:Function:      distrothrust
+:Pattern:       DistroThrust[mt_, mb_, mW_, Q_, method_, spin_,
+                 decay_, current_, Cmin_, Cmax_, Nbins_, Nevent_, Niter_]
+:Arguments:     {n, mt, mb, mW, Q, method, spin, decay, current, Cmin,
+                 Cmax, Nbins, Nevent, Niter}
+:ArgumentTypes: {Real, Real, Real, Real, String, String, String,
+                 String, Real, Real, Integer, Integer, Integer}
 :ReturnType:    Manual
 :End:
 
@@ -714,6 +726,29 @@ static void vegasthrust(int n, double mt, double mb, double mW, double Q,
    MLPutFunction(stdlink, "Partition", 2);
    MLPutRealList(stdlink, res, 2 * (n + 1) );
    MLPutInteger(stdlink, (n + 1));
+   MLPutRealList(stdlink, delta, 2 );
+   MLEndPacket(stdlink);
+
+}
+
+extern double f90distrothrust_(double* mt, double* mb, double* mW, double* Q,
+  char const* method, char const* spin, char const* decay, char const* current,
+  double* Cmin, double* Cmax, int* Nbins, int* Nevent, int* Niter, double* res,
+  double* delta);
+
+static void distrothrust(double mt, double mb, double mW, double Q,
+  char const* method, char const* spin, char const* decay, char const* current,
+  double Cmin, double Cmax, int Nbins, int Nevent, int Niter){
+  double res[3*Nbins]; double delta[2];
+
+   f90distrothrust_(&mt, &mb, &mW, &Q, method, spin, decay, current,
+   &Cmin, &Cmax, &Nbins, &Nevent, &Niter, res, delta);
+
+   MLPutFunction(stdlink, "List", 2);
+   MLPutFunction(stdlink, "Transpose", 1);
+   MLPutFunction(stdlink, "Partition", 2);
+   MLPutRealList(stdlink, res, 3*Nbins );
+   MLPutInteger(stdlink, Nbins);
    MLPutRealList(stdlink, delta, 2 );
    MLEndPacket(stdlink);
 
