@@ -433,7 +433,7 @@ module MCtopClass
 
     do j = 1, self%Niter
 
-      dist = 0; delta = 0
+      dist(:,2:) = 0; delta = 0
 
       if ( method(:5) == 'vegas' ) then
         if (j > 1 .and. self%dimX > 3) iter = 2
