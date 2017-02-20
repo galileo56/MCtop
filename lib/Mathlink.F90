@@ -177,7 +177,7 @@ subroutine f90ESDistributions(mt, mb, mW, Q, method, Spin, decay, current, ESmin
   character (len = *)              , intent(in)  :: Spin, decay, method, current
   real (dp), dimension(8)          , intent(in)  :: ESmin, ESmax
   real (dp), dimension(Nbins, 8, 3), intent(out) :: list
-  type (MCUnstable)                           :: MC
+  type (MCUnstable)                              :: MC
   class (MatrixUnstable), allocatable            :: MatEl
 
   if ( decay(:6) == 'stable') then

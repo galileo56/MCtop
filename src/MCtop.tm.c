@@ -289,7 +289,7 @@ MLYDEFN( devyield_result, MLDefaultYielder, ( MLINK mlp, MLYieldParameters yp))
 /********************************* end header *********************************/
 
 
-# line 331 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm"
+# line 332 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm"
 #include "mathlink.h"
 #include "ftypes.h"
 #include <stdio.h>
@@ -2144,7 +2144,7 @@ int MLInstall(mlp) MLINK mlp;
 	if (_res) _res = _definepattern(mlp, (char *)"CparamDistribution[mt_, mb_, mW_, Q_, expand_, method_, spin_, decay_,                  current_, Cmin_, Cmax_, Nbins_, Nevent_, Niter_]", (char *)"{mt, mb, mW, Q, expand, method, spin, decay, current, Cmin, Cmax, Nbins,                  Nevent, Niter}", 7);
 	if (_res) _res = _definepattern(mlp, (char *)"CparamLegendreDistro[mt_, mb_, mW_, Q_, expand_, method_, spin_,                  decay_, current_, Cmin_, Cmax_, n_, Nbins_, Nevent_, Niter_]", (char *)"{mt, mb, mW, Q, expand, method, spin, decay, current, Cmin, Cmax,                  n, Nbins, Nevent, Niter}", 8);
 	if (_res) _res = _definepattern(mlp, (char *)"CparamLegendre[n_, mt_, mb_, mW_, Q_, expand_, method_, spin_,                  decay_, current_, Cmin_, Cmax_, Nevent_, Niter_]", (char *)"{n, mt, mb, mW, Q, expand, method, spin, decay, current, Cmin,                  Cmax, Nevent, Niter}", 9);
-	if (_res) _res = _definepattern(mlp, (char *)"ESDistributions[mt_, mb_, mW_, Q_, method_, spin_, decay_, current_,                  Cmin_, Cmax_, Nbins_, Nevent_, Niter_]", (char *)"{mt, mb, mW, Q, method, spin, decay, current, Cmin, Cmax, Nbins, Nevent, Niter}", 10);
+	if (_res) _res = _definepattern(mlp, (char *)"ESDistributions[mt_, mb_, mW_, Q_, method_, spin_, decay_,                  current_, Cmin_, Cmax_, Nbins_, Nevent_, Niter_]", (char *)"{mt, mb, mW, Q, method, spin, decay, current, Cmin, Cmax, Nbins,                  Nevent, Niter}", 10);
 	if (_res) _res = _definepattern(mlp, (char *)"StableDistributions[mt_, Q_, oriented_, method_, power_, Nlin_,                  Nlog_, Nevent_, Niter_]", (char *)"{mt, Q, oriented, method, power, Nlin, Nlog, Nevent, Niter}", 11);
 	if (_res) _res = _definepattern(mlp, (char *)"LegendreStable[mt_, Q_, oriented_, operation_, n_, Nevent_, Niter_]", (char *)"{mt, Q, oriented, method, n, Nevent, Niter}", 12);
 	if (_res) _res = _definepattern(mlp, (char *)"ESLegendre[mt_, mb_, mW_, Q_, method_, spin_, decay_, current_,                  Cmin_, Cmax_, n_, Nevent_, Niter_]", (char *)"{mt, mb, mW, Q, method, spin, decay, current, Cmin, Cmax, n, Nevent, Niter}", 13);

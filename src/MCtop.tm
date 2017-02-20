@@ -135,11 +135,12 @@
 
 :Begin:
 :Function:      esdistributions
-:Pattern:       ESDistributions[mt_, mb_, mW_, Q_, method_, spin_, decay_, current_,
-                 Cmin_, Cmax_, Nbins_, Nevent_, Niter_]
-:Arguments:     {mt, mb, mW, Q, method, spin, decay, current, Cmin, Cmax, Nbins, Nevent, Niter}
-:ArgumentTypes: {Real, Real, Real, Real, String, String, String, String, RealList, RealList,
-                 Integer, Integer, Integer}
+:Pattern:       ESDistributions[mt_, mb_, mW_, Q_, method_, spin_, decay_,
+                 current_, Cmin_, Cmax_, Nbins_, Nevent_, Niter_]
+:Arguments:     {mt, mb, mW, Q, method, spin, decay, current, Cmin, Cmax, Nbins,
+                 Nevent, Niter}
+:ArgumentTypes: {Real, Real, Real, Real, String, String, String, String, RealList,
+                 RealList, Integer, Integer, Integer}
 :ReturnType:    Manual
 :End:
 
