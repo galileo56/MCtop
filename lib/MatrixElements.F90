@@ -3,7 +3,7 @@
 
 module MatrixElementsClass
   use Constants, only: dp, Pi, sqrt3; implicit none;  private
-  real (dp), parameter                   :: mth = 0.39307568887871164_dp
+  real (dp), parameter   :: mth = 0.39307568887871164_dp
 
   public :: FourProd, EScomputer, VecProd3, Abs3, MatrixElements, Cparam
 
@@ -929,4 +929,4 @@ module MatrixElementsClass
 
 !ccccccccccccccc
 
-end module
+end module MatrixElementsClass

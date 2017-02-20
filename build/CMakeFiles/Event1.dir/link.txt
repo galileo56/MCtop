@@ -1,1 +1,0 @@
-/usr/local/bin/gfortran    -Waliasing -Wampersand -Wconversion -Wc-binding-type -Wintrinsics-std -Wtabs -Wintrinsic-shadow -Wline-truncation -Wtarget-lifetime -Winteger-division -Wreal-q-constant -Wunused CMakeFiles/Event1.dir/src/Event1.F90.o  -o Event1  lib/liblibMCtop.a libsubdir_mods.a 
