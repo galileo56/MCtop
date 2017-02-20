@@ -67,6 +67,27 @@ install/local/fast: install/local
 
 .PHONY : install/local/fast
 
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+
+.PHONY : list_install_components/fast
+
+# Special rule for the target edit_cache
+edit_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
+	/opt/local/bin/ccmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+.PHONY : edit_cache
+
+# Special rule for the target edit_cache
+edit_cache/fast: edit_cache
+
+.PHONY : edit_cache/fast
+
 # Special rule for the target install/strip
 install/strip: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
@@ -89,27 +110,6 @@ install/fast: preinstall/fast
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
 	/opt/local/bin/cmake -P cmake_install.cmake
 .PHONY : install/fast
-
-# Special rule for the target list_install_components
-list_install_components:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
-.PHONY : list_install_components
-
-# Special rule for the target list_install_components
-list_install_components/fast: list_install_components
-
-.PHONY : list_install_components/fast
-
-# Special rule for the target edit_cache
-edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
-	/opt/local/bin/ccmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
-.PHONY : edit_cache
-
-# Special rule for the target edit_cache
-edit_cache/fast: edit_cache
-
-.PHONY : edit_cache/fast
 
 # Special rule for the target rebuild_cache
 rebuild_cache:
@@ -166,6 +166,19 @@ Stable: cmake_check_build_system
 Stable/fast:
 	$(MAKE) -f CMakeFiles/Stable.dir/build.make CMakeFiles/Stable.dir/build
 .PHONY : Stable/fast
+
+#=============================================================================
+# Target rules for targets named ThrustLegendre
+
+# Build rule for target.
+ThrustLegendre: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 ThrustLegendre
+.PHONY : ThrustLegendre
+
+# fast build rule for target.
+ThrustLegendre/fast:
+	$(MAKE) -f CMakeFiles/ThrustLegendre.dir/build.make CMakeFiles/ThrustLegendre.dir/build
+.PHONY : ThrustLegendre/fast
 
 #=============================================================================
 # Target rules for targets named Unstable
@@ -408,6 +421,33 @@ src/Stable.F90.s:
 	$(MAKE) -f CMakeFiles/Stable.dir/build.make CMakeFiles/Stable.dir/src/Stable.F90.s
 .PHONY : src/Stable.F90.s
 
+src/ThrustLegendre.o: src/ThrustLegendre.F90.o
+
+.PHONY : src/ThrustLegendre.o
+
+# target to build an object file
+src/ThrustLegendre.F90.o:
+	$(MAKE) -f CMakeFiles/ThrustLegendre.dir/build.make CMakeFiles/ThrustLegendre.dir/src/ThrustLegendre.F90.o
+.PHONY : src/ThrustLegendre.F90.o
+
+src/ThrustLegendre.i: src/ThrustLegendre.F90.i
+
+.PHONY : src/ThrustLegendre.i
+
+# target to preprocess a source file
+src/ThrustLegendre.F90.i:
+	$(MAKE) -f CMakeFiles/ThrustLegendre.dir/build.make CMakeFiles/ThrustLegendre.dir/src/ThrustLegendre.F90.i
+.PHONY : src/ThrustLegendre.F90.i
+
+src/ThrustLegendre.s: src/ThrustLegendre.F90.s
+
+.PHONY : src/ThrustLegendre.s
+
+# target to generate assembly for a file
+src/ThrustLegendre.F90.s:
+	$(MAKE) -f CMakeFiles/ThrustLegendre.dir/build.make CMakeFiles/ThrustLegendre.dir/src/ThrustLegendre.F90.s
+.PHONY : src/ThrustLegendre.F90.s
+
 src/Unstable.o: src/Unstable.F90.o
 
 .PHONY : src/Unstable.o
@@ -442,11 +482,12 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... install/local"
+	@echo "... list_install_components"
+	@echo "... edit_cache"
+	@echo "... Stable"
 	@echo "... install/strip"
 	@echo "... install"
-	@echo "... list_install_components"
-	@echo "... Stable"
-	@echo "... edit_cache"
+	@echo "... ThrustLegendre"
 	@echo "... rebuild_cache"
 	@echo "... Unstable"
 	@echo "... MCtop"
@@ -473,6 +514,9 @@ help:
 	@echo "... src/Stable.o"
 	@echo "... src/Stable.i"
 	@echo "... src/Stable.s"
+	@echo "... src/ThrustLegendre.o"
+	@echo "... src/ThrustLegendre.i"
+	@echo "... src/ThrustLegendre.s"
 	@echo "... src/Unstable.o"
 	@echo "... src/Unstable.i"
 	@echo "... src/Unstable.s"

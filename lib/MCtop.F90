@@ -330,8 +330,8 @@ module MCtopClass
 
     do j = 1, self%Niter
 
-      distLin(:,:,2:4:2) = distLin(:,:,2:4:2) + distTot(:,:,:,j,1) * distTot (:,:,:,j,2)
-      distLog(:,:,2:4:2) = distLog(:,:,2:4:2) + distTot(:,:,:,j,2) * distTotL(:,:,:,j,2)
+      distLin(:,:,2:4:2) = distLin(:,:,2:4:2) + distTot (:,:,:,j,1) * distTot (:,:,:,j,2)
+      distLog(:,:,2:4:2) = distLog(:,:,2:4:2) + distTotL(:,:,:,j,2) * distTotL(:,:,:,j,2)
 
       distLin(:,:,3:5:2) = distLin(:,:,3:5:2) + distTot (:,:,:,j,2)
       distLog(:,:,3:5:2) = distLog(:,:,3:5:2) + distTotL(:,:,:,j,2)
@@ -427,9 +427,9 @@ module MCtopClass
     real (dp), dimension(self%Niter, 2)       :: deltaTot
     real (dp), dimension(self%dimX)           :: y
     real (dp)                                 :: AVGI, SD, CHI2A
-    integer                                   :: i, j, n, iter
+    integer                                   :: i, j, iter
 
-    NPRN = - 1; ITMX = 1; NCall = self%Nevent; iter = 1
+    NPRN = - 1; ITMX = 1; NCall = self%Nevent; iter = 1; list = 0; delta = 0
     if (self%dimX <= 3) iter = 0; listTot = 0; deltaTot = 0
 
     do j = 1, self%Niter
@@ -453,6 +453,7 @@ module MCtopClass
 
     end do
 
+
     list  = 0;  listTot(:,:,2) = 1/listTot(:,:,2)**2
     delta = 0;  deltaTot( :,2) = 1/deltaTot( :,2)**2
 
@@ -464,11 +465,14 @@ module MCtopClass
     end do
 
     list(:,2) = 1/list(:,2);  list(:,1) = list(:,1) * list(:,2)
-    list(:,2) = sqrt( list(:,2) )
+    list(:,2) = sqrt( list(:,2) ); delta(2) = 1/delta(2)
     delta(1)  = delta(1) * delta(2); delta(2) = sqrt( delta(2) )
 
-    do i = 0, n
+    list = list/(self%ESmax(1) - self%ESmin(1) )
+
+    do i = 0, m
       list(i,:) = (2 * i + 1) * list(i,:)
+      if (list(i,2) < d1mach(1) ) list(i,:) = 0
     end do
 
   contains
@@ -480,7 +484,7 @@ module MCtopClass
       real (dp)                      , intent(in) :: wgt
       real (dp), dimension(8)                     :: ES
       real (dp)                                   :: ESNorm
-      real (dp), dimension(0:n)                   :: ESLeg
+      real (dp), dimension(0:m)                   :: ESLeg
       real (dp), dimension(self%dimP,4)           :: p
 
       select type (self)
@@ -492,13 +496,11 @@ module MCtopClass
         end select
       end select
 
-      ESNorm = ( ES(1) - self%ESmin(1) )/( self%ESmax(1) - self%ESmin(1) )
-
-      ESLeg = LegendreList(  n, 2 * ESNorm - 1  )
-
-      if ( abs( ES(1) - self%deltaThrust) <= 1e-7_dp ) then
+      if ( abs( ES(1) - self%deltaThrust) <= 1e-10_dp ) then
         delta = delta + wgt * FunMatEl**[1,2]
       else
+        ESNorm = ( ES(1) - self%ESmin(1) )/( self%ESmax(1) - self%ESmin(1) )
+        ESLeg = LegendreList(  m, 2 * ESNorm - 1  )
         list(:,1) = list(:,1) + wgt *  FunMatEl * ESLeg
         list(:,2) = list(:,2) + wgt * (FunMatEl * ESLeg)**2
       end if

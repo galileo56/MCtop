@@ -300,7 +300,7 @@ subroutine f90CparamLegendre(n, mt, mb, mW, Q, expand, method, spin, decay, curr
   integer                    , intent(in)  :: n, Nevent, Niter
   character (len = *)        , intent(in)  :: spin, decay, current, method, expand
   real (dp)                  , intent(in)  :: Cmin, Cmax
-  real (dp), dimension(2,0:n), intent(out) :: list
+  real (dp), dimension(0:n,2), intent(out) :: list
   real (dp), dimension(1,3)                :: list2
   type (MCUnstable)                     :: MC
   class (MatrixUnstable), allocatable      :: MatEl
@@ -332,7 +332,7 @@ subroutine f90VegasThrust(n, mt, mb, mW, Q, method, spin, decay, current, &
   integer                    , intent(in)  :: n, Nevent, Niter
   character (len = *)        , intent(in)  :: spin, decay, current, method
   real (dp)                  , intent(in)  :: Cmin, Cmax
-  real (dp), dimension(2,0:n), intent(out) :: list
+  real (dp), dimension(0:n,2), intent(out) :: list
   real (dp), dimension(2)    , intent(out) :: delta
   type (MCUnstable)                        :: MC
   class (MatrixUnstable), allocatable      :: MatEl

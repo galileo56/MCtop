@@ -54,6 +54,7 @@ set(CMAKE_MAKEFILE_PRODUCTS
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/Stable.dir/DependInfo.cmake"
+  "CMakeFiles/ThrustLegendre.dir/DependInfo.cmake"
   "CMakeFiles/Unstable.dir/DependInfo.cmake"
   "CMakeFiles/MCtop.dir/DependInfo.cmake"
   "CMakeFiles/subdir_mods.dir/DependInfo.cmake"

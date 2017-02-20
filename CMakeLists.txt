@@ -79,14 +79,16 @@ if(Mathematica_MathLink_LIBRARY)
 	add_executable(MCtop src/MCtop.tm.c)
 	target_link_libraries(MCtop libMCtop ${Mathematica_MathLink_LIBRARY} ${M_LIB} ${DL_LIB} ${UUID_LIB} ${RT_LIB})
 
-	add_executable(Stable src/Stable.F90)
-	add_executable(Unstable src/Unstable.F90)
-	target_link_libraries(Stable libMCtop subdir_mods)
-	target_link_libraries(Unstable libMCtop subdir_mods)
-
 	else(Mathematica_MathLink_LIBRARY)
 	message(STATUS "Checking for mathlink library -- not found, proceeding without mathlink")
 endif()
+
+	add_executable(ThrustLegendre src/ThrustLegendre.F90)
+	add_executable(Stable src/Stable.F90)
+	add_executable(Unstable src/Unstable.F90)
+	target_link_libraries(ThrustLegendre libMCtop subdir_mods)
+	target_link_libraries(Stable libMCtop subdir_mods)
+	target_link_libraries(Unstable libMCtop subdir_mods)
 
 ###############
 ## INSTALL
@@ -102,3 +104,4 @@ endif()
 
 install(TARGETS Stable DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 install(TARGETS Unstable DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+install(TARGETS ThrustLegendre DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/bin)
