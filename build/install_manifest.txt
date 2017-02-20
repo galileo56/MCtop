@@ -1,4 +1,0 @@
-/Users/vicent/GitHubProjects/MCtop/bin/MCtop
-/Users/vicent/GitHubProjects/MCtop/bin/Stable
-/Users/vicent/GitHubProjects/MCtop/bin/Unstable
-/Users/vicent/GitHubProjects/MCtop/lib/../lib/liblibMCtop.a
