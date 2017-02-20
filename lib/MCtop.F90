@@ -144,7 +144,7 @@ module MCtopClass
      character (len = *)    , intent(in) :: Spin, current
      integer                , intent(in) :: Nbin, Nevent, Niter
      real (dp), dimension(8), intent(in) :: ESmin, ESmax
-     real (dp), dimension(8)             :: delta, deltaPos
+     real (dp), dimension(8)             :: delta
      integer                             :: i
 
      allocate( InMCtop%ES(Nbin, 8),  InMCtop%ESMin(8), InMCtop%ESMax(8), InMCtop%delta(8) )
@@ -157,13 +157,13 @@ module MCtopClass
        allocate( MatrixElements6 :: InMCtop%MatEl )
        select type (selector => InMCtop%MatEl)
          type is (MatrixElements6);  selector = MatEl
-         deltaPos = MatEl%deltaPos()
+         InMCtop%deltaPos = MatEl%deltaPos()
        end select
      type is (MatrixElements4)
        allocate( MatrixElements4 :: InMCtop%MatEl )
        select type (selector => InMCtop%MatEl)
        type is (MatrixElements4);  selector = MatEl
-         deltaPos = MatEl%deltaPos()
+         InMCtop%deltaPos = MatEl%deltaPos()
        end select
      end select
 
@@ -442,13 +442,14 @@ module MCtopClass
         do i = 1, NCall
           call Random_number(y);  AVGI = AVGI + FunMatEl(y, 1._dp)
         end do
-        AVGI = AVGI/self%Nevent; dist(:,2:) = dist(:,2:)/self%Nevent;  delta = delta/self%Nevent
+        AVGI = AVGI/self%Nevent; dist(:,2:) = dist(:,2:)/self%Nevent
+        delta = delta/self%Nevent
       end if
 
       distTot(:,j,1) = dist(:,2)/self%Delta(1);  deltaTot(j,1) = delta(1)
 
       distTot(:,j,2) = sqrt(  ( dist(:,3)/self%Delta(1)**2 - distTot(:,j,1)**2 )/self%Nevent  )
-      deltaTot( j,2) = sqrt(  ( delta( 2) - deltaTot( j,1)**2 )/self%Nevent  )
+      deltaTot( j,2) = sqrt(  ( delta(2) - deltaTot(j,1)**2 )/self%Nevent  )
 
     end do
 
@@ -458,7 +459,7 @@ module MCtopClass
     do j = 1, self%Niter
       dist(:,2) = dist(:,2) + distTot(:,j,1) * distTot(:,j,2)
       dist(:,3) = dist(:,3) + distTot(:,j,2)
-      delta(1)  = delta(1)  + deltaTot(j, 1) * deltaTot(j, 2)
+      delta(1)  = delta(1)  + deltaTot(j, 2) * deltaTot(j, 1)
       delta(2)  = delta(2)  + deltaTot(j, 2)
     end do
 
