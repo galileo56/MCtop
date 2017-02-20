@@ -23,13 +23,13 @@ module MatrixElementsClass
     private
     real (dp)                            :: mb, mb2, mb4, mW, mW2, mW4, mW6,&
                                             mt6, mt8, mb6, Eb, EW, pb, mW8, &
-                                            deltaThrust
+                                            deltaThrust, deltaHJM, deltaSum
   contains
 
     procedure, pass (self), public       :: CparamMinMax, GenerateVectors, &
                                             SpinWeight, CparamBeta, CparamMaxMin,  &
                                             GenerateRestVectors, GenerateVectors2, &
-                                            SetMasses, deltaThrustPos
+                                            SetMasses, deltaPos
   end type MatrixUnstable
 
 !ccccccccccccccc
@@ -130,7 +130,8 @@ module MatrixElementsClass
     self%Eb  = (self%mt2 + self%mb2 - self%mW2)/2/self%mt
     self%EW  = (self%mt2 + self%mW2 - self%mb2)/2/self%mt
     self%pb  = sqrt(self%Eb**2 - self%mb2); self%sizeES = 8
-    self%deltaThrust = 1 - self%vt
+    self%deltaThrust = 1 - self%vt; self%deltaHJM = self%mt2
+    self%deltaSum = 2 * self%mt2
 
   end subroutine SetMasses
 
@@ -806,12 +807,15 @@ module MatrixElementsClass
 
 !ccccccccccccccc
 
-  real (dp) function deltaThrustPos(self)
+  function deltaPos(self) result(res)
     class (MatrixUnstable) , intent(in) :: self
+    real (dp)            , dimension(8) :: res
 
-    deltaThrustPos = self%deltaThrust
+    res = -1; res(4) = self%deltaSum
 
-  end function deltaThrustPos
+    res(1:2) = [self%deltaThrust, self%deltaHJM ]
+
+  end function deltaPos
 
 !ccccccccccccccc
 

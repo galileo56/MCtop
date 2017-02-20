@@ -144,7 +144,7 @@ module MCtopClass
      character (len = *)    , intent(in) :: Spin, current
      integer                , intent(in) :: Nbin, Nevent, Niter
      real (dp), dimension(8), intent(in) :: ESmin, ESmax
-     real (dp), dimension(8)             :: delta
+     real (dp), dimension(8)             :: delta, deltaPos
      integer                             :: i
 
      allocate( InMCtop%ES(Nbin, 8),  InMCtop%ESMin(8), InMCtop%ESMax(8), InMCtop%delta(8) )
@@ -157,13 +157,13 @@ module MCtopClass
        allocate( MatrixElements6 :: InMCtop%MatEl )
        select type (selector => InMCtop%MatEl)
          type is (MatrixElements6);  selector = MatEl
-         InMCtop%deltaThrust = MatEl%deltaThrustPos()
+         deltaPos = MatEl%deltaPos(); InMCtop%deltaThrust = deltaPos(5)
        end select
      type is (MatrixElements4)
        allocate( MatrixElements4 :: InMCtop%MatEl )
        select type (selector => InMCtop%MatEl)
        type is (MatrixElements4);  selector = MatEl
-       InMCtop%deltaThrust = MatEl%deltaThrustPos()
+         deltaPos = MatEl%deltaPos(); InMCtop%deltaThrust = deltaPos(5)
        end select
      end select
 
@@ -496,7 +496,7 @@ module MCtopClass
         end select
       end select
 
-      if ( abs( ES(1) - self%deltaThrust) <= 1e-10_dp ) then
+      if ( abs( ES(1) - self%deltaThrust) <= 1e-9_dp ) then
         delta = delta + wgt * FunMatEl**[1,2]
       else
         ESNorm = ( ES(1) - self%ESmin(1) )/( self%ESmax(1) - self%ESmin(1) )
