@@ -813,7 +813,7 @@ module MatrixElementsClass
 
     res = -1; res(4) = self%deltaSum
 
-    res(1:2) = [self%deltaThrust, self%deltaHJM ]
+    res(1:2) = [ self%deltaThrust, self%deltaHJM ]
 
   end function deltaPos
 
