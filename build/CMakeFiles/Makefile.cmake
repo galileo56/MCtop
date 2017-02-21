@@ -53,6 +53,7 @@ set(CMAKE_MAKEFILE_PRODUCTS
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
+  "CMakeFiles/ThrustDistro.dir/DependInfo.cmake"
   "CMakeFiles/Stable.dir/DependInfo.cmake"
   "CMakeFiles/ThrustLegendre.dir/DependInfo.cmake"
   "CMakeFiles/Unstable.dir/DependInfo.cmake"

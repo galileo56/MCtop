@@ -1,6 +1,6 @@
 /*
  * This file automatically produced by /Applications/Mathematica.app/Contents/SystemFiles/Links/MathLink/DeveloperKit/MacOSX-x86-64/CompilerAdditions/mprep from:
- *	/Users/vmateu/GitHub/MCtop/src/MCtop.tm
+ *	/Users/vicent/GitHubProjects/MCtop/src/MCtop.tm
  * mprep Revision 18 Copyright (c) Wolfram Research, Inc. 1990-2013
  */
 
@@ -289,7 +289,7 @@ MLYDEFN( devyield_result, MLDefaultYielder, ( MLINK mlp, MLYieldParameters yp))
 /********************************* end header *********************************/
 
 
-# line 355 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm"
+# line 356 "/Users/vicent/GitHubProjects/MCtop/src/MCtop.tm"
 #include "mathlink.h"
 #include "ftypes.h"
 #include <stdio.h>
@@ -846,7 +846,7 @@ static void vectors6(double x[], long clen, double mt, double mb, double mW, dou
 int main(int argc, char *argv[]){
     return MLMain(argc, argv);
 }
-# line 850 "/Users/vmateu/GitHub/MCtop/src/MCtop.tm.c"
+# line 850 "/Users/vicent/GitHubProjects/MCtop/src/MCtop.tm.c"
 
 
 void b1 P(( double _tp1, double _tp2));
@@ -2113,6 +2113,10 @@ static const char* evalstrs[] = {
 	"event, Niter] computes the Legendre expansion and distribution f",
 	"or the C-parameter event shape\"",
 	(const char*)0,
+	"CparamLegendre::usage = \"CparamLegendre[n, mt, mb, mW, Q, expand",
+	", method, Spin, decay, current, Cmin, Cmax, Nevent, Niter] compu",
+	"tes the Legendre expansion for the C-parameter event shape\"",
+	(const char*)0,
 	"LegendreList::usage = \"LegendreList[n, x] computes the of the fi",
 	"rst n + 1 Legendre Polynomial\"",
 	(const char*)0,
@@ -2226,7 +2230,7 @@ static const char* evalstrs[] = {
 	(const char*)0,
 	(const char*)0
 };
-#define CARDOF_EVALSTRS 45
+#define CARDOF_EVALSTRS 46
 
 static int _definepattern P(( MLINK, char*, char*, int));
 
@@ -2285,6 +2289,7 @@ int MLInstall(mlp) MLINK mlp;
 	if (_res) _res = _doevalstr( mlp, 39);
 	if (_res) _res = _doevalstr( mlp, 40);
 	if (_res) _res = _doevalstr( mlp, 41);
+	if (_res) _res = _doevalstr( mlp, 42);
 	if (_res) _res = _definepattern(mlp, (char *)"B1[m_, Q_]", (char *)"{m, Q}", 0);
 	if (_res) _res = _definepattern(mlp, (char *)"EShape[m_, Q_, h1_, h2_]", (char *)"{m, Q, h1, h2}", 1);
 	if (_res) _res = _definepattern(mlp, (char *)"ESMin[m_, Q_]", (char *)"{m, Q}", 2);
@@ -2320,9 +2325,9 @@ int MLInstall(mlp) MLINK mlp;
 	if (_res) _res = _definepattern(mlp, (char *)"Vectors6[x_, mt_, mb_, mW_, Q_]", (char *)"{x, mt, mb, mW, Q}", 32);
 	if (_res) _res = _definepattern(mlp, (char *)"RestVectors4[x_, mt_, mb_, mW_, Q_]", (char *)"{x, mt, mb, mW, Q}", 33);
 	if (_res) _res = _definepattern(mlp, (char *)"RestVectors6[x_, mt_, mb_, mW_, Q_]", (char *)"{x, mt, mb, mW, Q}", 34);
-	if (_res) _res = _doevalstr( mlp, 42);
 	if (_res) _res = _doevalstr( mlp, 43);
 	if (_res) _res = _doevalstr( mlp, 44);
+	if (_res) _res = _doevalstr( mlp, 45);
 	if (_res) _res = MLPutSymbol( mlp, "End");
 	if (_res) _res = MLFlush( mlp);
 	return _res;

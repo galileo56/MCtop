@@ -48,24 +48,24 @@ RM = /opt/local/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/vmateu/GitHub/MCtop
+CMAKE_SOURCE_DIR = /Users/vicent/GitHubProjects/MCtop
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/vmateu/GitHub/MCtop/build
+CMAKE_BINARY_DIR = /Users/vicent/GitHubProjects/MCtop/build
 
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target install/local
-install/local: preinstall
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
-	/opt/local/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
-.PHONY : install/local
+# Special rule for the target install/strip
+install/strip: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
+	/opt/local/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip
 
-# Special rule for the target install/local
-install/local/fast: install/local
+# Special rule for the target install/strip
+install/strip/fast: install/strip
 
-.PHONY : install/local/fast
+.PHONY : install/strip/fast
 
 # Special rule for the target list_install_components
 list_install_components:
@@ -88,16 +88,27 @@ edit_cache/fast: edit_cache
 
 .PHONY : edit_cache/fast
 
-# Special rule for the target install/strip
-install/strip: preinstall
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
-	/opt/local/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
-.PHONY : install/strip
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/opt/local/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
 
-# Special rule for the target install/strip
-install/strip/fast: install/strip
+# Special rule for the target install/local
+install/local/fast: install/local
 
-.PHONY : install/strip/fast
+.PHONY : install/local/fast
+
+# Special rule for the target rebuild_cache
+rebuild_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
+	/opt/local/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+.PHONY : rebuild_cache
+
+# Special rule for the target rebuild_cache
+rebuild_cache/fast: rebuild_cache
+
+.PHONY : rebuild_cache/fast
 
 # Special rule for the target install
 install: preinstall
@@ -111,22 +122,11 @@ install/fast: preinstall/fast
 	/opt/local/bin/cmake -P cmake_install.cmake
 .PHONY : install/fast
 
-# Special rule for the target rebuild_cache
-rebuild_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	/opt/local/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
-.PHONY : rebuild_cache
-
-# Special rule for the target rebuild_cache
-rebuild_cache/fast: rebuild_cache
-
-.PHONY : rebuild_cache/fast
-
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/vmateu/GitHub/MCtop/build/CMakeFiles /Users/vmateu/GitHub/MCtop/build/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/vicent/GitHubProjects/MCtop/build/CMakeFiles /Users/vicent/GitHubProjects/MCtop/build/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/vmateu/GitHub/MCtop/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/vicent/GitHubProjects/MCtop/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -153,6 +153,19 @@ preinstall/fast:
 depend:
 	$(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
+
+#=============================================================================
+# Target rules for targets named ThrustDistro
+
+# Build rule for target.
+ThrustDistro: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 ThrustDistro
+.PHONY : ThrustDistro
+
+# fast build rule for target.
+ThrustDistro/fast:
+	$(MAKE) -f CMakeFiles/ThrustDistro.dir/build.make CMakeFiles/ThrustDistro.dir/build
+.PHONY : ThrustDistro/fast
 
 #=============================================================================
 # Target rules for targets named Stable
@@ -421,6 +434,33 @@ src/Stable.F90.s:
 	$(MAKE) -f CMakeFiles/Stable.dir/build.make CMakeFiles/Stable.dir/src/Stable.F90.s
 .PHONY : src/Stable.F90.s
 
+src/ThrustDistro.o: src/ThrustDistro.F90.o
+
+.PHONY : src/ThrustDistro.o
+
+# target to build an object file
+src/ThrustDistro.F90.o:
+	$(MAKE) -f CMakeFiles/ThrustDistro.dir/build.make CMakeFiles/ThrustDistro.dir/src/ThrustDistro.F90.o
+.PHONY : src/ThrustDistro.F90.o
+
+src/ThrustDistro.i: src/ThrustDistro.F90.i
+
+.PHONY : src/ThrustDistro.i
+
+# target to preprocess a source file
+src/ThrustDistro.F90.i:
+	$(MAKE) -f CMakeFiles/ThrustDistro.dir/build.make CMakeFiles/ThrustDistro.dir/src/ThrustDistro.F90.i
+.PHONY : src/ThrustDistro.F90.i
+
+src/ThrustDistro.s: src/ThrustDistro.F90.s
+
+.PHONY : src/ThrustDistro.s
+
+# target to generate assembly for a file
+src/ThrustDistro.F90.s:
+	$(MAKE) -f CMakeFiles/ThrustDistro.dir/build.make CMakeFiles/ThrustDistro.dir/src/ThrustDistro.F90.s
+.PHONY : src/ThrustDistro.F90.s
+
 src/ThrustLegendre.o: src/ThrustLegendre.F90.o
 
 .PHONY : src/ThrustLegendre.o
@@ -481,14 +521,15 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... install/local"
+	@echo "... install/strip"
 	@echo "... list_install_components"
 	@echo "... edit_cache"
+	@echo "... install/local"
+	@echo "... ThrustDistro"
+	@echo "... rebuild_cache"
 	@echo "... Stable"
-	@echo "... install/strip"
 	@echo "... install"
 	@echo "... ThrustLegendre"
-	@echo "... rebuild_cache"
 	@echo "... Unstable"
 	@echo "... MCtop"
 	@echo "... subdir_mods"
@@ -514,6 +555,9 @@ help:
 	@echo "... src/Stable.o"
 	@echo "... src/Stable.i"
 	@echo "... src/Stable.s"
+	@echo "... src/ThrustDistro.o"
+	@echo "... src/ThrustDistro.i"
+	@echo "... src/ThrustDistro.s"
 	@echo "... src/ThrustLegendre.o"
 	@echo "... src/ThrustLegendre.i"
 	@echo "... src/ThrustLegendre.s"

@@ -86,9 +86,11 @@ endif()
 	add_executable(ThrustLegendre src/ThrustLegendre.F90)
 	add_executable(Stable src/Stable.F90)
 	add_executable(Unstable src/Unstable.F90)
+	add_executable(ThrustDistro src/ThrustDistro.F90)
 	target_link_libraries(ThrustLegendre libMCtop subdir_mods)
 	target_link_libraries(Stable libMCtop subdir_mods)
 	target_link_libraries(Unstable libMCtop subdir_mods)
+	target_link_libraries(ThrustDistro libMCtop subdir_mods)
 
 ###############
 ## INSTALL
@@ -105,3 +107,4 @@ endif()
 install(TARGETS Stable DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 install(TARGETS Unstable DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 install(TARGETS ThrustLegendre DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+install(TARGETS ThrustDistro DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/bin)

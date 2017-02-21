@@ -18,9 +18,9 @@ program ThrustLegendre
   call f90VegasThrust(n, mt, mb, mW, Q, method, spin, 'unstable', current, &
   0._dp, Tmax, Nevent, Niter, list, delta)
 
-  print*, 'delta coefficient'; print*,
+  print*, ; print*, 'delta coefficient'; print*,
 
-  write( *, '(2F18.6)' ) delta; print*, 'Legendre coefficients'; print*,
+  write( *, '(2F18.6)' ) delta; print*; print*,  'Legendre coefficients'; print*,
 
   do i = 0, n
     write( *, '(I2,2F18.6)' ) i, list(i,:)
