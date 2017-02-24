@@ -20,23 +20,23 @@ sys/types.h
 sys/types.h
 -
 
-/Users/vicent/GitHubProjects/MCtop/src/MCtop.tm.c
+/Users/vmateu/GitHub/MCtop/src/MCtop.tm.c
 Carbon/Carbon.h
 -
 mathlink/mathlink.h
 -
 mathlink.h
-/Users/vicent/GitHubProjects/MCtop/src/mathlink.h
+/Users/vmateu/GitHub/MCtop/src/mathlink.h
 mathlink.h
-/Users/vicent/GitHubProjects/MCtop/src/mathlink.h
+/Users/vmateu/GitHub/MCtop/src/mathlink.h
 ftypes.h
-/Users/vicent/GitHubProjects/MCtop/src/ftypes.h
+/Users/vmateu/GitHub/MCtop/src/ftypes.h
 stdio.h
 -
 unistd.h
 -
 
-/Users/vicent/GitHubProjects/MCtop/src/ftypes.h
+/Users/vmateu/GitHub/MCtop/src/ftypes.h
 complex
 -
 
