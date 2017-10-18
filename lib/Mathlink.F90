@@ -2,7 +2,7 @@
 !ccccccccccccccc
 
 subroutine f90StableDistributions(mt, Q, oriented, method, power, Nlin, Nlog, &
-                                  Nevent, Niter, listLin, listLog)
+Nevent, Niter, listLin, listLog)
   use constants, only: dp; use MatrixElementsClass; use MCtopClass; implicit none
   real (dp)                        , intent(in)  :: mt, Q
   integer                          , intent(in)  :: Nlin, Nlog, Nevent, Niter, power
@@ -162,15 +162,16 @@ subroutine f90CparamList(mt, mb, mW, Q, Cmin, Cmax, Nbins, list)
 
   MatEl = MatrixElements4(mt, mb, mW, Q)
   MC    = MCUnstable(MatEl, 'uncorr', 'vector', [1,1,1,1,1,1,1,1] * Cmin, &
-                [1,1,1,1,1,1,1,1] * Cmax, Nbins, 0, 0)
+  [1,1,1,1,1,1,1,1] * Cmax, Nbins, 0, 0)
+
   list  = MC%Cparamlist()
 
 end subroutine f90CparamList
 
 !ccccccccccccccc
 
-subroutine f90ESDistributions(mt, mb, mW, Q, method, Spin, decay, current, ESmin, &
-                              ESmax, Nbins, Nevent, Niter, list)
+subroutine f90ESDistributions(mt, mb, mW, Q, method, Spin, decay, current, &
+ESmin, ESmax, Nbins, Nevent, Niter, list)
   use constants, only: dp; use MatrixElementsClass; use MCtopClass; implicit none
   real (dp)                        , intent(in)  :: mt, mW, mb, Q
   integer                          , intent(in)  :: Nbins, Nevent, Niter
@@ -200,7 +201,7 @@ end subroutine f90ESDistributions
 !ccccccccccccccc
 
 subroutine f90ESLegendre(mt, mb, mW, Q, method, Spin, decay, current, ESmin, &
-                         ESmax, n, Nevent, Niter, list)
+ESmax, n, Nevent, Niter, list)
   use constants, only: dp; use MatrixElementsClass; use MCtopClass; implicit none
   real (dp)                        , intent(in)  :: mt, mW, mb, Q
   integer                          , intent(in)  :: n, Nevent, Niter
@@ -208,7 +209,7 @@ subroutine f90ESLegendre(mt, mb, mW, Q, method, Spin, decay, current, ESmin, &
   real (dp), dimension(8)          , intent(in)  :: ESmin, ESmax
   real (dp), dimension(0:n, 8, 2)  , intent(out) :: list
   real (dp), dimension(1  , 8, 3)                :: list2
-  type (MCUnstable)                           :: MC
+  type (MCUnstable)                              :: MC
   class (MatrixUnstable), allocatable            :: MatEl
 
   if ( decay(:6) == 'stable') then
@@ -223,15 +224,15 @@ subroutine f90ESLegendre(mt, mb, mW, Q, method, Spin, decay, current, ESmin, &
     end select
   end if
 
-  MC   = MCUnstable(MatEl, Spin(:8), current(:8), ESmin, ESmax, 1, Nevent, Niter)
+  MC = MCUnstable(MatEl, Spin(:8), current(:8), ESmin, ESmax, 1, Nevent, Niter)
   call MC%callVegas( n, method(:5), list2, list )
 
 end subroutine f90ESLegendre
 
 !ccccccccccccccc
 
-subroutine f90CparamDistribution(mt, mb, mW, Q, expand, method, spin, decay, current, &
-                                 Cmin, Cmax, Nbins, Nevent, Niter, list)
+subroutine f90CparamDistribution(mt, mb, mW, Q, expand, method, spin, decay, &
+current, Cmin, Cmax, Nbins, Nevent, Niter, list)
   use constants, only: dp; use MatrixElementsClass; use MCtopClass; implicit none
   real (dp)                     , intent(in)  :: mt, mW, mb, Q
   integer                       , intent(in)  :: Nbins, Nevent, Niter
@@ -253,16 +254,17 @@ subroutine f90CparamDistribution(mt, mb, mW, Q, expand, method, spin, decay, cur
     end select
   end if
 
-  MC   = MCUnstable(MatEl, spin(:8), current(:8), [1,1,1,1,1,1,1,1] * Cmin, &
-               [1,1,1,1,1,1,1,1] * Cmax, Nbins, Nevent, Niter)
+  MC = MCUnstable(MatEl, spin(:8), current(:8), [1,1,1,1,1,1,1,1] * Cmin, &
+  [1,1,1,1,1,1,1,1] * Cmax, Nbins, Nevent, Niter)
+
   list = MC%ListCparam( expand(:6), method(:5) )
 
 end subroutine f90CparamDistribution
 
 !ccccccccccccccc
 
-subroutine f90CparamLegendreDistro(mt, mb, mW, Q, expand, method, spin, decay, current, &
-                                 Cmin, Cmax, n, Nbins, Nevent, Niter, list, list2)
+subroutine f90CparamLegendreDistro(mt, mb, mW, Q, expand, method, spin, decay, &
+current, Cmin, Cmax, n, Nbins, Nevent, Niter, list, list2)
   use constants, only: dp; use MatrixElementsClass; use MCtopClass; implicit none
   real (dp)                     , intent(in)  :: mt, mW, mb, Q
   integer                       , intent(in)  :: Nbins, Nevent, Niter, n
@@ -285,16 +287,17 @@ subroutine f90CparamLegendreDistro(mt, mb, mW, Q, expand, method, spin, decay, c
     end select
   end if
 
-  MC   = MCUnstable(MatEl, spin(:8), current(:8), [1,1,1,1,1,1,1,1] * Cmin, &
-               [1,1,1,1,1,1,1,1] * Cmax, Nbins, Nevent, Niter)
+  MC = MCUnstable(MatEl, spin(:8), current(:8), [1,1,1,1,1,1,1,1] * Cmin, &
+  [1,1,1,1,1,1,1,1] * Cmax, Nbins, Nevent, Niter)
+
   call MC%callVegasCparam( n, expand(:6), method(:5), list, list2 )
 
 end subroutine f90CparamLegendreDistro
 
 !ccccccccccccccc
 
-subroutine f90CparamLegendre(n, mt, mb, mW, Q, expand, method, spin, decay, current, &
-                             Cmin, Cmax, Nevent, Niter, list)
+subroutine f90CparamLegendre(n, mt, mb, mW, Q, expand, method, spin, decay, &
+current, Cmin, Cmax, Nevent, Niter, list)
   use constants, only: dp; use MatrixElementsClass; use MCtopClass; implicit none
   real (dp)                  , intent(in)  :: mt, mW, mb, Q
   integer                    , intent(in)  :: n, Nevent, Niter
@@ -317,8 +320,9 @@ subroutine f90CparamLegendre(n, mt, mb, mW, Q, expand, method, spin, decay, curr
     end select
   end if
 
-  MC   = MCUnstable(MatEl, spin(:8), current(:8), [1,1,1,1,1,1,1,1] * Cmin, &
-               [1,1,1,1,1,1,1,1] * Cmax, 1, Nevent, Niter)
+  MC = MCUnstable(MatEl, spin(:8), current(:8), [1,1,1,1,1,1,1,1] * Cmin, &
+  [1,1,1,1,1,1,1,1] * Cmax, 1, Nevent, Niter)
+
   call MC%callVegasCparam( n, expand(:6), method(:5), list2, list )
 
 end subroutine f90CparamLegendre
@@ -326,7 +330,7 @@ end subroutine f90CparamLegendre
 !ccccccccccccccc
 
 subroutine f90VegasThrust(n, mt, mb, mW, Q, method, spin, decay, current, &
-                             Cmin, Cmax, Nevent, Niter, list, delta)
+Cmin, Cmax, Nevent, Niter, list, delta)
   use constants, only: dp; use MatrixElementsClass; use MCtopClass; implicit none
   real (dp)                  , intent(in)  :: mt, mW, mb, Q
   integer                    , intent(in)  :: n, Nevent, Niter
@@ -349,8 +353,9 @@ subroutine f90VegasThrust(n, mt, mb, mW, Q, method, spin, decay, current, &
     end select
   end if
 
-  MC   = MCUnstable(MatEl, spin(:8), current(:8), [1,1,1,1,1,1,1,1] * Cmin, &
-               [1,1,1,1,1,1,1,1] * Cmax, 1, Nevent, Niter)
+  MC = MCUnstable(MatEl, spin(:8), current(:8), [1,1,1,1,1,1,1,1] * Cmin, &
+  [1,1,1,1,1,1,1,1] * Cmax, 1, Nevent, Niter)
+
   call MC%callVegasThrust( n, method(:5), list, delta )
 
 end subroutine f90VegasThrust
@@ -381,8 +386,9 @@ subroutine f90DistroThrust(mt, mb, mW, Q, method, spin, decay, current, Cmin, &
     end select
   end if
 
-  MC   = MCUnstable(MatEl, spin(:8), current(:8), [1,1,1,1,1,1,1,1] * Cmin, &
-               [1,1,1,1,1,1,1,1] * Cmax, Nbins, Nevent, Niter)
+  MC = MCUnstable(MatEl, spin(:8), current(:8), [1,1,1,1,1,1,1,1] * Cmin, &
+  [1,1,1,1,1,1,1,1] * Cmax, Nbins, Nevent, Niter)
+
   call MC%DistroThrust( method(:5), list, delta )
 
 end subroutine f90DistroThrust

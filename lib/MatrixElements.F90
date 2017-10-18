@@ -19,17 +19,18 @@ module MatrixElementsClass
 
   end type MatrixElements
 
+!ccccccccccccccc
+
   type, extends(MatrixElements), public, abstract   ::  MatrixUnstable
     private
     real (dp)                            :: mb, mb2, mb4, mW, mW2, mW4, mW6,&
-                                            mt6, mt8, mb6, Eb, EW, pb, mW8, &
-                                            deltaThrust, deltaHJM, deltaSum
+    mt6, mt8, mb6, Eb, EW, pb, mW8, deltaThrust, deltaHJM, deltaSum
   contains
 
     procedure, pass (self), public       :: CparamMinMax, GenerateVectors, &
-                                            SpinWeight, CparamBeta, CparamMaxMin,  &
-                                            GenerateRestVectors, GenerateVectors2, &
-                                            SetMasses, deltaPos
+    SpinWeight, CparamMaxMin, GenerateRestVectors, GenerateVectors2, &
+    SetMasses, CparamBeta, deltaPos
+
   end type MatrixUnstable
 
 !ccccccccccccccc

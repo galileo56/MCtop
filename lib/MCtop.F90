@@ -37,13 +37,14 @@ module MCtopClass
   contains
 
     final                                           :: delete_object
-    procedure, public, pass (self)                  :: callVegasCparam, CparamList, &
-                         ListCparam, callVegasThrust, callVegasDelta, DistroThrust
+    procedure, public, pass (self)                  :: callVegasCparam, &
+    CparamList, ListCparam, callVegasThrust, callVegasDelta, DistroThrust
+
   end type MCUnstable
 
 !ccccccccccccccc
 
-  type, extends (MCtop), public :: MCStable
+  type, extends (MCtop), public                     :: MCStable
     private
     integer                  , private              :: Nlog
     real (dp), dimension(:,:), private, allocatable :: ESlog
@@ -74,30 +75,30 @@ module MCtopClass
 
 !ccccccccccccccc
 
-   subroutine delete_object(this)
-     type (MCUnstable) :: this
+  subroutine delete_object(this)
+    type (MCUnstable) :: this
 
-     if ( allocated(this%ES   ) ) deallocate(this%ES   )
-     if ( allocated(this%ESMin) ) deallocate(this%ESMin)
-     if ( allocated(this%ESMax) ) deallocate(this%ESMax)
-     if ( allocated(this%MatEl) ) deallocate(this%MatEl)
-     if ( allocated(this%delta) ) deallocate(this%delta)
+    if ( allocated(this%ES   ) ) deallocate(this%ES   )
+    if ( allocated(this%ESMin) ) deallocate(this%ESMin)
+    if ( allocated(this%ESMax) ) deallocate(this%ESMax)
+    if ( allocated(this%MatEl) ) deallocate(this%MatEl)
+    if ( allocated(this%delta) ) deallocate(this%delta)
 
-   end subroutine delete_object
+  end subroutine delete_object
 
 !ccccccccccccccc
 
-   subroutine delete_stable(this)
-     type (MCStable) :: this
+  subroutine delete_stable(this)
+    type (MCStable) :: this
 
-     if ( allocated(this%ES   ) ) deallocate(this%ES   )
-     if ( allocated(this%ESMin) ) deallocate(this%ESMin)
-     if ( allocated(this%ESMax) ) deallocate(this%ESMax)
-     if ( allocated(this%MatEl) ) deallocate(this%MatEl)
-     if ( allocated(this%delta) ) deallocate(this%delta)
-     if ( allocated(this%ESlog) ) deallocate(this%ESlog)
+    if ( allocated(this%ES   ) ) deallocate(this%ES   )
+    if ( allocated(this%ESMin) ) deallocate(this%ESMin)
+    if ( allocated(this%ESMax) ) deallocate(this%ESMax)
+    if ( allocated(this%MatEl) ) deallocate(this%MatEl)
+    if ( allocated(this%delta) ) deallocate(this%delta)
+    if ( allocated(this%ESlog) ) deallocate(this%ESlog)
 
-   end subroutine delete_stable
+  end subroutine delete_stable
 
 !ccccccccccccccc
 
@@ -210,8 +211,8 @@ module MCtopClass
 
       do i = 1, 16
 
-        listTot(:,i,j,1:3:2)  = list(:,i,1:3:2)
-        listTot(:,i,j,2:4:2)  = sqrt(  ( list(:,i,2:4:2) - listTot(:,i,j,1:3:2)**2 )/self%Nevent  )
+        listTot(:,i,j,1:3:2) = list(:,i,1:3:2)
+        listTot(:,i,j,2:4:2) = sqrt(  ( list(:,i,2:4:2) - listTot(:,i,j,1:3:2)**2 )/self%Nevent  )
 
       end do
     end do
